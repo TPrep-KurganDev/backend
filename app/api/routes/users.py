@@ -28,7 +28,7 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-@router.post("/register", response_model=UserOut)
+@router.post("/auth/register", response_model=UserOut)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     existing = db.query(User).filter(user.login == User.login).first()
     if existing:
@@ -36,8 +36,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     new_user = User(
         login=user.login,
-        name=user.name,
-        surname=user.surname,
+        user_name = user.user_name,
         password_hash=hash_password(user.password)
     )
     db.add(new_user)
@@ -46,7 +45,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 
-@router.post("/login")
+@router.post("/auth/login")
 def login_user(form_data: UserCreate, db: Session = Depends(get_db)):
     user = db.query(User).filter(form_data.login == User.login).first()
     if not user or not verify_password(form_data.password, user.password_hash):

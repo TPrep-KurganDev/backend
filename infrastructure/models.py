@@ -8,8 +8,7 @@ class User(Base):
 
     id = Column(BigInteger, primary_key=True, index=True)
     login = Column(String(255), unique=True, nullable=False, index=True)
-    name = Column(String(255), nullable=False)
-    surname = Column(String(255), nullable=False)
+    user_name = Column(String(255), nullable=False)
     password_hash = Column(String(255), nullable=False)
 
     pinned_exams = relationship("UserPinnedExam", back_populates="user")
