@@ -14,7 +14,7 @@ class UserOut(UserBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Token(BaseModel):
@@ -33,7 +33,7 @@ class ExamOut(ExamBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CardBase(BaseModel):
     question: str
@@ -49,11 +49,11 @@ class CardOut(CardBase):
     exam_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserExamLink(BaseModel):
     user_id: int
     exam_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
