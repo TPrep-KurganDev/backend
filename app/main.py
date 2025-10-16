@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from app.api.routes.users import router as api_router
 from infrastructure.models import Base
-from infrastructure.database import engine
-
+from infrastructure.database import engine, SessionLocal
+from mocks.mock_users import create_mock_users
 
 app = FastAPI(
 title="Backend API",
@@ -12,11 +12,17 @@ openapi_url="/api/openapi.json",
 )
 
 #Проверить запуск uvicorn app.main:app --reload
-#Пока что для запуска, делаем DATABASE_URL = sqlite:///./test.db
 
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
+
+    # Замоканые пользователи
+    # Не забывать чистить бд. Можно запустить helpers/clear_db.py
+
+    db = SessionLocal()
+    create_mock_users(db)
+    db.close()
 
 @app.get("/health", tags=["health"])
 async def health() -> dict:
