@@ -57,12 +57,12 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/auth/login", response_model=Token)
-def login_user(form_data: UserCreate, db: Session = Depends(get_db)):
-    user = db.query(User).filter(form_data.email == User.email).first()
+def login_user(form_data: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == form_data.email).first()
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Wrong login or password")
 
-    token = create_access_token({"sub": user.email})
+    token = create_access_token({"sub": user.id})
     return Token(
         access_token=token,
         token_type="bearer"

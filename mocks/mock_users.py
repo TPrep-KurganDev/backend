@@ -6,17 +6,17 @@ from app.api.routes.auth import hash_password
 def create_mock_users(db: Session):
     users = [
         User(
-            login = "admin",
+            email = "admin@test.com",
             user_name = "Test Name 1",
             password_hash = hash_password("testAdmin")
         ),
         User(
-            login = "user1",
+            email = "user1@test.com",
             user_name = "Test Name 2",
             password_hash = hash_password("testUser1")
         ),
         User(
-            login = "user2",
+            email = "user2@test.com",
             user_name = "Test Name 3",
             password_hash = hash_password("testUser2")
         ),

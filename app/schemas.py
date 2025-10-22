@@ -17,6 +17,11 @@ class UserOut(UserBase):
         from_attributes = True
 
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

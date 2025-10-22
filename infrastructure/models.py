@@ -1,39 +1,52 @@
-from sqlalchemy import Column, BigInteger, String, ForeignKey, Index, VARCHAR
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR
+from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
+
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(BigInteger, primary_key=True, index=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    user_name = Column(String(255), nullable=False)
-    password_hash = Column(String(255), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
+    user_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    pinned_exams = relationship("UserPinnedExam", back_populates="user")
-    created_exams = relationship("UserCreatedExam", back_populates="user")
+    pinned_exams: Mapped[list["UserPinnedExam"]] = relationship(
+        "UserPinnedExam", back_populates="user", cascade="all, delete-orphan"
+    )
+    created_exams: Mapped[list["UserCreatedExam"]] = relationship(
+        "UserCreatedExam", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Exam(Base):
     __tablename__ = "exams"
 
-    id = Column(BigInteger, primary_key=True, index=True)
-    title = Column(String(255), nullable=False)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    cards = relationship("Card", back_populates="exam")
-    pinned_by = relationship("UserPinnedExam", back_populates="exam")
-    created_by = relationship("UserCreatedExam", back_populates="exam")
+    cards: Mapped[list["Card"]] = relationship(
+        "Card", back_populates="exam", cascade="all, delete-orphan"
+    )
+    pinned_by: Mapped[list["UserPinnedExam"]] = relationship(
+        "UserPinnedExam", back_populates="exam", cascade="all, delete-orphan"
+    )
+    created_by: Mapped[list["UserCreatedExam"]] = relationship(
+        "UserCreatedExam", back_populates="exam", cascade="all, delete-orphan"
+    )
 
 
 class UserPinnedExam(Base):
     __tablename__ = "user_pinned_exams"
 
-    user_id = Column(BigInteger, ForeignKey("users.id"), primary_key=True, index=True)
-    exam_id = Column(BigInteger, ForeignKey("exams.id"), primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"), primary_key=True, index=True)
+    exam_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("exams.id"), primary_key=True, index=True)
 
-    user = relationship("User", back_populates="pinned_exams")
-    exam = relationship("Exam", back_populates="pinned_by")
+    user: Mapped["User"] = relationship("User", back_populates="pinned_exams")
+    exam: Mapped["Exam"] = relationship("Exam", back_populates="pinned_by")
 
     __table_args__ = (
         Index("idx_user_pinned_user_id", "user_id"),
@@ -43,11 +56,11 @@ class UserPinnedExam(Base):
 class UserCreatedExam(Base):
     __tablename__ = "user_created_exams"
 
-    user_id = Column(BigInteger, ForeignKey("users.id"), primary_key=True, index=True)
-    exam_id = Column(BigInteger, ForeignKey("exams.id"), primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"), primary_key=True, index=True)
+    exam_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("exams.id"), primary_key=True, index=True)
 
-    user = relationship("User", back_populates="created_exams")
-    exam = relationship("Exam", back_populates="created_by")
+    user: Mapped["User"] = relationship("User", back_populates="created_exams")
+    exam: Mapped["Exam"] = relationship("Exam", back_populates="created_by")
 
     __table_args__ = (
         Index("idx_user_created_user_id", "user_id"),
@@ -57,12 +70,12 @@ class UserCreatedExam(Base):
 class Card(Base):
     __tablename__ = "cards"
 
-    number = Column(BigInteger, primary_key=True, index=True)
-    exam_id = Column(BigInteger, ForeignKey("exams.id"), nullable=False, index=True)
-    question = Column(VARCHAR(500), nullable=False)
-    answer = Column(VARCHAR(500), nullable=False)
+    number: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    exam_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("exams.id"), nullable=False, index=True)
+    question: Mapped[str] = mapped_column(VARCHAR(500), nullable=False)
+    answer: Mapped[str] = mapped_column(VARCHAR(500), nullable=False)
 
-    exam = relationship("Exam", back_populates="cards")
+    exam: Mapped["Exam"] = relationship("Exam", back_populates="cards")
 
     __table_args__ = (
         Index("idx_cards_exam_id", "exam_id"),
