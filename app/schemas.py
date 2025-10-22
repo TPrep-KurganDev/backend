@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
-    login: str
+    email: EmailStr
     user_name: str
 
 
@@ -19,6 +19,14 @@ class UserOut(UserBase):
 
 class Token(BaseModel):
     access_token: str
+    token_type: str
+
+class RefreshRequest(BaseModel):
+    refreshToken: str
+
+class AccessTokenResponse(BaseModel):
+    accessToken: str
+    expiresIn: int
     token_type: str
 
 class ExamBase(BaseModel):

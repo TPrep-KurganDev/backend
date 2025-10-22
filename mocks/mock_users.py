@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from infrastructure.models import User
-from app.api.routes.users import hash_password
+from app.api.routes.auth import hash_password
 
 
 def create_mock_users(db: Session):

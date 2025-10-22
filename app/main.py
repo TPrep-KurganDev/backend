@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes.users import router as api_router
+from app.api.routes.auth import router as api_router
 from infrastructure.models import Base
 from infrastructure.database import engine, SessionLocal
 from mocks.mock_users import create_mock_users
