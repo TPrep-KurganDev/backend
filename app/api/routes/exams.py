@@ -19,7 +19,8 @@ def get_current_user(authorization: str = Header(...)):
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")
         return user_id
-    except JWTError:
+    except JWTError as e:
+        print(f"Authentication failed. Error: {e}")
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 

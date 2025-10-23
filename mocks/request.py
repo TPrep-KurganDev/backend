@@ -44,12 +44,12 @@ def create_exam(token: str, title: str = "Auto Exam"):
     return r.json()
 
 
-def main():
+def do_request():
     print("Logging in...")
     token = get_access_token(ADMIN_EMAIL, ADMIN_PASSWORD)
     if not token:
         print("Aborting due to login failure.")
-        sys.exit(1)
+        return
 
     print("Login successful. Token:", token)
 
@@ -57,11 +57,11 @@ def main():
     exam = create_exam(token, title="My Test Exam")
     if exam is None:
         print("Exam creation failed.")
-        sys.exit(1)
+        return
 
     print("Exam created successfully:")
     print(exam)
 
 
 if __name__ == "__main__":
-    main()
+    do_request()

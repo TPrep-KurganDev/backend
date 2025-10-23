@@ -34,7 +34,7 @@ def verify_refresh_token(token: str):
         user_id: str = payload.get("sub")
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid refresh token")
-        return {"sub": user_id}
+        return {"sub": str(user_id)}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
 
@@ -62,7 +62,7 @@ def login_user(form_data: LoginRequest, db: Session = Depends(get_db)):
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Wrong login or password")
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return Token(
         access_token=token,
         token_type="bearer"
@@ -73,7 +73,7 @@ def login_user(form_data: LoginRequest, db: Session = Depends(get_db)):
 def refresh_access_token(request: RefreshRequest):
     token_data = verify_refresh_token(request.refreshToken)
 
-    access_token = create_access_token({"sub": token_data["sub"]})
+    access_token = create_access_token({"sub": str(token_data["sub"])})
 
     return AccessTokenResponse(
         accessToken=access_token,

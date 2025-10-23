@@ -1,13 +1,16 @@
 from infrastructure.database import SessionLocal
 from infrastructure.models import User
 
-db = SessionLocal()
+def clear_db():
+    db = SessionLocal()
+    try:
+        db.query(User).delete()
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Error in delete: {e}")
+    finally:
+        db.close()
 
-try:
-    db.query(User).delete()
-    db.commit()
-except Exception as e:
-    db.rollback()
-    print(f"Error in delete: {e}")
-finally:
-    db.close()
+if __name__ == "__main__":
+    clear_db()
