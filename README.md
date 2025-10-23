@@ -1,1 +1,4 @@
-# backend
+# Stack
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
