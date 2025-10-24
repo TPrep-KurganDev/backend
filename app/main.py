@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 from app.api.routes.auth import router as api_router
 from app.api.routes.exams import router as exams_router
 from infrastructure.exceptions.exam_not_found import ExamNotFound
+from infrastructure.exceptions.invalid_authorization_header import InvalidAuthorizationHeader
+from infrastructure.exceptions.invalid_or_expired_token import InvalidOrExpiredToken
 from infrastructure.exceptions.user_already_exists import UserAlreadyExists
 from infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
 from infrastructure.exceptions.user_not_found import UserNotFound
@@ -23,6 +25,8 @@ APP_ERRORS = {
     UserIsNotCreator: status.HTTP_403_FORBIDDEN,
     UserNotFound: status.HTTP_404_NOT_FOUND,
     WrongLoginOrPassword: status.HTTP_401_UNAUTHORIZED,
+    InvalidOrExpiredToken: status.HTTP_401_UNAUTHORIZED,
+    InvalidAuthorizationHeader: status.HTTP_401_UNAUTHORIZED,
 }
 
 @asynccontextmanager
