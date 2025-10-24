@@ -55,13 +55,16 @@ fileConfig(config.config_file_name)
 target_metadata = None
 ```
 Заменяем его на:
+
 ```python
 import os
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 from logging.config import fileConfig
-from infrastructure.models import * 
+from infrastructure.models import *
+from infrastructure.user.user import *
+from infrastructure.exam.exam import *
 
 load_dotenv()
 

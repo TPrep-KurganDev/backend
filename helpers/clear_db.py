@@ -1,5 +1,5 @@
 from infrastructure.database import SessionLocal
-from infrastructure.models import User
+from infrastructure.user.user import User
 
 def clear_db():
     db = SessionLocal()

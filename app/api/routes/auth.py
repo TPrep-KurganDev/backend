@@ -1,12 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.schemas import *
-from infrastructure.models import User
+from infrastructure.exceptions.user_already_exists import UserAlreadyExists
+from infrastructure.exceptions.user_not_found import UserNotFound
+from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
+from infrastructure.user.user import User
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from infrastructure.database import get_db
 import datetime
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from infrastructure.user.user_repo import UserRepo
 
 router = APIRouter()
 
@@ -41,26 +45,27 @@ def verify_refresh_token(token: str):
 
 @router.post("/auth/register", response_model=UserOut)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(user.email == User.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="User already exists")
-
-    new_user = User(
-        email=user.email,
-        user_name = user.user_name,
-        password_hash=hash_password(user.password)
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    try:
+        UserRepo.get_user_by_email(user.email, db)
+    except UserNotFound:
+        new_user = User(
+            email=user.email,
+            user_name=user.user_name,
+            password_hash=hash_password(user.password)
+        )
+        return UserRepo.register_user(new_user, db)
+    finally:
+        raise UserAlreadyExists
 
 
 @router.post("/auth/login", response_model=Token)
 def login_user(form_data: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.email).first()
-    if not user or not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Wrong login or password")
+    try:
+        user = UserRepo.get_user_by_email(form_data.email, db)
+    except UserNotFound:
+        raise WrongLoginOrPassword
+    if not verify_password(form_data.password, user.password_hash):
+        raise WrongLoginOrPassword
 
     token = create_access_token({"sub": str(user.id)})
     return Token(
