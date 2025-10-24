@@ -1,9 +1,7 @@
-from typing import Any
-
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.schemas import ExamCreate
+from app.exam_schemas import ExamCreate
 from infrastructure.exam.exam import Exam, UserCreatedExam
 from infrastructure.database import get_db
 from infrastructure.exceptions.exam_not_found import ExamNotFound

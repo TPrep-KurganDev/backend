@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas import *
+from app.user_schemas import *
+from app.authorization_schemas import *
 from infrastructure.exceptions.user_already_exists import UserAlreadyExists
 from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword

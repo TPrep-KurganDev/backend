@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from app.schemas import *
+from app.exam_schemas import *
 from infrastructure.exam.exam import Exam
 from infrastructure.authorization import get_current_user
 from infrastructure.exam.exam_repo import ExamRepo
