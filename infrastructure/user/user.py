@@ -3,6 +3,8 @@ from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from infrastructure.models import Base
 from infrastructure.exam.exam import Exam, UserPinnedExam
+from infrastructure.statistic.statistic import Statistic
+
 
 class User(Base):
     __tablename__ = "users"
@@ -17,4 +19,7 @@ class User(Base):
     )
     created_exams: Mapped[list["Exam"]] = relationship(
         "Exam", back_populates="creator", cascade="all, delete-orphan", passive_deletes=True
+    )
+    related_stat: Mapped[list[Statistic]] = relationship(
+        "Statistic",back_populates="related_user", cascade="all, delete-orphan", passive_deletes=True
     )

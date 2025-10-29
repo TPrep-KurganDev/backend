@@ -5,13 +5,19 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from app.api.routes.auth import router as api_router
 from app.api.routes.exams import router as exams_router
+from app.api.routes.session import router as session_router
+from infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
+from infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from infrastructure.exceptions.exam_not_found import ExamNotFound
 from infrastructure.exceptions.invalid_authorization_header import InvalidAuthorizationHeader
 from infrastructure.exceptions.invalid_or_expired_token import InvalidOrExpiredToken
+from infrastructure.exceptions.question_not_in_session import QuestionNotInSession
+from infrastructure.exceptions.session_not_found import SessionNotFound
 from infrastructure.exceptions.user_already_exists import UserAlreadyExists
 from infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
 from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
+from infrastructure.exceptions.wrong_n_value import WrongNValue
 from infrastructure.models import Base
 from infrastructure.database import engine, SessionLocal
 from mocks.mock_users import create_mock_users
@@ -20,12 +26,17 @@ from helpers.clear_db import clear_db
 APP_ERRORS = {
     Exception: status.HTTP_500_INTERNAL_SERVER_ERROR,
     ExamNotFound: status.HTTP_404_NOT_FOUND,
+    SessionNotFound: status.HTTP_404_NOT_FOUND,
+    WrongNValue: status.HTTP_422_UNPROCESSABLE_ENTITY,
+    ExamHasNoCards: status.HTTP_422_UNPROCESSABLE_ENTITY,
+    QuestionNotInSession: status.HTTP_400_BAD_REQUEST,
     UserAlreadyExists: status.HTTP_409_CONFLICT,
     UserIsNotCreator: status.HTTP_403_FORBIDDEN,
     UserNotFound: status.HTTP_404_NOT_FOUND,
     WrongLoginOrPassword: status.HTTP_401_UNAUTHORIZED,
     InvalidOrExpiredToken: status.HTTP_401_UNAUTHORIZED,
     InvalidAuthorizationHeader: status.HTTP_401_UNAUTHORIZED,
+    UnexceptableStrategy: status.HTTP_422_UNPROCESSABLE_ENTITY
 }
 
 @asynccontextmanager
@@ -61,6 +72,7 @@ lifespan=lifespan,
 add_exception_handlers(app, APP_ERRORS)
 app.include_router(api_router, prefix="/api")
 app.include_router(exams_router, prefix="/api")
+app.include_router(session_router, prefix="/api")
 
 
 @app.get("/health", tags=["health"])
