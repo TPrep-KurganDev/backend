@@ -15,7 +15,6 @@ from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPasswo
 from infrastructure.models import Base
 from infrastructure.database import engine, SessionLocal
 from mocks.mock_users import create_mock_users
-from mocks.request import do_request
 from helpers.clear_db import clear_db
 
 APP_ERRORS = {

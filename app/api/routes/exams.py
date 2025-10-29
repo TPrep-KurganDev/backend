@@ -33,7 +33,7 @@ def create_exam(
         user_id: int = Depends(get_current_user),
         db: Session = Depends(get_db),
 ):
-    new_exam = Exam(title=exam_data.title)
+    new_exam = Exam(title=exam_data.title, creator_id=user_id)
     ExamRepo.add_exam(new_exam, user_id, db)
     return new_exam
 

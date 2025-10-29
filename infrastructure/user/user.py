@@ -2,7 +2,7 @@ from pydantic import EmailStr
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from infrastructure.models import Base
-from infrastructure.exam.exam import UserCreatedExam, UserPinnedExam
+from infrastructure.exam.exam import Exam, UserPinnedExam
 
 class User(Base):
     __tablename__ = "users"
@@ -15,6 +15,6 @@ class User(Base):
     pinned_exams: Mapped[list["UserPinnedExam"]] = relationship(
         "UserPinnedExam", back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
-    created_exams: Mapped[list["UserCreatedExam"]] = relationship(
-        "UserCreatedExam", back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    created_exams: Mapped[list["Exam"]] = relationship(
+        "Exam", back_populates="creator", cascade="all, delete-orphan", passive_deletes=True
     )
