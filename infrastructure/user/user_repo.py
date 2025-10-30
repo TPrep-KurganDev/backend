@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from infrastructure.database import get_db
-from infrastructure.exam.exam import UserCreatedExam
+from infrastructure.exam.exam import Exam
 from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.user.user import User
 
@@ -18,9 +18,9 @@ class UserRepo:
 
     @staticmethod
     def check_that_user_is_creator(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> bool:
-        link = db.query(UserCreatedExam).filter(
-            UserCreatedExam.exam_id == exam_id,
-            UserCreatedExam.user_id == user_id
+        link = db.query(Exam).filter(
+            Exam.id == exam_id,
+            Exam.creator_id == user_id
         ).first()
         return bool(link)
 

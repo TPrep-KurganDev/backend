@@ -1,10 +1,8 @@
-from typing import Any
-
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from app.schemas import ExamCreate
-from infrastructure.exam.exam import Exam, UserCreatedExam
+from app.exam_schemas import ExamCreate
+from infrastructure.exam.exam import Exam, UserPinnedExam
 from infrastructure.database import get_db
 from infrastructure.exceptions.exam_not_found import ExamNotFound
 from infrastructure.exceptions.user_not_found import UserNotFound
@@ -40,18 +38,13 @@ class ExamRepo:
         db.commit()
         db.refresh(exam)
 
-        created_link = UserCreatedExam(user_id=creator_id, exam_id=exam.id)
-        db.add(created_link)
-        db.commit()
-
     @staticmethod
     def get_exams_created_by_user(creator_id: int, db: Session = Depends(get_db)) -> list[type[Exam]]:
         if not UserRepo.check_user_exists(creator_id, db):
             raise UserNotFound("User with specified creator id does not exist")
         return (
             db.query(Exam)
-            .join(UserCreatedExam, Exam.id == UserCreatedExam.exam_id)
-            .filter(UserCreatedExam.user_id == creator_id)
+            .filter(Exam.creator_id == creator_id)
             .all()
         )
 
@@ -61,8 +54,8 @@ class ExamRepo:
             raise UserNotFound("User with specified pinned id does not exist")
         return (
             db.query(Exam)
-            .join(UserCreatedExam, Exam.id == UserCreatedExam.exam_id)
-            .filter(UserCreatedExam.user_id == pinned_id)
+            .join(UserPinnedExam, Exam.id == UserPinnedExam.exam_id)
+            .filter(UserPinnedExam.user_id == pinned_id)
             .all()
         )
 

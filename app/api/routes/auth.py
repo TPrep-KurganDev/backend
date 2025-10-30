@@ -1,47 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas import *
+from app.user_schemas import *
+from app.authorization_schemas import *
 from infrastructure.exceptions.user_already_exists import UserAlreadyExists
 from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from infrastructure.user.user import User
-from passlib.context import CryptContext
-from jose import jwt, JWTError
 from infrastructure.database import get_db
-import datetime
-from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from infrastructure.user.user_repo import UserRepo
+from infrastructure.authorization import *
 
 router = APIRouter()
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def hash_password(password: str):
-    return pwd_context.hash(password)
-
-
-def verify_password(password: str, hash_: str):
-    return pwd_context.verify(password, hash_)
-
-
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def verify_refresh_token(token: str):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid refresh token")
-        return {"sub": str(user_id)}
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
-
 
 @router.post("/auth/register", response_model=UserOut)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
