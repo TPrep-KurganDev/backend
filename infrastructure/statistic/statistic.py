@@ -10,12 +10,12 @@ class Statistic(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete='CASCADE', passive_deletes=True), primary_key=True, index=True)
-    card_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("card.id", ondelete='CASCADE', passive_deletes=True), primary_key=True, index=True)
-    exam_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("exam.id", ondelete='CASCADE', passive_deletes=True), primary_key=True, index=True)
+    card_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("cards.card_id", ondelete='CASCADE', passive_deletes=True), primary_key=True, index=True)
+    exam_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("exams.id", ondelete='CASCADE', passive_deletes=True), primary_key=True, index=True)
     mistakes_count: Mapped[int] = mapped_column(BigInteger)
 
     related_card: Mapped[Card] = relationship(
-        "Card", back_populates="related_stat", cascade="all, delete-orphan", passive_deletes=True
+        "Card", back_populates="related_stat", passive_deletes=True
     )
 
     related_exam: Mapped[Exam] = relationship(
@@ -23,5 +23,5 @@ class Statistic(Base):
     )
 
     related_user: Mapped[User] = relationship(
-        "User", back_populates="related_stat", cascade="all, delete-orphan", passive_deletes=True
+        "User", back_populates="related_stat", passive_deletes=True
     )
