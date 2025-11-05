@@ -22,6 +22,7 @@ from infrastructure.models import Base
 from infrastructure.database import engine, SessionLocal
 from mocks.mock_users import create_mock_users
 from helpers.clear_db import clear_db
+from fastapi.middleware.cors import CORSMiddleware
 
 APP_ERRORS = {
     Exception: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -69,6 +70,20 @@ docs_url="/api/docs",
 openapi_url="/api/openapi.json",
 lifespan=lifespan,
 )
+
+origins = [
+    "http://localhost:5173",  # Vite
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 add_exception_handlers(app, APP_ERRORS)
 app.include_router(api_router, prefix="/api")
 app.include_router(exams_router, prefix="/api")
