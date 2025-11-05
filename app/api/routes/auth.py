@@ -1,13 +1,8 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter
 from app.user_schemas import *
 from app.authorization_schemas import *
 from infrastructure.exceptions.user_already_exists import UserAlreadyExists
-from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
-from infrastructure.user.user import User
-from infrastructure.database import get_db
-from infrastructure.user.user_repo import UserRepo
 from infrastructure.authorization import *
 
 router = APIRouter()
@@ -22,6 +17,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
             user_name=user.user_name,
             password_hash=hash_password(user.password)
         )
+
         return UserRepo.register_user(new_user, db)
     finally:
         raise UserAlreadyExists
@@ -37,6 +33,8 @@ def login_user(form_data: LoginRequest, db: Session = Depends(get_db)):
         raise WrongLoginOrPassword
 
     token = create_access_token({"sub": str(user.id)})
+    UserRepo.update_user_token(user.id, token, db)
+
     return Token(
         access_token=token,
         token_type="bearer"
@@ -48,6 +46,7 @@ def refresh_access_token(request: RefreshRequest):
     token_data = verify_refresh_token(request.refreshToken)
 
     access_token = create_access_token({"sub": str(token_data["sub"])})
+    UserRepo.update_user_token(int(token_data["sub"]), access_token)
 
     return AccessTokenResponse(
         accessToken=access_token,

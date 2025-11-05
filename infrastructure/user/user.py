@@ -11,8 +11,9 @@ class User(Base):
     email: Mapped["EmailStr"] = mapped_column(String(255), unique=True, nullable=False, index=True)
     user_name: Mapped[str] = mapped_column(String(255), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    auth_token: Mapped[str] = mapped_column(String(255), nullable=True)
-    push_key: Mapped[str] = mapped_column(String(255), nullable=True)
+    auth_token: Mapped[str] = mapped_column(String(500), nullable=True)
+    push_key: Mapped[str] = mapped_column(String(500), nullable=True)
+    endpoint: Mapped[str] = mapped_column(String(500), nullable=True)
 
     pinned_exams: Mapped[list["UserPinnedExam"]] = relationship(
         "UserPinnedExam", back_populates="user", cascade="all, delete-orphan"

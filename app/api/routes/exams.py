@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.exam_schemas import *
 from infrastructure.exam.exam import Exam
-from infrastructure.authorization import get_current_user
+from infrastructure.authorization import get_current_user_id
 from infrastructure.exam.exam_repo import ExamRepo
 from infrastructure.database import get_db
 from infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
@@ -30,7 +30,7 @@ def get_exams(
 @router.post("/", response_model=ExamOut)
 def create_exam(
         exam_data: ExamCreate,
-        user_id: int = Depends(get_current_user),
+        user_id: int = Depends(get_current_user_id),
         db: Session = Depends(get_db),
 ):
     new_exam = Exam(title=exam_data.title, creator_id=user_id)
@@ -42,7 +42,7 @@ def create_exam(
 def update_exam(
         exam_id: int,
         exam_data: ExamCreate,
-        user_id: int = Depends(get_current_user),
+        user_id: int = Depends(get_current_user_id),
         db: Session = Depends(get_db),
 ):
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
@@ -54,7 +54,7 @@ def update_exam(
 @router.delete("/{examId}", status_code=204)
 def delete_exam(
         exam_id: int,
-        user_id: int = Depends(get_current_user),
+        user_id: int = Depends(get_current_user_id),
         db: Session = Depends(get_db),
 ):
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
