@@ -19,6 +19,7 @@ from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from infrastructure.exceptions.wrong_n_value import WrongNValue
 from infrastructure.models import Base
+import infrastructure.models_registry
 from infrastructure.database import engine, SessionLocal
 from mocks.mock_users import create_mock_users
 from helpers.clear_db import clear_db

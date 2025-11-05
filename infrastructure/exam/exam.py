@@ -8,20 +8,24 @@ class Exam(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    creator_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE", passive_deletes=True))
+    creator_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"))
 
     creator: Mapped["User"] = relationship(
-        "User", back_populates="created_exams", cascade="all",passive_deletes=True
+        "User", back_populates="created_exams", cascade="all"
     )
 
     cards: Mapped[list["Card"]] = relationship(
-        "Card", back_populates="exam", cascade="all, delete-orphan",passive_deletes=True
+        "Card", back_populates="exam", cascade="all, delete-orphan"
     )
     pinned_by: Mapped[list["UserPinnedExam"]] = relationship(
-        "UserPinnedExam", back_populates="exam", cascade="all, delete-orphan", passive_deletes=True
+        "UserPinnedExam", back_populates="exam", cascade="all, delete-orphan"
     )
     related_stat: Mapped["Statistic"] = relationship(
-        "Statistic", back_populates="related_exam", cascade="all, delete-orphan", passive_deletes=True
+        "Statistic", back_populates="related_exam", cascade="all, delete-orphan"
+    )
+
+    exam_notifications: Mapped[list["Notification"]] = relationship(
+        "Notification", back_populates="exam", cascade="all, delete-orphan"
     )
 
 
@@ -55,5 +59,5 @@ class Card(Base):
     )
 
     related_stat: Mapped[list["Statistic"]] = relationship(
-        "Statistic", back_populates="related_card", cascade="all, delete-orphan", passive_deletes=True
+        "Statistic", back_populates="related_card", cascade="all, delete-orphan"
     )
