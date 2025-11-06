@@ -47,8 +47,18 @@ lock: clear-libs-cache
 	$(VENV)/bin/poetry lock
 
 build:
-	docker-compose build base
-	docker-compose build code
+	docker-compose build
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+logs:
+	docker-compose logs -f app
+
+restart: down up
 
 mypy:
 	$(VENV)/bin/mypy --install-types --non-interactive $(CODE) --show-traceback
