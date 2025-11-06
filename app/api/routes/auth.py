@@ -19,17 +19,17 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         )
 
         return UserRepo.register_user(new_user, db)
-    finally:
+    else:
         raise UserAlreadyExists
 
 
 @router.post("/auth/login", response_model=Token)
-def login_user(form_data: LoginRequest, db: Session = Depends(get_db)):
+def login_user(body: LoginRequest, db: Session = Depends(get_db)):
     try:
-        user = UserRepo.get_user_by_email(form_data.email, db)
+        user = UserRepo.get_user_by_email(body.email, db)
     except UserNotFound:
         raise WrongLoginOrPassword
-    if not verify_password(form_data.password, user.password_hash):
+    if not verify_password(body.password, user.password_hash):
         raise WrongLoginOrPassword
 
     token = create_access_token({"sub": str(user.id)})

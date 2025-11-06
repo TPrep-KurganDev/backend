@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
@@ -19,7 +19,6 @@ from infrastructure.exceptions.user_not_found import UserNotFound
 from infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from infrastructure.exceptions.wrong_n_value import WrongNValue
 from infrastructure.models import Base
-import infrastructure.models_registry
 from infrastructure.database import engine, SessionLocal
 from mocks.mock_users import create_mock_users
 from helpers.clear_db import clear_db
@@ -70,6 +69,22 @@ docs_url="/api/docs",
 openapi_url="/api/openapi.json",
 lifespan=lifespan,
 )
+
+
+origins = [
+    "http://localhost:5173",  # Vite
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 add_exception_handlers(app, APP_ERRORS)
 app.include_router(api_router, prefix="/api")
 app.include_router(exams_router, prefix="/api")
