@@ -2,6 +2,7 @@ import time
 import json
 from datetime import datetime, timezone
 
+from fastapi.params import Depends
 from sqlalchemy.orm import Session
 from pywebpush import webpush, WebPushException
 
@@ -24,9 +25,9 @@ def serialize_notification(notification: Notification):
     }
 
 
-def fetch_due_notifications(session: Session, batch_size: int = BATCH_SIZE):
+def fetch_due_notifications(db: Session = Depends(get_db), batch_size: int = BATCH_SIZE):
     now = datetime.now(timezone.utc)
-    query = session.query(Notification).filter(Notification.time <= now)
+    query = db.query(Notification).filter(Notification.time >= now)
 
     for notif in query.yield_per(batch_size):
         yield notif
