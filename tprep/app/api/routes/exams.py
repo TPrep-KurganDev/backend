@@ -1,0 +1,70 @@
+from typing import List
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from tprep.infrastructure.exam.exam import Exam
+from tprep.infrastructure.authorization import get_current_user
+from tprep.infrastructure.exam.exam_repo import ExamRepo
+from tprep.infrastructure.database import get_db
+from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
+from tprep.infrastructure.user.user_repo import UserRepo
+
+from tprep.app.exam_schemas import ExamOut, ExamCreate
+
+router = APIRouter(prefix="/exams", tags=["Exams"])
+
+
+@router.get("/pinned", response_model=List[ExamOut])
+def get_pinned_exams(
+    pinned_id: int = Query(None, description="Id of the user that pinned exam"),
+    db: Session = Depends(get_db),
+) -> list[Exam]:
+    return ExamRepo.get_exams_pinned_by_user(pinned_id, db)
+
+
+@router.get("/created", response_model=List[ExamOut])
+def get_exams(
+    creator_id: int = Query(None, description="Id of the user that created exam"),
+    db: Session = Depends(get_db),
+) -> list[type[Exam]]:
+    return ExamRepo.get_exams_created_by_user(creator_id, db)
+
+
+@router.post("/", response_model=ExamOut)
+def create_exam(
+    exam_data: ExamCreate,
+    user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Exam:
+    new_exam = Exam(title=exam_data.title, creator_id=user_id)
+    ExamRepo.add_exam(new_exam, user_id, db)
+    return new_exam
+
+
+@router.patch("/{examId}", response_model=ExamOut)
+def update_exam(
+    exam_id: int,
+    exam_data: ExamCreate,
+    user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> type[Exam]:
+    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+        raise UserIsNotCreator("User is not creator")
+
+    return ExamRepo.update_exam(exam_id, exam_data, db)
+
+
+@router.delete("/{examId}", status_code=204)
+def delete_exam(
+    exam_id: int,
+    user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+        raise UserIsNotCreator("User is not creator")
+
+    ExamRepo.delete_exam(exam_id, db)
+
+
+@router.get("/{examId}", response_model=ExamOut)
+def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
+    return ExamRepo.get_exam(exam_id, db)
