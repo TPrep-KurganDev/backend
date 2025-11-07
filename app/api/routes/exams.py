@@ -1,6 +1,9 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+from starlette.responses import RedirectResponse
+
+from app.card_schemas import CardBase
 from app.exam_schemas import *
 from infrastructure.exam.exam import Exam
 from infrastructure.authorization import get_current_user_id
@@ -36,6 +39,24 @@ def create_exam(
     new_exam = Exam(title=exam_data.title, creator_id=user_id)
     ExamRepo.add_exam(new_exam, user_id, db)
     return new_exam
+
+@router.post("/{examId}/cards", response_model=CardBase)
+def create_card(
+        exam_id: int,
+        db: Session = Depends(get_db)
+):
+    exam = ExamRepo.get_exam(exam_id, db)
+    return ExamRepo.create_card(exam_id, db)
+
+@router.patch("/{examId}/cards/{cardId}", response_model=CardBase)
+def update_card(
+        exam_id: int,
+        card_id: int,
+        card_data: CardBase,
+        db: Session = Depends(get_db),
+):
+    exam = ExamRepo.get_exam(exam_id, db)
+    return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
 
 @router.patch("/{examId}", response_model=ExamOut)

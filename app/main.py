@@ -7,6 +7,7 @@ from app.api.routes.auth import router as api_router
 from app.api.routes.exams import router as exams_router
 from app.api.routes.session import router as session_router
 from infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
+from infrastructure.exceptions.card_not_found import CardNotFound
 from infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from infrastructure.exceptions.exam_not_found import ExamNotFound
 from infrastructure.exceptions.invalid_authorization_header import InvalidAuthorizationHeader
@@ -29,6 +30,7 @@ APP_ERRORS = {
     SessionNotFound: status.HTTP_404_NOT_FOUND,
     WrongNValue: status.HTTP_422_UNPROCESSABLE_ENTITY,
     ExamHasNoCards: status.HTTP_422_UNPROCESSABLE_ENTITY,
+    CardNotFound: status.HTTP_404_NOT_FOUND,
     QuestionNotInSession: status.HTTP_400_BAD_REQUEST,
     UserAlreadyExists: status.HTTP_409_CONFLICT,
     UserIsNotCreator: status.HTTP_403_FORBIDDEN,

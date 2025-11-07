@@ -50,7 +50,7 @@ class Card(Base):
     exam_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("exams.id", ondelete='CASCADE', passive_deletes=True), nullable=False, index=True)
     question: Mapped[str] = mapped_column(VARCHAR(500), nullable=False)
     answer: Mapped[str] = mapped_column(VARCHAR(500), nullable=False)
-    number: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    number: Mapped[int] = mapped_column(BigInteger, nullable=True)
 
     exam: Mapped["Exam"] = relationship("Exam", back_populates="cards")
 
