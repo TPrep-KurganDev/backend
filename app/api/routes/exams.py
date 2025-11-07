@@ -51,6 +51,15 @@ def create_card(
     exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.create_card(exam_id, db)
 
+@router.get("/{exam_id}/cards/{card_id}", response_model=CardBase)
+def get_card(
+        exam_id: int,
+        card_id: int,
+        db: Session = Depends(get_db),
+):
+    exam = ExamRepo.get_exam(exam_id, db)
+    return ExamRepo.get_card(exam_id, card_id, db)
+
 @router.patch("/{exam_id}/cards/{card_id}", response_model=CardBase)
 def update_card(
         exam_id: int,

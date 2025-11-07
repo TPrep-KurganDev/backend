@@ -69,6 +69,13 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
+    def get_card(exam_id:int, card_id:int, db: Session = Depends(get_db)) -> Card:
+        card = db.query(Card).filter(card_id=card_id, exam_id=exam_id).first()
+        if not card:
+            raise CardNotFound()
+        return card
+
+    @staticmethod
     def create_card(exam_id: int, db: Session = Depends(get_db)) -> Card:
         new_card = Card(exam_id=exam_id, question=None, answer=None)
         db.add(new_card)
