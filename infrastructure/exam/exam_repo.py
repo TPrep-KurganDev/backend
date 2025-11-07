@@ -69,15 +69,15 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
-    def get_card(exam_id:int, card_id:int, db: Session = Depends(get_db)) -> Card:
-        card = db.query(Card).filter(card_id=card_id, exam_id=exam_id).first()
+    def get_card(exam_id: int, card_id: int, db: Session) -> Card:
+        card = db.query(Card).filter(Card.card_id == card_id, Card.exam_id == exam_id).first()
         if not card:
             raise CardNotFound()
         return card
 
     @staticmethod
     def create_card(exam_id: int, db: Session = Depends(get_db)) -> Card:
-        new_card = Card(exam_id=exam_id, question=None, answer=None)
+        new_card = Card(exam_id=exam_id, question="", answer="")
         db.add(new_card)
         db.commit()
         db.refresh(new_card)
@@ -85,7 +85,7 @@ class ExamRepo:
 
     @staticmethod
     def update_card(exam_id: int, card_id: int, card_data: CardBase, db: Session = Depends(get_db)) -> Card:
-        card = db.query(Card).filter(card_id=card_id, exam_id=exam_id).first()
+        card = db.query(Card).filter(Card.card_id == card_id, Card.exam_id == exam_id).first()
         if not card:
             raise CardNotFound()
         update_data = card_data.model_dump(exclude_unset=True)
