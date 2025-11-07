@@ -1,3 +1,5 @@
+from typing import cast
+
 from fastapi import Header
 from passlib.context import CryptContext
 import datetime
@@ -16,24 +18,24 @@ from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def hash_password(password: str):
-    return pwd_context.hash(password)
+def hash_password(password: str) -> str:
+    return cast(str, pwd_context.hash(password))
 
 
-def verify_password(password: str, hash_: str):
-    return pwd_context.verify(password, hash_)
+def verify_password(password: str, hash_: str) -> bool:
+    return cast(bool, pwd_context.verify(password, hash_))
 
 
-def create_access_token(data: dict):
+def create_access_token(data: dict[str, str]) -> str:
     to_encode = data.copy()
     expire = datetime.datetime.utcnow() + datetime.timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    to_encode.update({"exp": str(expire)})
+    return cast(str, jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM))
 
 
-def verify_refresh_token(token: str):
+def verify_refresh_token(token: str) -> dict[str, str]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
@@ -44,7 +46,7 @@ def verify_refresh_token(token: str):
         raise InvalidOrExpiredToken
 
 
-def get_current_user(authorization: str = Header(...)):
+def get_current_user(authorization: str = Header(...)) -> int:
     if not authorization.startswith("Bearer "):
         raise InvalidAuthorizationHeader
     token = authorization.split(" ")[1]

@@ -15,13 +15,12 @@ class Exam(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     creator_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("users.id", ondelete="CASCADE")  # passive_deletes УБРАТЬ
+        BigInteger,
+        ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
     )
 
     # many-to-one — каскад на пользователя обычно не нужен
-    creator: Mapped["User"] = relationship(
-        "User", back_populates="created_exams"
-    )
+    creator: Mapped["User"] = relationship("User", back_populates="created_exams")
 
     # one-to-many: ORM-удаления сирот и пассивные удаление через БД
     cards: Mapped[list["Card"]] = relationship(

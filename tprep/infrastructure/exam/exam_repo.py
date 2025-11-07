@@ -11,16 +11,16 @@ from tprep.infrastructure.user.user_repo import UserRepo
 
 class ExamRepo:
     @staticmethod
-    def get_exam(exam_id: int, db: Session = Depends(get_db)) -> type[Exam] | None:
+    def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
         exam = db.query(Exam).filter(Exam.id == exam_id).first()
-        if not exam:
+        if exam is None:
             raise ExamNotFound
         return exam
 
     @staticmethod
     def update_exam(
         exam_id: int, exam_data: ExamCreate, db: Session = Depends(get_db)
-    ) -> type[Exam]:
+    ) -> Exam:
         exam = ExamRepo.get_exam(exam_id, db)
 
         update_data = exam_data.model_dump(exclude_unset=True)
@@ -43,7 +43,7 @@ class ExamRepo:
     @staticmethod
     def get_exams_created_by_user(
         creator_id: int, db: Session = Depends(get_db)
-    ) -> list[type[Exam]]:
+    ) -> list[Exam]:
         if not UserRepo.check_user_exists(creator_id, db):
             raise UserNotFound("User with specified creator id does not exist")
         return db.query(Exam).filter(Exam.creator_id == creator_id).all()
@@ -51,7 +51,7 @@ class ExamRepo:
     @staticmethod
     def get_exams_pinned_by_user(
         pinned_id: int, db: Session = Depends(get_db)
-    ) -> list[type[Exam]]:
+    ) -> list[Exam]:
         if not UserRepo.check_user_exists(pinned_id, db):
             raise UserNotFound("User with specified pinned id does not exist")
         return (

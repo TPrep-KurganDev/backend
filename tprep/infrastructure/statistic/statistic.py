@@ -40,5 +40,7 @@ class Statistic(Base):
         Index("idx_statistics_user_id", "user_id"),
         Index("idx_statistics_card_id", "card_id"),
         Index("idx_statistics_exam_id", "exam_id"),
-        UniqueConstraint("user_id", "card_id", "exam_id", name="uq_statistics_user_card_exam"),
+        UniqueConstraint(
+            "user_id", "card_id", "exam_id", name="uq_statistics_user_card_exam"
+        ),
     )

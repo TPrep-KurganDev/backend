@@ -1,3 +1,5 @@
+from typing import Any
+
 import requests
 
 BASE_URL = "http://127.0.0.1:8000/api"
@@ -8,7 +10,7 @@ ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "testAdmin"
 
 
-def get_access_token(email: str, password: str):
+def get_access_token(email: str, password: str) -> str | None:
     url = BASE_URL + LOGIN_PATH
     payload = {"email": email, "password": password}
 
@@ -23,10 +25,11 @@ def get_access_token(email: str, password: str):
         return None
 
     data = r.json()
-    return data.get("access_token")
+    value = data.get("access_token")
+    return value if isinstance(value, str) else None
 
 
-def create_exam(token: str, title: str = "Auto Exam"):
+def create_exam(token: str, title: str = "Auto Exam") -> dict[str, Any] | None:
     url = BASE_URL + CREATE_EXAM_PATH
     headers = {"Authorization": f"Bearer {token}"}
     payload = {"title": title}
@@ -41,10 +44,11 @@ def create_exam(token: str, title: str = "Auto Exam"):
         print(f"Exam creation failed: status={r.status_code}, body={r.text}")
         return None
 
-    return r.json()
+    data = r.json()
+    return data if isinstance(data, dict) else None
 
 
-def do_request():
+def do_request() -> None:
     print("Logging in...")
     token = get_access_token(ADMIN_EMAIL, ADMIN_PASSWORD)
     if not token:
