@@ -1,9 +1,6 @@
-from typing import Any
-
 from fastapi import Depends
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
-
 from infrastructure.database import get_db
 from infrastructure.exam.exam import Exam
 from infrastructure.exceptions.user_not_found import UserNotFound

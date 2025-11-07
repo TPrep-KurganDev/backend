@@ -32,7 +32,7 @@ def login_user(body: LoginRequest, db: Session = Depends(get_db)):
     if not verify_password(body.password, user.password_hash):
         raise WrongLoginOrPassword
 
-    token = create_access_token({"sub": str(user.id)})
+    token = create_access_token({"sub": str(user.id), "login": user.user_name})
     UserRepo.update_user_token(user.id, token, db)
 
     return Token(

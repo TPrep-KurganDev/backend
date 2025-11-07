@@ -28,3 +28,5 @@ class User(Base):
     user_notifications: Mapped[list["Notification"]] = relationship(
         "Notification", back_populates="user", cascade="all, delete-orphan"
     )
+
+from infrastructure.notification.notification import Notification
