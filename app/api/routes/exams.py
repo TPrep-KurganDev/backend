@@ -40,7 +40,7 @@ def create_exam(
     ExamRepo.add_exam(new_exam, user_id, db)
     return new_exam
 
-@router.post("/{examId}/cards", response_model=CardBase)
+@router.post("/{exam_id}/cards", response_model=CardBase)
 def create_card(
         exam_id: int,
         db: Session = Depends(get_db),
@@ -51,7 +51,7 @@ def create_card(
     exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.create_card(exam_id, db)
 
-@router.patch("/{examId}/cards/{cardId}", response_model=CardBase)
+@router.patch("/{exam_id}/cards/{card_id}", response_model=CardBase)
 def update_card(
         exam_id: int,
         card_id: int,
@@ -64,7 +64,7 @@ def update_card(
     exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
-@router.delete("/{examId}/cards/{cardId}", status_code=204)
+@router.delete("/{exam_id}/cards/{card_id}", status_code=204)
 def delete_card(
         exam_id: int,
         card_id: int,
@@ -76,7 +76,7 @@ def delete_card(
 
     ExamRepo.delete_card(exam_id, card_id, db)
 
-@router.patch("/{examId}", response_model=ExamOut)
+@router.patch("/{exam_id}", response_model=ExamOut)
 def update_exam(
         exam_id: int,
         exam_data: ExamCreate,
@@ -89,7 +89,7 @@ def update_exam(
     return ExamRepo.update_exam(exam_id, exam_data, db)
 
 
-@router.delete("/{examId}", status_code=204)
+@router.delete("/{exam_id}", status_code=204)
 def delete_exam(
         exam_id: int,
         user_id: int = Depends(get_current_user_id),
@@ -101,6 +101,6 @@ def delete_exam(
     ExamRepo.delete_exam(exam_id, db)
 
 
-@router.get("/{examId}", response_model=ExamOut)
+@router.get("/{exam_id}", response_model=ExamOut)
 def get_exam(exam_id: int, db: Session = Depends(get_db)):
     return ExamRepo.get_exam(exam_id, db)
