@@ -15,26 +15,30 @@ class Exam(Base):
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     creator_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("users.id", ondelete="CASCADE", passive_deletes=True)
+        BigInteger, ForeignKey("users.id", ondelete="CASCADE")  # passive_deletes УБРАТЬ
     )
 
+    # many-to-one — каскад на пользователя обычно не нужен
     creator: Mapped["User"] = relationship(
-        "User", back_populates="created_exams", cascade="all", passive_deletes=True
+        "User", back_populates="created_exams"
     )
 
+    # one-to-many: ORM-удаления сирот и пассивные удаление через БД
     cards: Mapped[list["Card"]] = relationship(
         "Card",
         back_populates="exam",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+
     pinned_by: Mapped[list["UserPinnedExam"]] = relationship(
         "UserPinnedExam",
         back_populates="exam",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    related_stat: Mapped["Statistic"] = relationship(
+
+    related_stat: Mapped[list["Statistic"]] = relationship(
         "Statistic",
         back_populates="related_exam",
         cascade="all, delete-orphan",
@@ -47,19 +51,27 @@ class UserPinnedExam(Base):
 
     user_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("users.id", ondelete="CASCADE", passive_deletes=True),
+        ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
         primary_key=True,
         index=True,
     )
     exam_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("exams.id", ondelete="CASCADE", passive_deletes=True),
+        ForeignKey("exams.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
         primary_key=True,
         index=True,
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="pinned_exams")
-    exam: Mapped["Exam"] = relationship("Exam", back_populates="pinned_by")
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="pinned_exams",
+        passive_deletes=True,
+    )
+    exam: Mapped["Exam"] = relationship(
+        "Exam",
+        back_populates="pinned_by",
+        passive_deletes=True,
+    )
 
     __table_args__ = (Index("idx_user_pinned_user_id", "user_id"),)
 
@@ -70,7 +82,7 @@ class Card(Base):
     card_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     exam_id: Mapped[int] = mapped_column(
         BigInteger,
-        ForeignKey("exams.id", ondelete="CASCADE", passive_deletes=True),
+        ForeignKey("exams.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
