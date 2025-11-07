@@ -1,5 +1,5 @@
 from httpx import AsyncClient
-from app.main import app
+from tprep.app.main import app
 import pytest
 
 
