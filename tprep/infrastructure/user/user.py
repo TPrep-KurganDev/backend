@@ -1,9 +1,13 @@
+from typing import TYPE_CHECKING
+
 from pydantic import EmailStr
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
-from tprep.infrastructure.exam.exam import Exam, UserPinnedExam
-from tprep.infrastructure.statistic.statistic import Statistic
+
+if TYPE_CHECKING:
+    from tprep.infrastructure.exam.exam import Exam, UserPinnedExam
+    from tprep.infrastructure.statistic.statistic import Statistic
 
 
 class User(Base):

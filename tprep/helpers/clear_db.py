@@ -1,5 +1,5 @@
-from infrastructure.database import SessionLocal
-from infrastructure.user.user import User
+from tprep.infrastructure.database import SessionLocal
+from tprep.infrastructure.user.user import User
 
 
 def clear_db():

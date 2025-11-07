@@ -4,11 +4,13 @@ import datetime
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from jose import jwt, JWTError
 
-from infrastructure.exceptions.invalid_authorization_header import (
+from tprep.infrastructure.exceptions.invalid_authorization_header import (
     InvalidAuthorizationHeader,
 )
-from infrastructure.exceptions.invalid_or_expired_token import InvalidOrExpiredToken
-from infrastructure.exceptions.user_not_found import UserNotFound
+from tprep.infrastructure.exceptions.invalid_or_expired_token import (
+    InvalidOrExpiredToken,
+)
+from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

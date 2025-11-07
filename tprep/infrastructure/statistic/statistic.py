@@ -1,8 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from infrastructure.models import Base
-from infrastructure.exam.exam import Card, Exam
-from infrastructure.user.user import User
+from tprep.infrastructure.models import Base
+
+if TYPE_CHECKING:
+    from tprep.infrastructure.exam.exam import Card, Exam
+    from tprep.infrastructure.user.user import User
 
 
 class Statistic(Base):
@@ -29,14 +33,14 @@ class Statistic(Base):
     )
     mistakes_count: Mapped[int] = mapped_column(BigInteger)
 
-    related_card: Mapped[Card] = relationship(
+    related_card: Mapped["Card"] = relationship(
         "Card", back_populates="related_stat", passive_deletes=True
     )
 
-    related_exam: Mapped[Exam] = relationship(
+    related_exam: Mapped["Exam"] = relationship(
         "Exam", back_populates="related_stat", passive_deletes=True
     )
 
-    related_user: Mapped[User] = relationship(
+    related_user: Mapped["User"] = relationship(
         "User", back_populates="related_stat", passive_deletes=True
     )

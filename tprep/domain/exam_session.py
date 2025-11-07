@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List
 from uuid import uuid4
 
-from infrastructure.exceptions.question_not_in_session import QuestionNotInSession
-from infrastructure.statistic.stat_repo import StatRepo
+from tprep.infrastructure.exceptions.question_not_in_session import QuestionNotInSession
+from tprep.infrastructure.statistic.stat_repo import StatRepo
 
 
 class ExamSession:

@@ -1,8 +1,8 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from infrastructure.database import get_db
-from infrastructure.statistic.statistic import Statistic
+from tprep.infrastructure.database import get_db
+from tprep.infrastructure.statistic.statistic import Statistic
 
 
 class StatRepo:

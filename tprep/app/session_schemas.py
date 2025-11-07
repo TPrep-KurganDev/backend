@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, model_validator
 
-from infrastructure.exceptions.wrong_n_value import WrongNValue
+from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
 
 
 class ExamSessionResponse(BaseModel):

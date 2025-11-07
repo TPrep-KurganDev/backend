@@ -1,8 +1,12 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
-from tprep.infrastructure.statistic.statistic import Statistic
-from tprep.infrastructure.user.user import User
+
+if TYPE_CHECKING:
+    from tprep.infrastructure.statistic.statistic import Statistic
+    from tprep.infrastructure.user.user import User
 
 
 class Exam(Base):
