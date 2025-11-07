@@ -23,15 +23,19 @@ class SessionFactory:
         user: User,
         exam: Exam,
         strategy: str = "full",
-        n: int = None,
+        n: int | None = None,
         db: Session = Depends(get_db),
     ) -> ExamSession:
-        cards = db.query(Card).filter(Card.exam_id == exam.id).all()
+        cards = [
+            c.card_id for c in db.query(Card).filter(Card.exam_id == exam.id).all()
+        ]
 
         if not cards:
             raise ExamHasNoCards("Exam has no cards.")
 
         if strategy == "random":
+            if n is None:
+                n = len(cards)
             selected_cards = sample(cards, min(n, len(cards)))
         elif strategy == "full":
             selected_cards = cards
@@ -48,7 +52,7 @@ class SessionFactory:
         return session
 
     @staticmethod
-    def get_session_by_id(session_id: int) -> ExamSession:
+    def get_session_by_id(session_id: int) -> ExamSession | None:
         return SessionFactory.session_ids[str(session_id)]
 
     @staticmethod

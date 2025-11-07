@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL is None:
+    raise ValueError("DATABASE_URL не может быть пустым")
 
 match = re.match(r"postgresql\+psycopg2://(.*):(.*)@(.*):(\d+)/(.*)", DATABASE_URL)
 if not match:

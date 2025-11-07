@@ -26,7 +26,7 @@ class UserRepo:
         return bool(link)
 
     @staticmethod
-    def get_user_by_email(email: EmailStr, db: Session = Depends(get_db)) -> type[User]:
+    def get_user_by_email(email: EmailStr, db: Session = Depends(get_db)) -> User:
         user = db.query(User).filter(User.email == email).first()
         if not user:
             raise UserNotFound

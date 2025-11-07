@@ -15,7 +15,8 @@ from unittest.mock import patch
 @pytest.fixture(scope="session", autouse=True)
 def mock_database():
     """Mock database engine and session for tests."""
-    with patch("tprep.infrastructure.database.engine") as mock_engine, \
-         patch("tprep.infrastructure.database.SessionLocal") as mock_session:
+    with patch("tprep.infrastructure.database.engine") as mock_engine, patch(
+        "tprep.infrastructure.database.SessionLocal"
+    ) as mock_session:
         mock_engine.configure_mock(**{"dialect.name": "sqlite"})
         yield mock_engine, mock_session

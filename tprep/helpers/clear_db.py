@@ -2,7 +2,7 @@ from tprep.infrastructure.database import SessionLocal
 from tprep.infrastructure.user.user import User
 
 
-def clear_db():
+def clear_db() -> None:
     db = SessionLocal()
     try:
         db.query(User).delete()

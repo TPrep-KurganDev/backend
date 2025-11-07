@@ -27,13 +27,13 @@ def start_exam_session(
 
     session = SessionFactory.create_session(user, exam, request.strategy, request.n, db)
 
-    return session
+    return ExamSessionResponse.model_validate(session)
 
 
 @router.post("/{session_id}/answer")
 def set_answer(session_id: int, question_id: int, value: bool) -> dict[str, str]:
     session = SessionFactory.get_session_by_id(session_id)
-    if not session:
+    if session is None:
         raise SessionNotFound()
 
     session.set_answer(question_id, value)

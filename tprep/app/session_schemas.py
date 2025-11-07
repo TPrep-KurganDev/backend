@@ -26,7 +26,7 @@ class ExamSessionStartRequest(BaseModel):
     n: Optional[int] = None
 
     @model_validator(mode="after")
-    def check_n_allowed(self):
+    def check_n_allowed(self) -> "ExamSessionStartRequest":
         if self.n is not None:
             if self.strategy in ("smart", "full"):
                 raise WrongNValue(

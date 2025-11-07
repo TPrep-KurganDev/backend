@@ -25,7 +25,7 @@ def get_pinned_exams(
 def get_exams(
     creator_id: int = Query(None, description="Id of the user that created exam"),
     db: Session = Depends(get_db),
-) -> list[type[Exam]]:
+) -> list[Exam]:
     return ExamRepo.get_exams_created_by_user(creator_id, db)
 
 
@@ -46,7 +46,7 @@ def update_exam(
     exam_data: ExamCreate,
     user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db),
-) -> type[Exam]:
+) -> Exam:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
         raise UserIsNotCreator("User is not creator")
 
