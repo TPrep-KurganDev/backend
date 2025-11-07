@@ -88,3 +88,9 @@ class ExamRepo:
         db.commit()
         db.refresh(card)
         return card
+
+    @staticmethod
+    def delete_card(exam_id:int, card_id: int, db: Session = Depends(get_db)) -> None:
+        card = db.query(Card).filter(card_id=card_id, exam_id=exam_id).first()
+        db.delete(card)
+        db.commit()

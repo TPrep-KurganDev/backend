@@ -43,8 +43,11 @@ def create_exam(
 @router.post("/{examId}/cards", response_model=CardBase)
 def create_card(
         exam_id: int,
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        user_id: int = Depends(get_current_user_id)
 ):
+    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+        raise UserIsNotCreator("User is not creator")
     exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.create_card(exam_id, db)
 
@@ -54,10 +57,24 @@ def update_card(
         card_id: int,
         card_data: CardBase,
         db: Session = Depends(get_db),
+        user_id: int = Depends(get_current_user_id)
 ):
+    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+        raise UserIsNotCreator("User is not creator")
     exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
+@router.delete("/{examId}/cards/{cardId}", status_code=204)
+def delete_card(
+        exam_id: int,
+        card_id: int,
+        db: Session = Depends(get_db),
+        user_id: int = Depends(get_current_user_id)
+):
+    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+        raise UserIsNotCreator("User is not creator")
+
+    ExamRepo.delete_card(exam_id, card_id, db)
 
 @router.patch("/{examId}", response_model=ExamOut)
 def update_exam(
