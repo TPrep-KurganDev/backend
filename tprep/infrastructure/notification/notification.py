@@ -19,10 +19,10 @@ class Notification(Base):
     time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     user: Mapped["User"] = relationship(
-        "User", back_populates="related_notifications"
+        "User", back_populates="related_notification"
     )
     exam: Mapped["Exam"] = relationship(
-        "Exam", back_populates="related_notifications"
+        "Exam", back_populates="related_notification"
     )
 
     __table_args__ = (

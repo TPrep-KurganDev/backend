@@ -3,11 +3,11 @@ from typing import TYPE_CHECKING
 from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
+from tprep.infrastructure.notification.notification import Notification
 
 if TYPE_CHECKING:
     from tprep.infrastructure.statistic.statistic import Statistic
     from tprep.infrastructure.user.user import User
-    from tprep.infrastructure.notification.notification import Notification
 
 
 class Exam(Base):

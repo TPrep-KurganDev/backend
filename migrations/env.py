@@ -1,35 +1,26 @@
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from alembic import context
+import os
 from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
+from alembic import context
+from logging.config import fileConfig
+from tprep.infrastructure.models import *
+from tprep.infrastructure.user.user import *
+from tprep.infrastructure.exam.exam import *
+from tprep.infrastructure.statistic.statistic import *
+from tprep.infrastructure.notification.notification import *
 
-# Import all models here
-from tprep.infrastructure.models import Base
-from tprep.infrastructure.user.user import User
-from tprep.infrastructure.exam.exam import Exam, Card, UserPinnedExam
-from tprep.infrastructure.statistic.statistic import Statistic
-
-# Load environment variables
 load_dotenv()
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
+fileConfig(config.config_file_name)
 
-# Override sqlalchemy.url with environment variable
 config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
