@@ -38,3 +38,37 @@ class UserRepo:
         db.commit()
         db.refresh(user)
         return user
+
+    @staticmethod
+    def update_user_token(user_id: int, token: str, db: Session = Depends(get_db)) -> User:
+        user = db.query(User).filter(User.id == user_id).one()
+        user.auth_token = token
+        db.commit()
+        db.refresh(user)
+        return user
+
+    @staticmethod
+    def get_user_by_id_and_token(user_id: int, token: str, db: Session = Depends(get_db)) -> User:
+        user = db.query(User).filter(User.id == user_id, User.auth_token == token).first()
+        if not user:
+            raise UserNotFound
+        return user
+
+    @staticmethod
+    def register_push(user_id: int, push_key: str, endpoint: str, db: Session = Depends(get_db)) -> None:
+        user = db.query(User).filter(User.id == user_id).first()
+        user.push_key = push_key
+        user.endpoint = endpoint
+        db.add(user)
+        db.commit()
+
+    @staticmethod
+    def unregister_push(user_id: int, db: Session = Depends(get_db)) -> None:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise UserNotFound
+
+        user.push_key = None
+        user.endpoint = None
+
+        db.commit()
