@@ -48,7 +48,6 @@ def create_card(
 ):
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
         raise UserIsNotCreator("User is not creator")
-    exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.create_card(exam_id, db)
 
 @router.get("/{exam_id}/cards/{card_id}", response_model=CardBase)

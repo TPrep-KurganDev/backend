@@ -79,7 +79,8 @@ class ExamRepo:
 
     @staticmethod
     def create_card(exam_id: int, db: Session = Depends(get_db)) -> Card:
-        new_card = Card(exam_id=exam_id, question="", answer="")
+        number = len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
+        new_card = Card(number=number, exam_id=exam_id, question="", answer="")
         db.add(new_card)
         db.commit()
         db.refresh(new_card)
