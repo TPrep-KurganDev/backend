@@ -7,6 +7,7 @@ from tprep.infrastructure.models import Base
 if TYPE_CHECKING:
     from tprep.infrastructure.statistic.statistic import Statistic
     from tprep.infrastructure.user.user import User
+    from tprep.infrastructure.notification.notification import Notification
 
 
 class Exam(Base):
@@ -40,6 +41,13 @@ class Exam(Base):
     related_stat: Mapped[list["Statistic"]] = relationship(
         "Statistic",
         back_populates="related_exam",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    related_notification: Mapped[list["Notification"]] = relationship(
+        "Notification",
+        back_populates="exam",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
