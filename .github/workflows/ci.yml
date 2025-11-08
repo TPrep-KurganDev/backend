@@ -24,6 +24,6 @@ jobs:
       - name: Type check (mypy)
         run: poetry run mypy tprep --show-traceback
       - name: Tests
-        run: poetry run pytest -q
+        run: poetry run pytest tests
       - name: Build Docker image
         run: docker build -t backend:ci .
