@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from tprep.infrastructure.exam.exam import Exam
-from tprep.infrastructure.authorization import get_current_user
+from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator

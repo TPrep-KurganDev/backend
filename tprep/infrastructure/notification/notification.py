@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import BigInteger, ForeignKey, DateTime, Index
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from infrastructure.models import Base
+from tprep.infrastructure.models import Base
 
 class Notification(Base):
     __tablename__ = "notifications"

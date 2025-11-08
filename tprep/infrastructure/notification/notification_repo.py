@@ -3,8 +3,8 @@ from datetime import datetime, timezone, timedelta
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from infrastructure.database import get_db
-from infrastructure.notification.notification import Notification
+from tprep.infrastructure.database import get_db
+from tprep.infrastructure.notification.notification import Notification
 
 
 class NotificationRepo:

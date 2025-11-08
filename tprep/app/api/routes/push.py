@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.push_schemas import PushUpdate
+from tprep.app.push_schemas import PushUpdate
 from sqlalchemy.orm import Session
-from infrastructure.database import get_db
-from infrastructure.user.user import User
-from infrastructure.authorization import get_current_user_id
-from infrastructure.user.user_repo import UserRepo
+from tprep.infrastructure.database import get_db
+from tprep.infrastructure.authorization import get_current_user_id
+from tprep.infrastructure.user.user_repo import UserRepo
 
 router = APIRouter()
 

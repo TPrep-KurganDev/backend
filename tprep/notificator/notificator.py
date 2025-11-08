@@ -6,10 +6,10 @@ from fastapi.params import Depends
 from sqlalchemy.orm import Session
 from pywebpush import webpush, WebPushException
 
-from infrastructure.notification.notification import Notification
-from infrastructure.database import get_db
-from infrastructure.notification.notification_repo import NotificationRepo
-from infrastructure.user.user import User
+from tprep.infrastructure.notification.notification import Notification
+from tprep.infrastructure.database import get_db
+from tprep.infrastructure.notification.notification_repo import NotificationRepo
+from tprep.infrastructure.user.user import User
 from config import VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CLAIMS
 
 BATCH_SIZE = 1000

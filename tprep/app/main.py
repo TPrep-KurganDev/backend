@@ -4,10 +4,13 @@ from typing import Any, AsyncGenerator
 import uvicorn
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
+from starlette.middleware.cors import CORSMiddleware
+
 from tprep.app.api.routes.auth import router as api_router
 from tprep.app.api.routes.exams import router as exams_router
 from tprep.app.api.routes.session import router as session_router
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
+from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.exceptions.invalid_authorization_header import (
@@ -31,6 +34,7 @@ from tprep.helpers.clear_db import clear_db
 APP_ERRORS = {
     Exception: status.HTTP_500_INTERNAL_SERVER_ERROR,
     ExamNotFound: status.HTTP_404_NOT_FOUND,
+    CardNotFound: status.HTTP_404_NOT_FOUND,
     SessionNotFound: status.HTTP_404_NOT_FOUND,
     WrongNValue: status.HTTP_422_UNPROCESSABLE_ENTITY,
     ExamHasNoCards: status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -80,6 +84,20 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
     lifespan=lifespan,
 )
+
+origins = [
+    "http://localhost:5173",  # Vite
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 add_exception_handlers(app, APP_ERRORS)
 app.include_router(api_router, prefix="/api")
 app.include_router(exams_router, prefix="/api")
