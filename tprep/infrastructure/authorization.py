@@ -51,10 +51,9 @@ def verify_refresh_token(token: str) -> dict[str, str]:
         raise InvalidOrExpiredToken
 
 
-
 def get_current_user(
-    authorization: str = Header(...),
-    db: Session = Depends(get_db)
+        authorization: str = Header(...),
+        db: Session = Depends(get_db)
 ) -> User:
     if not authorization.startswith("Bearer "):
         raise InvalidAuthorizationHeader

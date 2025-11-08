@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
+from tprep.infrastructure.notification.notification import Notification
 
 if TYPE_CHECKING:
     from tprep.infrastructure.statistic.statistic import Statistic
@@ -40,6 +41,13 @@ class Exam(Base):
     related_stat: Mapped[list["Statistic"]] = relationship(
         "Statistic",
         back_populates="related_exam",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    related_notification: Mapped[list["Notification"]] = relationship(
+        "Notification",
+        back_populates="exam",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
