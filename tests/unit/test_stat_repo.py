@@ -1,7 +1,3 @@
-import pytest
-from unittest.mock import Mock, MagicMock
-
-from tprep.infrastructure.statistic.statistic import Statistic
 from tprep.infrastructure.statistic.stat_repo import StatRepo
 
 

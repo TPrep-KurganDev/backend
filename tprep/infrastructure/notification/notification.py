@@ -14,18 +14,11 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete='CASCADE'))
-    exam_id: Mapped[int] = mapped_column(ForeignKey("exams.id", ondelete='CASCADE'))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    exam_id: Mapped[int] = mapped_column(ForeignKey("exams.id", ondelete="CASCADE"))
     time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
-    user: Mapped["User"] = relationship(
-        "User", back_populates="related_notification"
-    )
-    exam: Mapped["Exam"] = relationship(
-        "Exam", back_populates="related_notification"
-    )
+    user: Mapped["User"] = relationship("User", back_populates="related_notification")
+    exam: Mapped["Exam"] = relationship("Exam", back_populates="related_notification")
 
-    __table_args__ = (
-        Index("idx_notifications_time", "time"),
-    )
-
+    __table_args__ = (Index("idx_notifications_time", "time"),)

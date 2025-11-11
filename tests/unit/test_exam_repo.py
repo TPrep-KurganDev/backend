@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 
-from tprep.infrastructure.exam.exam import Exam, UserPinnedExam, Card
+from tprep.infrastructure.exam.exam import Exam
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
@@ -25,7 +25,7 @@ class TestExamRepoGetExam:
 
 
 class TestExamRepoUpdateExam:
-    @patch.object(ExamRepo, 'get_exam')
+    @patch.object(ExamRepo, "get_exam")
     def test_update_exam_updates_title(self, mock_get_exam, mock_db, mock_exam):
         mock_get_exam.return_value = mock_exam
         exam_data = ExamCreate(title="Updated Title")
@@ -36,8 +36,10 @@ class TestExamRepoUpdateExam:
         mock_db.commit.assert_called_once()
         mock_db.refresh.assert_called_once()
 
-    @patch.object(ExamRepo, 'get_exam')
-    def test_update_exam_raises_exception_when_exam_not_found(self, mock_get_exam, mock_db):
+    @patch.object(ExamRepo, "get_exam")
+    def test_update_exam_raises_exception_when_exam_not_found(
+        self, mock_get_exam, mock_db
+    ):
         mock_get_exam.side_effect = ExamNotFound
 
         exam_data = ExamCreate(title="New Title")
@@ -47,7 +49,7 @@ class TestExamRepoUpdateExam:
 
 
 class TestExamRepoAddExam:
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_add_exam_adds_exam_to_database(self, mock_check, mock_db, mock_exam):
         mock_check.return_value = True
 
@@ -57,8 +59,10 @@ class TestExamRepoAddExam:
         mock_db.commit.assert_called_once()
         mock_db.refresh.assert_called_once()
 
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
-    def test_add_exam_raises_exception_when_creator_not_found(self, mock_check, mock_db):
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
+    def test_add_exam_raises_exception_when_creator_not_found(
+        self, mock_check, mock_db
+    ):
         mock_check.return_value = False
         new_exam = Mock(spec=Exam)
 
@@ -67,8 +71,7 @@ class TestExamRepoAddExam:
 
 
 class TestExamRepoGetExamsCreatedByUser:
-
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_get_exams_created_by_user_returns_user_exams(
         self, mock_check, mock_db, mock_exam, mock_exam_2
     ):
@@ -83,7 +86,7 @@ class TestExamRepoGetExamsCreatedByUser:
         assert len(result) == 2
         assert result == [mock_exam, mock_exam_2]
 
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_get_exams_created_by_user_returns_empty_list_when_no_exams(
         self, mock_check, mock_db
     ):
@@ -94,7 +97,7 @@ class TestExamRepoGetExamsCreatedByUser:
 
         assert result == []
 
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_get_exams_created_by_user_raises_exception_when_user_not_found(
         self, mock_check, mock_db
     ):
@@ -105,7 +108,7 @@ class TestExamRepoGetExamsCreatedByUser:
 
 
 class TestExamRepoGetExamsPinnedByUser:
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_get_exams_pinned_by_user_returns_pinned_exams(
         self, mock_check, mock_db, mock_exam
     ):
@@ -119,7 +122,7 @@ class TestExamRepoGetExamsPinnedByUser:
         assert len(result) == 1
         assert result[0] == mock_exam
 
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_get_exams_pinned_by_user_returns_empty_list_when_no_pins(
         self, mock_check, mock_db
     ):
@@ -130,7 +133,7 @@ class TestExamRepoGetExamsPinnedByUser:
 
         assert result == []
 
-    @patch('tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists')
+    @patch("tprep.infrastructure.exam.exam_repo.UserRepo.check_user_exists")
     def test_get_exams_pinned_by_user_raises_exception_when_user_not_found(
         self, mock_check, mock_db
     ):
@@ -141,8 +144,10 @@ class TestExamRepoGetExamsPinnedByUser:
 
 
 class TestExamRepoDeleteExam:
-    @patch.object(ExamRepo, 'get_exam')
-    def test_delete_exam_removes_exam_from_database(self, mock_get_exam, mock_db, mock_exam):
+    @patch.object(ExamRepo, "get_exam")
+    def test_delete_exam_removes_exam_from_database(
+        self, mock_get_exam, mock_db, mock_exam
+    ):
         mock_get_exam.return_value = mock_exam
 
         ExamRepo.delete_exam(mock_exam.id, mock_db)
@@ -150,8 +155,10 @@ class TestExamRepoDeleteExam:
         mock_db.delete.assert_called_once_with(mock_exam)
         mock_db.commit.assert_called_once()
 
-    @patch.object(ExamRepo, 'get_exam')
-    def test_delete_exam_raises_exception_when_exam_not_found(self, mock_get_exam, mock_db):
+    @patch.object(ExamRepo, "get_exam")
+    def test_delete_exam_raises_exception_when_exam_not_found(
+        self, mock_get_exam, mock_db
+    ):
         mock_get_exam.side_effect = ExamNotFound
 
         with pytest.raises(ExamNotFound):

@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from tprep.infrastructure.exam.exam import Exam
+from tprep.infrastructure.exam.exam import Exam, Card
 from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
@@ -40,50 +40,52 @@ def create_exam(
     ExamRepo.add_exam(new_exam, user_id, db)
     return new_exam
 
+
 @router.post("/{exam_id}/cards", response_model=CardBase)
 def create_card(
-        exam_id: int,
-        db: Session = Depends(get_db),
-        user_id: int = Depends(get_current_user_id)
-):
+    exam_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> Card:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
         raise UserIsNotCreator("User is not creator")
-    exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.create_card(exam_id, db)
+
 
 @router.get("/{exam_id}/cards/{card_id}", response_model=CardBase)
 def get_card(
-        exam_id: int,
-        card_id: int,
-        db: Session = Depends(get_db),
-):
-    exam = ExamRepo.get_exam(exam_id, db)
+    exam_id: int,
+    card_id: int,
+    db: Session = Depends(get_db),
+) -> Card:
     return ExamRepo.get_card(exam_id, card_id, db)
+
 
 @router.patch("/{exam_id}/cards/{card_id}", response_model=CardBase)
 def update_card(
-        exam_id: int,
-        card_id: int,
-        card_data: CardBase,
-        db: Session = Depends(get_db),
-        user_id: int = Depends(get_current_user_id)
-):
+    exam_id: int,
+    card_id: int,
+    card_data: CardBase,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> Card:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
         raise UserIsNotCreator("User is not creator")
-    exam = ExamRepo.get_exam(exam_id, db)
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
+
 
 @router.delete("/{exam_id}/cards/{card_id}", status_code=204)
 def delete_card(
-        exam_id: int,
-        card_id: int,
-        db: Session = Depends(get_db),
-        user_id: int = Depends(get_current_user_id)
-):
+    exam_id: int,
+    card_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> None:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
         raise UserIsNotCreator("User is not creator")
 
     ExamRepo.delete_card(exam_id, card_id, db)
+
 
 @router.patch("/{exam_id}", response_model=ExamOut)
 def update_exam(

@@ -3,13 +3,14 @@ from unittest.mock import Mock, patch
 
 from tprep.domain.services.session_factory import SessionFactory, strategy_enum
 from tprep.domain.exam_session import ExamSession
-from tprep.infrastructure.exam.exam import Card
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
 
 
 class TestSessionFactoryCreateSessionFull:
-    def test_create_session_full_strategy(self, mock_db, mock_user, mock_exam, mock_cards):
+    def test_create_session_full_strategy(
+        self, mock_db, mock_user, mock_exam, mock_cards
+    ):
         mock_db.query.return_value.filter.return_value.all.return_value = mock_cards
 
         session = SessionFactory.create_session(
@@ -95,8 +96,8 @@ class TestSessionFactoryCreateSessionRandom:
 
 
 class TestSessionFactoryCreateSessionSmart:
-    @patch.object(SessionFactory, 'get_smart_cards')
-    @patch.object(SessionFactory, 'smart_session_size')
+    @patch.object(SessionFactory, "get_smart_cards")
+    @patch.object(SessionFactory, "smart_session_size")
     def test_create_session_smart_strategy(
         self, mock_size, mock_get_smart, mock_db, mock_user, mock_exam, mock_cards
     ):
@@ -112,8 +113,8 @@ class TestSessionFactoryCreateSessionSmart:
         assert len(session.questions) == 2
         mock_get_smart.assert_called_once()
 
-    @patch.object(SessionFactory, 'get_smart_cards')
-    @patch.object(SessionFactory, 'smart_session_size')
+    @patch.object(SessionFactory, "get_smart_cards")
+    @patch.object(SessionFactory, "smart_session_size")
     def test_create_session_smart_strategy_with_no_statistics(
         self, mock_size, mock_get_smart, mock_db, mock_user, mock_exam, mock_cards
     ):
@@ -150,7 +151,6 @@ class TestSessionFactoryCreateSessionInvalidStrategy:
 
 
 class TestSessionFactoryGetSessionById:
-
     def test_get_session_by_id_returns_existing_session(
         self, mock_db, mock_user, mock_exam, mock_cards
     ):
@@ -159,9 +159,7 @@ class TestSessionFactoryGetSessionById:
         SessionFactory.session_ids.clear()
         mock_db.query.return_value.filter.return_value.all.return_value = mock_cards
 
-        session = SessionFactory.create_session(
-            mock_user, mock_exam, db=mock_db
-        )
+        session = SessionFactory.create_session(mock_user, mock_exam, db=mock_db)
 
         session_id = str(uuid4())
         session.id = session_id

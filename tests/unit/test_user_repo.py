@@ -32,7 +32,9 @@ class TestUserRepoCheckUserExists:
 
 
 class TestUserRepoCheckThatUserIsCreator:
-    def test_check_that_user_is_creator_returns_true_when_user_is_creator(self, mock_db):
+    def test_check_that_user_is_creator_returns_true_when_user_is_creator(
+        self, mock_db
+    ):
         mock_exam = Mock(spec=Exam)
         mock_exam.id = 1
         mock_exam.creator_id = 1
@@ -43,14 +45,18 @@ class TestUserRepoCheckThatUserIsCreator:
         assert result is True
         mock_db.query.assert_called_once_with(Exam)
 
-    def test_check_that_user_is_creator_returns_false_when_user_is_not_creator(self, mock_db):
+    def test_check_that_user_is_creator_returns_false_when_user_is_not_creator(
+        self, mock_db
+    ):
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         result = UserRepo.check_that_user_is_creator(2, 1, mock_db)
 
         assert result is False
 
-    def test_check_that_user_is_creator_returns_false_when_exam_does_not_exist(self, mock_db):
+    def test_check_that_user_is_creator_returns_false_when_exam_does_not_exist(
+        self, mock_db
+    ):
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         result = UserRepo.check_that_user_is_creator(1, 999, mock_db)

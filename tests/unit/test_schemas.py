@@ -67,11 +67,7 @@ class TestRefreshRequest:
 
 class TestAccessTokenResponse:
     def test_access_token_response_valid(self):
-        data = {
-            "accessToken": "token123",
-            "expiresIn": 3600,
-            "token_type": "bearer"
-        }
+        data = {"accessToken": "token123", "expiresIn": 3600, "token_type": "bearer"}
         response = AccessTokenResponse(**data)
 
         assert response.accessToken == "token123"
@@ -82,13 +78,16 @@ class TestAccessTokenResponse:
         data = {
             "accessToken": "token123",
             "expiresIn": "not an int",
-            "token_type": "bearer"
+            "token_type": "bearer",
         }
 
         with pytest.raises(ValidationError) as exc_info:
             AccessTokenResponse(**data)
 
-        assert "expiresIn" in str(exc_info.value) or "expires_in" in str(exc_info.value).lower()
+        assert (
+            "expiresIn" in str(exc_info.value)
+            or "expires_in" in str(exc_info.value).lower()
+        )
 
 
 class TestUserSchemas:
@@ -109,7 +108,7 @@ class TestUserSchemas:
         data = {
             "email": "user@example.com",
             "user_name": "John Doe",
-            "password": "securepassword"
+            "password": "securepassword",
         }
         user = UserCreate(**data)
 
@@ -124,11 +123,7 @@ class TestUserSchemas:
             UserCreate(**data)
 
     def test_user_out_includes_id(self):
-        data = {
-            "id": 1,
-            "email": "user@example.com",
-            "user_name": "John Doe"
-        }
+        data = {"id": 1, "email": "user@example.com", "user_name": "John Doe"}
         user = UserOut(**data)
 
         assert user.id == 1
@@ -182,7 +177,7 @@ class TestExamSessionResponse:
             "created_at": datetime.utcnow(),
             "user_id": 1,
             "exam_id": 10,
-            "questions": [1, 2, 3]
+            "questions": [1, 2, 3],
         }
         response = ExamSessionResponse(**data)
 
@@ -201,7 +196,7 @@ class TestExamSessionResponse:
             "exam_id": 10,
             "questions": [1, 2, 3],
             "answers": [True, False, True],
-            "n": 3
+            "n": 3,
         }
         response = ExamSessionResponse(**data)
 
@@ -216,7 +211,7 @@ class TestExamSessionResponse:
             "created_at": datetime.utcnow(),
             "user_id": 1,
             "exam_id": 10,
-            "questions": [1, 2, 3]
+            "questions": [1, 2, 3],
         }
         response = ExamSessionResponse(**data)
 
@@ -226,12 +221,7 @@ class TestExamSessionResponse:
 
 class TestExamSessionStartRequest:
     def test_exam_session_start_request_valid_random(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "random",
-            "n": 5
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "random", "n": 5}
         request = ExamSessionStartRequest(**data)
 
         assert request.user_id == 1
@@ -240,43 +230,27 @@ class TestExamSessionStartRequest:
         assert request.n == 5
 
     def test_exam_session_start_request_valid_full(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "full"
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "full"}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "full"
         assert request.n is None
 
     def test_exam_session_start_request_valid_smart(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "smart"
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "smart"}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "smart"
         assert request.n is None
 
     def test_exam_session_start_request_default_strategy(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10
-        }
+        data = {"user_id": 1, "exam_id": 10}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "random"
 
     def test_exam_session_start_request_smart_with_n_raises_error(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "smart",
-            "n": 5
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "smart", "n": 5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -284,12 +258,7 @@ class TestExamSessionStartRequest:
         assert "not allowed for strategy 'smart'" in str(exc_info.value)
 
     def test_exam_session_start_request_full_with_n_raises_error(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "full",
-            "n": 5
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "full", "n": 5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -297,12 +266,7 @@ class TestExamSessionStartRequest:
         assert "not allowed for strategy 'full'" in str(exc_info.value)
 
     def test_exam_session_start_request_negative_n_raises_error(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "random",
-            "n": -5
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "random", "n": -5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -310,12 +274,7 @@ class TestExamSessionStartRequest:
         assert "must be positive" in str(exc_info.value)
 
     def test_exam_session_start_request_zero_n_raises_error(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "random",
-            "n": 0
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "random", "n": 0}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -323,11 +282,7 @@ class TestExamSessionStartRequest:
         assert "must be positive" in str(exc_info.value)
 
     def test_exam_session_start_request_random_without_n_valid(self):
-        data = {
-            "user_id": 1,
-            "exam_id": 10,
-            "strategy": "random"
-        }
+        data = {"user_id": 1, "exam_id": 10, "strategy": "random"}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "random"

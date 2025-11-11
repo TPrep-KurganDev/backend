@@ -5,13 +5,14 @@ from tests.unit.mock_data import USERS, EXAMS, CARDS, STATISTICS
 
 @pytest.fixture
 def mock_stat_repo():
-    with patch('tprep.domain.exam_session.StatRepo.inc_mistakes') as mock:
+    with patch("tprep.domain.exam_session.StatRepo.inc_mistakes") as mock:
         yield mock
 
 
 @pytest.fixture(autouse=True)
 def clear_session_factory():
     from tprep.domain.services.session_factory import SessionFactory
+
     SessionFactory.session_ids = {}
     yield
     SessionFactory.session_ids = {}
