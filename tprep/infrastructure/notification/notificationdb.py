@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from tprep.infrastructure.user.user import User
 
 
-class Notification(Base):
+class NotificationDB(Base):
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)

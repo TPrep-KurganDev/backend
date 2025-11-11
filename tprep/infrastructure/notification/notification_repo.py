@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.notification.notification import Notification
+from tprep.infrastructure.notification.notificationdb import NotificationDB
 
 
 class NotificationRepo:
@@ -16,7 +16,7 @@ class NotificationRepo:
     ) -> None:
         now = datetime.now(timezone.utc)
         for delta in NotificationRepo.INTERVALS:
-            notification = Notification(
+            notification = NotificationDB(
                 user_id=user_id, exam_id=exam_id, time=now + delta
             )
             db.add(notification)
@@ -28,8 +28,10 @@ class NotificationRepo:
         user_id: int, exam_id: int, db: Session = Depends(get_db)
     ) -> None:
         notification = (
-            db.query(Notification)
-            .filter(Notification.user_id == user_id, Notification.exam_id == exam_id)
+            db.query(NotificationDB)
+            .filter(
+                NotificationDB.user_id == user_id, NotificationDB.exam_id == exam_id
+            )
             .first()
         )
         if notification:
