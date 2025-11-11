@@ -15,7 +15,6 @@ from tprep.infrastructure.exceptions.invalid_authorization_header import (
 from tprep.infrastructure.exceptions.invalid_or_expired_token import (
     InvalidOrExpiredToken,
 )
-from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from config import SECRET_KEY, ALGORITHM
 
 
@@ -60,7 +59,9 @@ class TestAccessToken:
         data = {"sub": "123", "email": "test@example.com"}
         token = create_access_token(data)
 
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
+        decoded = jwt.decode(
+            token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False}
+        )
         assert decoded["sub"] == "123"
         assert decoded["email"] == "test@example.com"
         assert "exp" in decoded
@@ -69,7 +70,9 @@ class TestAccessToken:
         data = {"sub": "123"}
         token = create_access_token(data)
 
-        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False})
+        decoded = jwt.decode(
+            token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False}
+        )
         assert "exp" in decoded
 
     def test_verify_refresh_token_valid(self):

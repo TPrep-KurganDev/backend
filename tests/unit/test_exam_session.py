@@ -1,6 +1,4 @@
 import pytest
-from uuid import uuid4
-from datetime import datetime
 
 from tprep.domain.exam_session import ExamSession
 from tprep.infrastructure.exceptions.question_not_in_session import QuestionNotInSession
@@ -34,7 +32,7 @@ class TestExamSessionInitialization:
     def test_exam_session_created_at_timestamp(self):
         session = ExamSession(1, 10, [1, 2, 3])
 
-        assert hasattr(session, 'created_at')
+        assert hasattr(session, "created_at")
 
 
 class TestExamSessionSetAnswer:

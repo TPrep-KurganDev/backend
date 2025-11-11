@@ -12,7 +12,7 @@ from tprep.infrastructure.models import *
 from tprep.infrastructure.user.user import *
 from tprep.infrastructure.exam.exam import *
 from tprep.infrastructure.statistic.statistic import *
-from tprep.infrastructure.notification.notification import *
+from tprep.infrastructure.notification.notificationdb import *
 
 load_dotenv()
 

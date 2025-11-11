@@ -1,10 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import EmailStr
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
-from tprep.infrastructure.notification.notification import Notification
+from tprep.infrastructure.notification.notificationdb import NotificationDB
 
 if TYPE_CHECKING:
     from tprep.infrastructure.exam.exam import Exam, UserPinnedExam
@@ -20,8 +20,8 @@ class User(Base):
     )
     user_name: Mapped[str] = mapped_column(String(255), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
-    push_key: Mapped[str] = mapped_column(String(255), nullable=True)
-    endpoint: Mapped[str] = mapped_column(String(512), nullable=True)
+    push_key: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    endpoint: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     auth_token: Mapped[str] = mapped_column(String(255), nullable=True)
 
     pinned_exams: Mapped[list["UserPinnedExam"]] = relationship(
@@ -42,8 +42,8 @@ class User(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-    related_notification: Mapped[list["Notification"]] = relationship(
-        "Notification",
+    related_notification: Mapped[list["NotificationDB"]] = relationship(
+        "NotificationDB",
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,
