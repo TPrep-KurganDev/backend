@@ -129,9 +129,9 @@ def get_question(exam_id: int, question_id: int):
 def set_answer(session_id: str, question_id: id, flag: bool):
     url = BASE_URL + f"/session/{session_id}/answer"
     headers = {"Authorization": f"Bearer {token}"}
-    payload = {"session_id": session_id, "question_id": question_id, "value": flag}
+    params = {"question_id": question_id, "value": flag}
     try:
-        r = requests.post(url, json=payload, headers=headers)
+        r = requests.post(url, headers=headers, params=params)
     except requests.RequestException as e:
         print(f"Network error during exam creation: {e}")
         return None
@@ -152,4 +152,4 @@ if __name__ == "__main__":
     for question_id in questions:
         get_question(exam_id, question_id)
         set_answer(session_id, question_id, flag)
-        flag = not (flag)
+        flag = not flag

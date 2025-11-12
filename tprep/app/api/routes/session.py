@@ -32,11 +32,11 @@ def start_exam_session(
 
 
 @router.post("/{session_id}/answer")
-def set_answer(session_id: str, question_id: int, value: bool) -> dict[str, str]:
+def set_answer(session_id: str, question_id: int, value: bool, db: Session = Depends(get_db)) -> dict[str, str]:
     session = SessionFactory.get_session_by_id(session_id)
     if session is None:
-        raise SessionNotFound()
+        raise SessionNotFound("Session not found")
 
-    session.set_answer(question_id, value)
+    session.set_answer(question_id, value, db)
 
     return {"status": "ok"}
