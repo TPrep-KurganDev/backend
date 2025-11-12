@@ -40,7 +40,9 @@ class UserRepo:
         return user
 
     @staticmethod
-    def update_user_token(user_id: int, token: str, db: Session = Depends(get_db)) -> User:
+    def update_user_token(
+        user_id: int, token: str, db: Session = Depends(get_db)
+    ) -> User:
         user = db.query(User).filter(User.id == user_id).one()
         user.auth_token = token
         db.commit()
@@ -48,15 +50,24 @@ class UserRepo:
         return user
 
     @staticmethod
-    def get_user_by_id_and_token(user_id: int, token: str, db: Session = Depends(get_db)) -> User:
-        user = db.query(User).filter(User.id == user_id, User.auth_token == token).first()
+    def get_user_by_id_and_token(
+        user_id: int, token: str, db: Session = Depends(get_db)
+    ) -> User:
+        user = (
+            db.query(User).filter(User.id == user_id, User.auth_token == token).first()
+        )
         if not user:
             raise UserNotFound
         return user
 
     @staticmethod
-    def register_push(user_id: int, push_key: str, endpoint: str, db: Session = Depends(get_db)) -> None:
+    def register_push(
+        user_id: int, push_key: str, endpoint: str, db: Session = Depends(get_db)
+    ) -> None:
+        # TODO: Заменить на питоновскую def получение юзера
         user = db.query(User).filter(User.id == user_id).first()
+        if user is None:
+            raise UserNotFound
         user.push_key = push_key
         user.endpoint = endpoint
         db.add(user)
@@ -64,6 +75,7 @@ class UserRepo:
 
     @staticmethod
     def unregister_push(user_id: int, db: Session = Depends(get_db)) -> None:
+        # TODO: Заменить на питоновскую def получение юзера
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
             raise UserNotFound
