@@ -71,6 +71,16 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
+    def get_cards_by_exam_id(exam_id: int, db: Session = Depends(get_db)) -> list[Card]:
+        cards = (
+            db.query(Card)
+            .filter(Card.exam_id == exam_id)
+            .all()
+        )
+
+        return cards
+
+    @staticmethod
     def get_card(card_id: int, db: Session) -> Card:
         card = (
             db.query(Card)

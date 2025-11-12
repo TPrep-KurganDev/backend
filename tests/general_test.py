@@ -138,6 +138,18 @@ def set_answer(session_id: str, question_id: id, flag: bool):
     print(f"Set Answer status={r.status_code}, body={r.text}")
 
 
+def get_cards(exam_id: int):
+    url = BASE_URL + f"/exams/{exam_id}/cards"
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
+        r = requests.get(url, headers=headers)
+    except requests.RequestException as e:
+        print(f"Network error during exam creation: {e}")
+        return None
+    data = r.json()
+    print(data)
+
+
 if __name__ == "__main__":
     register_user(ADMIN_EMAIL, ADMIN_PASSWORD, "admin1")
     token = login_user(ADMIN_EMAIL, ADMIN_PASSWORD)
@@ -147,6 +159,9 @@ if __name__ == "__main__":
     for i in range(10):
         card_id = add_card(exam_id, token)
         fill_card(exam_id, token, card_id)
+
+    get_cards(exam_id)
+
     session_id, questions = take_session(exam_id, token)
     flag = False
     for question_id in questions:
