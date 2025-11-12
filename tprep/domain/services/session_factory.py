@@ -52,8 +52,8 @@ class SessionFactory:
         return session
 
     @staticmethod
-    def get_session_by_id(session_id: int) -> ExamSession | None:
-        return SessionFactory.session_ids[str(session_id)]
+    def get_session_by_id(session_id: str) -> ExamSession | None:
+        return SessionFactory.session_ids[session_id]
 
     @staticmethod
     def get_smart_cards(

@@ -9,7 +9,7 @@ from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
 from tprep.infrastructure.user.user_repo import UserRepo
 
 from tprep.app.exam_schemas import ExamOut, ExamCreate
-from tprep.app.card_schemas import CardBase
+from tprep.app.card_schemas import CardBase, CardCreate
 
 router = APIRouter(prefix="/exams", tags=["Exams"])
 
@@ -41,7 +41,7 @@ def create_exam(
     return new_exam
 
 
-@router.post("/{exam_id}/cards", response_model=CardBase)
+@router.post("/{exam_id}/cards", response_model=CardCreate)
 def create_card(
     exam_id: int,
     db: Session = Depends(get_db),
@@ -54,11 +54,10 @@ def create_card(
 
 @router.get("/{exam_id}/cards/{card_id}", response_model=CardBase)
 def get_card(
-    exam_id: int,
-    card_id: int,
-    db: Session = Depends(get_db),
-) -> Card:
-    return ExamRepo.get_card(exam_id, card_id, db)
+        card_id: int,
+        db: Session = Depends(get_db),
+):
+    return ExamRepo.get_card(card_id, db)
 
 
 @router.patch("/{exam_id}/cards/{card_id}", response_model=CardBase)

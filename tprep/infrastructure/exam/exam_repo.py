@@ -71,10 +71,10 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
-    def get_card(exam_id: int, card_id: int, db: Session) -> Card:
+    def get_card(card_id: int, db: Session) -> Card:
         card = (
             db.query(Card)
-            .filter(Card.card_id == card_id, Card.exam_id == exam_id)
+            .filter(Card.card_id == card_id)
             .first()
         )
         if not card:
@@ -83,7 +83,8 @@ class ExamRepo:
 
     @staticmethod
     def create_card(exam_id: int, db: Session = Depends(get_db)) -> Card:
-        new_card = Card(exam_id=exam_id, question="", answer="")
+        number = len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
+        new_card = Card(number=number, exam_id=exam_id, question="", answer="")
         db.add(new_card)
         db.commit()
         db.refresh(new_card)

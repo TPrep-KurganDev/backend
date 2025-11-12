@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.database import get_db
 from tprep.domain.services.session_factory import SessionFactory
 from tprep.app.session_schemas import ExamSessionResponse, ExamSessionStartRequest
@@ -15,9 +16,9 @@ router = APIRouter(prefix="/session", tags=["Session"])
 
 @router.post("/", response_model=ExamSessionResponse)
 def start_exam_session(
-    request: ExamSessionStartRequest, db: Session = Depends(get_db)
+    request: ExamSessionStartRequest, db: Session = Depends(get_db), user_id = Depends(get_current_user_id)
 ) -> ExamSessionResponse:
-    user = db.query(User).get(request.user_id)
+    user = db.query(User).get(user_id)
     if not user:
         raise UserNotFound()
 
@@ -31,11 +32,11 @@ def start_exam_session(
 
 
 @router.post("/{session_id}/answer")
-def set_answer(session_id: int, question_id: int, value: bool) -> dict[str, str]:
+def set_answer(session_id: str, question_id: int, value: bool, db: Session = Depends(get_db)) -> dict[str, str]:
     session = SessionFactory.get_session_by_id(session_id)
     if session is None:
-        raise SessionNotFound()
+        raise SessionNotFound("Session not found")
 
-    session.set_answer(question_id, value)
+    session.set_answer(question_id, value, db)
 
     return {"status": "ok"}

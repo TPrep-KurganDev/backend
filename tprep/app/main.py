@@ -53,10 +53,10 @@ APP_ERRORS = {
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
     Base.metadata.create_all(bind=engine)
 
-    clear_db()
-    db = SessionLocal()
-    create_mock_users(db)
-    db.close()
+#    clear_db()
+#    db = SessionLocal()
+#   create_mock_users(db)
+#    db.close()
     yield
 
 

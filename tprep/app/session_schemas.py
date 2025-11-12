@@ -7,22 +7,16 @@ from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
 
 
 class ExamSessionResponse(BaseModel):
-    id: int
-    created_at: datetime
-    user_id: int
-    exam_id: int
+    id: str
     questions: List[int]
-    answers: Optional[List[bool]] = None
-    n: Optional[int] = None
 
     class Config:
         from_attributes = True
 
 
 class ExamSessionStartRequest(BaseModel):
-    user_id: int
     exam_id: int
-    strategy: str = "random"
+    strategy: str = "full"
     n: Optional[int] = None
 
     @model_validator(mode="after")
