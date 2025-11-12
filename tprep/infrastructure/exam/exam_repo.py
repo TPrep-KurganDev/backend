@@ -71,8 +71,8 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
-    def get_card(exam_id: int, card_id: int, db: Session) -> Card:
-        card = db.query(Card).filter(Card.card_id == card_id, Card.exam_id == exam_id).first()
+    def get_card(card_id: int, db: Session) -> Card:
+        card = db.query(Card).filter(Card.card_id == card_id).first()
         if not card:
             raise CardNotFound()
         return card

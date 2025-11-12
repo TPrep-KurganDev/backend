@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.statistic.statistic import Statistic
+from tprep.infrastructure.exam.exam import Card
 
 
 class StatRepo:
@@ -17,7 +18,15 @@ class StatRepo:
         if stat:
             stat.mistakes_count += 1
         else:
-            stat = Statistic(user_id=user_id, card_id=card_id, mistakes_count=1)
-            db.add(stat)
+            # Получаем exam_id из карточки
+            card = db.query(Card).filter(Card.card_id == card_id).first()
+            if card:
+                stat = Statistic(
+                    user_id=user_id,
+                    card_id=card_id,
+                    exam_id=card.exam_id,
+                    mistakes_count=1,
+                )
+                db.add(stat)
 
         db.commit()
