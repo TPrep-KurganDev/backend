@@ -9,12 +9,12 @@ from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
 from tprep.infrastructure.user.user_repo import UserRepo
 
 from tprep.app.exam_schemas import ExamOut, ExamCreate
-from tprep.app.card_schemas import CardBase, CardCreate
+from tprep.app.card_schemas import CardBase, CardResponse
 
-router = APIRouter(prefix="/exams", tags=["Exams"])
+router = APIRouter(tags=["Exams", "Cards"])
 
 
-@router.get("/pinned", response_model=List[ExamOut])
+@router.get("/exams/pinned", response_model=List[ExamOut])
 def get_pinned_exams(
     pinned_id: int = Query(None, description="Id of the user that pinned exam"),
     db: Session = Depends(get_db),
@@ -22,7 +22,7 @@ def get_pinned_exams(
     return ExamRepo.get_exams_pinned_by_user(pinned_id, db)
 
 
-@router.get("/created", response_model=List[ExamOut])
+@router.get("/exams/created", response_model=List[ExamOut])
 def get_exams(
     creator_id: int = Query(None, description="Id of the user that created exam"),
     db: Session = Depends(get_db),
@@ -30,7 +30,7 @@ def get_exams(
     return ExamRepo.get_exams_created_by_user(creator_id, db)
 
 
-@router.post("/", response_model=ExamOut)
+@router.post("/exams/", response_model=ExamOut)
 def create_exam(
     exam_data: ExamCreate,
     user_id: int = Depends(get_current_user_id),
@@ -41,7 +41,7 @@ def create_exam(
     return new_exam
 
 
-@router.post("/{exam_id}/cards", response_model=CardCreate)
+@router.post("/exams/{exam_id}/cards", response_model=CardResponse)
 def create_card(
     exam_id: int,
     db: Session = Depends(get_db),
@@ -52,15 +52,23 @@ def create_card(
     return ExamRepo.create_card(exam_id, db)
 
 
-@router.get("/{exam_id}/cards/{card_id}", response_model=CardBase)
+@router.get("/exams/{exam_id}/cards", response_model=List[CardResponse])
+def get_cards_list(
+    exam_id: int,
+    db: Session = Depends(get_db)
+) -> List[Card]:
+    cards = ExamRepo.get_cards_by_exam_id(exam_id, db)
+    return cards
+
+@router.get("/cards/{card_id}", response_model=CardBase)
 def get_card(
         card_id: int,
         db: Session = Depends(get_db),
-):
+) -> Card:
     return ExamRepo.get_card(card_id, db)
 
 
-@router.patch("/{exam_id}/cards/{card_id}", response_model=CardBase)
+@router.patch("/exams/{exam_id}/cards/{card_id}", response_model=CardBase)
 def update_card(
     exam_id: int,
     card_id: int,
@@ -73,7 +81,7 @@ def update_card(
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
 
-@router.delete("/{exam_id}/cards/{card_id}", status_code=204)
+@router.delete("/exams/{exam_id}/cards/{card_id}", status_code=204)
 def delete_card(
     exam_id: int,
     card_id: int,
@@ -86,7 +94,7 @@ def delete_card(
     ExamRepo.delete_card(exam_id, card_id, db)
 
 
-@router.patch("/{exam_id}", response_model=ExamOut)
+@router.patch("/exams/{exam_id}", response_model=ExamOut)
 def update_exam(
     exam_id: int,
     exam_data: ExamCreate,
@@ -99,7 +107,7 @@ def update_exam(
     return ExamRepo.update_exam(exam_id, exam_data, db)
 
 
-@router.delete("/{exam_id}", status_code=204)
+@router.delete("/exams/{exam_id}", status_code=204)
 def delete_exam(
     exam_id: int,
     user_id: int = Depends(get_current_user_id),
@@ -111,6 +119,6 @@ def delete_exam(
     ExamRepo.delete_exam(exam_id, db)
 
 
-@router.get("/{exam_id}", response_model=ExamOut)
+@router.get("/exams/{exam_id}", response_model=ExamOut)
 def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
     return ExamRepo.get_exam(exam_id, db)

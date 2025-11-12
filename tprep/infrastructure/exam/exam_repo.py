@@ -16,7 +16,7 @@ class ExamRepo:
     def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
         exam = db.query(Exam).filter(Exam.id == exam_id).first()
         if exam is None:
-            raise ExamNotFound
+            raise ExamNotFound(f"Exam with id:{exam_id} not found")
         return exam
 
     @staticmethod
@@ -71,6 +71,17 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
+    def get_cards_by_exam_id(exam_id: int, db: Session = Depends(get_db)) -> list[Card]:
+        exam = ExamRepo.get_exam(exam_id, db)
+        cards = (
+            db.query(Card)
+            .filter(Card.exam_id == exam_id)
+            .all()
+        )
+
+        return cards
+
+    @staticmethod
     def get_card(card_id: int, db: Session) -> Card:
         card = (
             db.query(Card)
@@ -78,7 +89,7 @@ class ExamRepo:
             .first()
         )
         if not card:
-            raise CardNotFound()
+            raise CardNotFound(f"Card with id:{card_id} not found")
         return card
 
     @staticmethod
