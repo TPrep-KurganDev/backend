@@ -33,6 +33,13 @@ class UserRepo:
         return user
 
     @staticmethod
+    def get_user_by_id(user_id: int, db: Session = Depends(get_db)) -> User:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise UserNotFound(f"User with id:{user_id} not found")
+        return user
+
+    @staticmethod
     def register_user(user: User, db: Session = Depends(get_db)) -> User:
         db.add(user)
         db.commit()
@@ -64,10 +71,7 @@ class UserRepo:
     def register_push(
         user_id: int, push_key: str, endpoint: str, db: Session = Depends(get_db)
     ) -> None:
-        # TODO: Заменить на питоновскую def получение юзера
-        user = db.query(User).filter(User.id == user_id).first()
-        if user is None:
-            raise UserNotFound
+        user = UserRepo.get_user_by_id(user_id, db)
         user.push_key = push_key
         user.endpoint = endpoint
         db.add(user)
@@ -75,12 +79,7 @@ class UserRepo:
 
     @staticmethod
     def unregister_push(user_id: int, db: Session = Depends(get_db)) -> None:
-        # TODO: Заменить на питоновскую def получение юзера
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            raise UserNotFound
-
+        user = UserRepo.get_user_by_id(user_id, db)
         user.push_key = None
         user.endpoint = None
-
         db.commit()

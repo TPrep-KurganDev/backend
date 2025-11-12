@@ -114,8 +114,8 @@ def take_session(exam_id: int, token: str):
     return data['id'], data['questions']
 
 
-def get_question(exam_id: int, question_id: int):
-    url = BASE_URL + f"/exams/{exam_id}/cards/{question_id}"
+def get_question(question_id: int):
+    url = BASE_URL + f"/cards/{question_id}"
     headers = {"Authorization": f"Bearer {token}"}
     try:
         r = requests.get(url, headers=headers)
@@ -165,6 +165,6 @@ if __name__ == "__main__":
     session_id, questions = take_session(exam_id, token)
     flag = False
     for question_id in questions:
-        get_question(exam_id, question_id)
+        get_question(question_id)
         set_answer(session_id, question_id, flag)
         flag = not flag
