@@ -1,52 +1,43 @@
-name: Publish Release Docker Image
+name: Push Release Branch to Docker (GHCR)
 
 on:
-  push:
-    tags:
-      - '**'  # ловим все теги
-    branches:
-      - 'release-**'  # но только если они в ветке release/*
-
-# Ограничиваем запуск: только если и тег, и ветка release/*
-# Но GitHub не позволяет комбинировать branches и tags напрямую — делаем вручную
-# Поэтому проверим вручную в шагах
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'Release branch name (format: release-X.Y, e.g. release-1.0)'
+        required: true
+        default: 'release-0.1'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
-
     permissions:
-      contents: read
       packages: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Extract version and validate branch
-        id: tag
+      - name: Validate branch format (release-X.Y)
         run: |
-          # Получаем имя тега
-          TAG_NAME="${GITHUB_REF#refs/tags/}"
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+          BRANCH="${{ github.event.inputs.release_branch }}"
 
-          # Проверяем, в какой ветке мы находимся
-          BRANCH=$(git show-branch --current | grep '\*' | head -1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/)$//')
-          echo "CURRENT_BRANCH=$BRANCH" >> $GITHUB_ENV
-
-          # Проверяем, что ветка — release-*
-          if [[ "$BRANCH" != release-* ]]; then
-            echo "❌ This tag was pushed not from a release-* branch"
-            echo "✅ Tag should be pushed to a release branch first."
+          # Проверяем формат: release-<число>.<число> (например, release-1.0)
+          if ! [[ "$BRANCH" =~ ^release-[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid branch format. Must be: release-X.Y (e.g. release-1.0, release-2.5)"
+            echo "   Examples of valid names:"
+            echo "     ✅ release-1.0"
+            echo "     ✅ release-10.5"
             exit 1
           fi
 
-          # Извлекаем версию из тега (например, 1.0)
-          VERSION=$(echo "$TAG_NAME" | sed 's/^v\?//')
+          # Извлекаем версию: release-1.0 → 1.0
+          VERSION=$(echo "$BRANCH" | sed -E 's|^release-||')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "✅ Validated branch: $BRANCH → version: $VERSION"
 
-          echo "✅ Using version: $VERSION from branch $BRANCH"
+      - name: Checkout code from branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.release_branch }}
+          fetch-depth: 0
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -69,4 +60,6 @@ jobs:
 
       - name: Confirm
         run: |
-          echo "✅ Docker image pushed with tag: ${{ env.VERSION }}"
+          echo "✅ Successfully built and pushed:"
+          echo "   ghcr.io/${{ github.repository }}:${{ env.VERSION }}"
+          echo "   ghcr.io/${{ github.repository }}:latest"
