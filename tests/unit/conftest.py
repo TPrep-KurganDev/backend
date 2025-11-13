@@ -12,7 +12,7 @@ from tprep.infrastructure.statistic.statistic import Statistic
 
 # URL для тестовой БД (можно переопределить через переменную окружения)
 TEST_DATABASE_URL = os.getenv(
-    "TEST_DATABASE_URL", "postgresql://test_user:test_password@localhost:5432/test_db"
+    "TEST_DATABASE_URL", "postgresql://test_user:test_password@localhost:5433/test_db"
 )
 
 

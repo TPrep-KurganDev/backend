@@ -60,6 +60,29 @@ logs:
 
 restart: down up
 
+# Test database commands
+test-db-up:
+	docker-compose -f docker-compose.test.yml up -d
+
+test-db-down:
+	docker-compose -f docker-compose.test.yml down
+
+test-db-logs:
+	docker-compose -f docker-compose.test.yml logs -f test_db
+
+test-db-restart: test-db-down test-db-up
+
+test-db-clean:
+	docker-compose -f docker-compose.test.yml down -v
+
+test:
+	$(VENV)/bin/pytest tests/unit/ -v
+
+test-with-db: test-db-up
+	@echo "Waiting for test database to be ready..."
+	@sleep 3
+	$(VENV)/bin/pytest tests/unit/ -v
+
 mypy:
 	$(VENV)/bin/mypy --install-types --non-interactive $(CODE) --show-traceback
 
