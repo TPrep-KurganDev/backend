@@ -12,7 +12,7 @@ jobs:
   create-release-branch:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # ← важно: разрешить запись
+      contents: write
       actions: read
 
     steps:
@@ -20,8 +20,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-          fetch-depth: 0  # ← полная история, нужно для push
-          persist-credentials: true  # ← позволяет использовать git push
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Set up Git
         run: |
@@ -41,8 +41,8 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          if git ls-remote --heads origin release-$VERSION | grep -q release-$VERSION; then
-            echo "❌ Branch release-$VERSION already exists!"
+          if git ls-remote --heads origin release-backend-$VERSION | grep -q release-backend-$VERSION; then
+            echo "❌ Branch release-backend-$VERSION already exists!"
             exit 1
           fi
 
@@ -50,6 +50,6 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          git checkout -b release-$VERSION
-          git push origin release-$VERSION
-          echo "✅ Release branch 'release-$VERSION' created and pushed!"
+          git checkout -b release-backend-$VERSION
+          git push origin release-backend-$VERSION
+          echo "✅ Release branch 'release-backend-$VERSION' created and pushed!"
