@@ -41,8 +41,8 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          if git ls-remote --heads origin release/$VERSION | grep -q release/$VERSION; then
-            echo "❌ Branch release/$VERSION already exists!"
+          if git ls-remote --heads origin release-$VERSION | grep -q release-$VERSION; then
+            echo "❌ Branch release-$VERSION already exists!"
             exit 1
           fi
 
@@ -50,6 +50,6 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          git checkout -b release/$VERSION
-          git push origin release/$VERSION
-          echo "✅ Release branch 'release/$VERSION' created and pushed!"
+          git checkout -b release-$VERSION
+          git push origin release-$VERSION
+          echo "✅ Release branch 'release-$VERSION' created and pushed!"
