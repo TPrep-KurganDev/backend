@@ -1,4 +1,3 @@
-
 from tprep.infrastructure.statistic.stat_repo import StatRepo
 from tprep.infrastructure.statistic.statistic import Statistic
 

@@ -16,7 +16,9 @@ router = APIRouter(prefix="/session", tags=["Session"])
 
 @router.post("/", response_model=ExamSessionResponse)
 def start_exam_session(
-    request: ExamSessionStartRequest, db: Session = Depends(get_db), user_id = Depends(get_current_user_id)
+    request: ExamSessionStartRequest,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
 ) -> ExamSessionResponse:
     user = db.query(User).get(user_id)
     if not user:
@@ -32,7 +34,9 @@ def start_exam_session(
 
 
 @router.post("/{session_id}/answer")
-def set_answer(session_id: str, question_id: int, value: bool, db: Session = Depends(get_db)) -> dict[str, str]:
+def set_answer(
+    session_id: str, question_id: int, value: bool, db: Session = Depends(get_db)
+) -> dict[str, str]:
     session = SessionFactory.get_session_by_id(session_id)
     if session is None:
         raise SessionNotFound("Session not found")

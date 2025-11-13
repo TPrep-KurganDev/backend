@@ -53,17 +53,15 @@ def create_card(
 
 
 @router.get("/exams/{exam_id}/cards", response_model=List[CardResponse])
-def get_cards_list(
-    exam_id: int,
-    db: Session = Depends(get_db)
-) -> List[Card]:
+def get_cards_list(exam_id: int, db: Session = Depends(get_db)) -> List[Card]:
     cards = ExamRepo.get_cards_by_exam_id(exam_id, db)
     return cards
 
+
 @router.get("/cards/{card_id}", response_model=CardBase)
 def get_card(
-        card_id: int,
-        db: Session = Depends(get_db),
+    card_id: int,
+    db: Session = Depends(get_db),
 ) -> Card:
     return ExamRepo.get_card(card_id, db)
 
