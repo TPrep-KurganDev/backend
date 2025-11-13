@@ -51,11 +51,6 @@ def db_engine():
 
 @pytest.fixture(scope="function")
 def test_db(db_engine) -> Session:
-    """
-    Создает сессию для каждого теста.
-    После теста все данные очищаются.
-    """
-    # Создаем сессию
     TestingSessionLocal = sessionmaker(
         autocommit=False, autoflush=False, bind=db_engine
     )

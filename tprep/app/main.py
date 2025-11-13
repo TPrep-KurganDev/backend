@@ -27,9 +27,7 @@ from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
 from tprep.infrastructure.models import Base
-from tprep.infrastructure.database import engine, SessionLocal
-from tprep.mocks.mock_users import create_mock_users
-from tprep.helpers.clear_db import clear_db
+from tprep.infrastructure.database import engine
 
 APP_ERRORS = {
     Exception: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -53,10 +51,10 @@ APP_ERRORS = {
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
     Base.metadata.create_all(bind=engine)
 
-#    clear_db()
-#    db = SessionLocal()
-#   create_mock_users(db)
-#    db.close()
+    #    clear_db()
+    #    db = SessionLocal()
+    #   create_mock_users(db)
+    #    db.close()
     yield
 
 

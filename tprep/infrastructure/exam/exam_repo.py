@@ -72,22 +72,12 @@ class ExamRepo:
 
     @staticmethod
     def get_cards_by_exam_id(exam_id: int, db: Session = Depends(get_db)) -> list[Card]:
-        exam = ExamRepo.get_exam(exam_id, db)
-        cards = (
-            db.query(Card)
-            .filter(Card.exam_id == exam_id)
-            .all()
-        )
-
+        cards = db.query(Card).filter(Card.exam_id == exam_id).all()
         return cards
 
     @staticmethod
     def get_card(card_id: int, db: Session) -> Card:
-        card = (
-            db.query(Card)
-            .filter(Card.card_id == card_id)
-            .first()
-        )
+        card = db.query(Card).filter(Card.card_id == card_id).first()
         if not card:
             raise CardNotFound(f"Card with id:{card_id} not found")
         return card

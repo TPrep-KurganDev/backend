@@ -28,7 +28,7 @@ def register_user(email: str, password: str, admin_username: str):
         if r.text == '{"error":"UnexceptableStrategy","message":"User already exists"}':
             print("Скорее всего не отчистили users перед стартом теста")
         return None
-    print(f"Registered without errors")
+    print("Registered without errors")
     return None
 
 
@@ -48,8 +48,7 @@ def login_user(email: str, password: str):
 
     data = r.json()
     value = data.get("access_token")
-    id = data.get("id")
-    print(f"Login without errors")
+    print("Login without errors")
     return value if isinstance(value, str) else None
 
 
@@ -69,7 +68,7 @@ def create_exam(token: str, title: str = "Auto Exam") -> dict[str, Any] | None:
         print(f"Exam creation failed: status={r.status_code}, body={r.text}")
         return None
 
-    print(f"Exam creation without errors")
+    print("Exam creation without errors")
     data = r.json()
     exam_id = data.get("id")
     return exam_id
@@ -85,16 +84,18 @@ def add_card(exam_id: int, token: str):
         return None
     data = r.json()
     print("Created card without errors")
-    return data['card_id']
+    return data["card_id"]
 
 
 def fill_card(exam_id: int, token: str, card_id: int):
     url = BASE_URL + f"/exams/{exam_id}/cards/{card_id}"
     headers = {"Authorization": f"Bearer {token}"}
-    payload = {"question": "Что такое ядро гомоморфизма?",
-               "answer": "Ядро гомоморфизма в математике — это множество элементов одной алгебраической структуры (группы, кольца, поля и т. д.), которые при гомоморфизме (отображении, сохраняющем алгебраические операции) отображаются в нулевую подсистему второй структуры."}
+    payload = {
+        "question": "Что такое ядро гомоморфизма?",
+        "answer": "Ядро гомоморфизма в математике — это множество элементов одной алгебраической структуры (группы, кольца, поля и т. д.), которые при гомоморфизме (отображении, сохраняющем алгебраические операции) отображаются в нулевую подсистему второй структуры.",
+    }
     try:
-        r = requests.patch(url, json=payload, headers=headers)
+        requests.patch(url, json=payload, headers=headers)
     except requests.RequestException as e:
         print(f"Network error during exam creation: {e}")
         return None
@@ -102,7 +103,7 @@ def fill_card(exam_id: int, token: str, card_id: int):
 
 
 def take_session(exam_id: int, token: str):
-    url = BASE_URL + f"/session"
+    url = BASE_URL + "/session"
     headers = {"Authorization": f"Bearer {token}"}
     payload = {"exam_id": exam_id}
     try:
@@ -111,7 +112,7 @@ def take_session(exam_id: int, token: str):
         print(f"Network error during exam creation: {e}")
         return None
     data = r.json()
-    return data['id'], data['questions']
+    return data["id"], data["questions"]
 
 
 def get_question(question_id: int):
