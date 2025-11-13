@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (e.g. v1.2.0)'
+        description: 'Release version (e.g. 1.0, 2.5)'
         required: true
+        default: '0.0'
 
 jobs:
   create-release-branch:
@@ -22,16 +23,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Validate version
+      - name: Validate version format
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          if ! [[ "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "❌ Invalid version format. Use v1.2.3"
+          # Проверяем формат: X.Y, где X — любое число, Y — одна цифра
+          if ! [[ "$VERSION" =~ ^[0-9]+\.([0-9])$ ]]; then
+            echo "❌ Invalid format. Use X.Y (e.g. 0.0, 1.0, 2.5, 10.3)"
+            echo "   → One digit after the dot, no 'v' prefix"
             exit 1
           fi
 
-      - name: Check if branch exists
+      - name: Check if branch already exists
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
@@ -40,10 +43,10 @@ jobs:
             exit 1
           fi
 
-      - name: Create and push branch
+      - name: Create and push release branch
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
           git checkout -b release/$VERSION
           git push origin release/$VERSION
-          echo "✅ Release branch 'release/$VERSION' created!"
+          echo "✅ Release branch 'release/$VERSION' created and pushed!"
