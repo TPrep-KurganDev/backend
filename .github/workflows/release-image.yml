@@ -27,7 +27,7 @@ jobs:
             exit 1
           fi
 
-          VERSION=$(echo "$BRANCH" | sed -E 's|^release-backend||')
+          VERSION=$(echo "$BRANCH" | sed -E 's|^release-backend-||')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "✅ Validated branch: $BRANCH → version: $VERSION"
 
@@ -59,11 +59,11 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ env.LOWER_REPO }}:${{ env.VERSION }}
-            ghcr.io/${{ env.LOWER_REPO }}:latest
+            ghcr.io/${{ env.LOWER_REPO }}/release-backend:${{ env.VERSION }}
+            ghcr.io/${{ env.LOWER_REPO }}/release-backend:latest
 
       - name: Confirm
         run: |
           echo "✅ Successfully built and pushed:"
-          echo "   ghcr.io/${{ github.repository }}:${{ env.VERSION }}"
-          echo "   ghcr.io/${{ github.repository }}:latest"
+          echo "   ghcr.io/${{ github.repository }}/release-backend:${{ env.VERSION }}"
+          echo "   ghcr.io/${{ github.repository }}/release-backend:latest"
