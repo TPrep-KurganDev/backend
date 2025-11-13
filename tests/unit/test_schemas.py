@@ -170,87 +170,63 @@ class TestExamSchemas:
 
 class TestExamSessionResponse:
     def test_exam_session_response_valid(self):
-        from datetime import datetime
-
         data = {
-            "id": 1,
-            "created_at": datetime.utcnow(),
-            "user_id": 1,
-            "exam_id": 10,
+            "id": "session_123",
             "questions": [1, 2, 3],
         }
         response = ExamSessionResponse(**data)
 
-        assert response.id == 1
-        assert response.user_id == 1
-        assert response.exam_id == 10
+        assert response.id == "session_123"
         assert response.questions == [1, 2, 3]
 
-    def test_exam_session_response_with_optional_fields(self):
-        from datetime import datetime
-
+    def test_exam_session_response_missing_id(self):
         data = {
-            "id": 1,
-            "created_at": datetime.utcnow(),
-            "user_id": 1,
-            "exam_id": 10,
-            "questions": [1, 2, 3],
-            "answers": [True, False, True],
-            "n": 3,
-        }
-        response = ExamSessionResponse(**data)
-
-        assert response.answers == [True, False, True]
-        assert response.n == 3
-
-    def test_exam_session_response_optional_fields_default_none(self):
-        from datetime import datetime
-
-        data = {
-            "id": 1,
-            "created_at": datetime.utcnow(),
-            "user_id": 1,
-            "exam_id": 10,
             "questions": [1, 2, 3],
         }
-        response = ExamSessionResponse(**data)
 
-        assert response.answers is None
-        assert response.n is None
+        with pytest.raises(ValidationError):
+            ExamSessionResponse(**data)
+
+    def test_exam_session_response_missing_questions(self):
+        data = {
+            "id": "session_123",
+        }
+
+        with pytest.raises(ValidationError):
+            ExamSessionResponse(**data)
 
 
 class TestExamSessionStartRequest:
     def test_exam_session_start_request_valid_random(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "random", "n": 5}
+        data = {"exam_id": 10, "strategy": "random", "n": 5}
         request = ExamSessionStartRequest(**data)
 
-        assert request.user_id == 1
         assert request.exam_id == 10
         assert request.strategy == "random"
         assert request.n == 5
 
     def test_exam_session_start_request_valid_full(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "full"}
+        data = {"exam_id": 10, "strategy": "full"}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "full"
         assert request.n is None
 
     def test_exam_session_start_request_valid_smart(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "smart"}
+        data = {"exam_id": 10, "strategy": "smart"}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "smart"
         assert request.n is None
 
     def test_exam_session_start_request_default_strategy(self):
-        data = {"user_id": 1, "exam_id": 10}
+        data = {"exam_id": 10}
         request = ExamSessionStartRequest(**data)
 
-        assert request.strategy == "random"
+        assert request.strategy == "full"
 
     def test_exam_session_start_request_smart_with_n_raises_error(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "smart", "n": 5}
+        data = {"exam_id": 10, "strategy": "smart", "n": 5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -258,7 +234,7 @@ class TestExamSessionStartRequest:
         assert "not allowed for strategy 'smart'" in str(exc_info.value)
 
     def test_exam_session_start_request_full_with_n_raises_error(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "full", "n": 5}
+        data = {"exam_id": 10, "strategy": "full", "n": 5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -266,7 +242,7 @@ class TestExamSessionStartRequest:
         assert "not allowed for strategy 'full'" in str(exc_info.value)
 
     def test_exam_session_start_request_negative_n_raises_error(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "random", "n": -5}
+        data = {"exam_id": 10, "strategy": "random", "n": -5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -274,7 +250,7 @@ class TestExamSessionStartRequest:
         assert "must be positive" in str(exc_info.value)
 
     def test_exam_session_start_request_zero_n_raises_error(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "random", "n": 0}
+        data = {"exam_id": 10, "strategy": "random", "n": 0}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -282,7 +258,7 @@ class TestExamSessionStartRequest:
         assert "must be positive" in str(exc_info.value)
 
     def test_exam_session_start_request_random_without_n_valid(self):
-        data = {"user_id": 1, "exam_id": 10, "strategy": "random"}
+        data = {"exam_id": 10, "strategy": "random"}
         request = ExamSessionStartRequest(**data)
 
         assert request.strategy == "random"

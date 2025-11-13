@@ -17,7 +17,6 @@ class TestUserRepoCheckUserExists:
     def test_check_user_exists_returns_true_when_user_exists(
         self, test_db, populate_db, user_id, email, user_name, password_hash
     ):
-        # Заполняем БД данными
         populate_db(
             users=[
                 {
