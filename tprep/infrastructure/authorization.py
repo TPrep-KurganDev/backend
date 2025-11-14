@@ -37,12 +37,16 @@ def create_access_token(data: dict[str, str]) -> str:
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": str(expire)})
-    return cast(str, jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM))
+    return cast(
+        str, jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    )
 
 
 def verify_refresh_token(token: str) -> dict[str, str]:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settigns.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id: str = payload.get("sub")
         if user_id is None:
             raise UserNotFound
@@ -59,7 +63,9 @@ def get_current_user(
     token = authorization.split(" ")[1]
 
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id: int = int(payload.get("sub"))
         if user_id is None:
             raise InvalidOrExpiredToken

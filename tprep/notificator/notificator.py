@@ -10,7 +10,7 @@ from tprep.infrastructure.notification.notificationdb import NotificationDB
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user import User
-from config import VAPID_PRIVATE_KEY, VAPID_CLAIMS
+from config import settings
 
 BATCH_SIZE = 1000
 INTERVAL_SECONDS = 300
@@ -39,8 +39,8 @@ def send_push(user: User, notification: Notification) -> None:
         webpush(
             subscription_info=subscription_info,
             data=notification.model_dump_json(),
-            vapid_private_key=VAPID_PRIVATE_KEY,
-            vapid_claims=VAPID_CLAIMS,
+            vapid_private_key=settings.VAPID_PRIVATE_KEY,
+            vapid_claims=settings.VAPID_CLAIMS,
         )
         print(
             f"[{datetime.now()}] Sent notification {notification.id} to user {user.id}"

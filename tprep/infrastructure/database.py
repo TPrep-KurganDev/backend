@@ -1,10 +1,10 @@
-from typing import cast, Generator
+from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from config import settings
 
-engine = create_engine(cast(str, settings.DATABASE_URL))
+engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

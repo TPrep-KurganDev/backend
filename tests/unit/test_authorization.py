@@ -15,7 +15,7 @@ from tprep.infrastructure.exceptions.invalid_authorization_header import (
 from tprep.infrastructure.exceptions.invalid_or_expired_token import (
     InvalidOrExpiredToken,
 )
-from config import SECRET_KEY, ALGORITHM
+from config import settings
 
 
 class TestPasswordHashing:
@@ -60,7 +60,10 @@ class TestAccessToken:
         token = create_access_token(data)
 
         decoded = jwt.decode(
-            token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False}
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            options={"verify_exp": False},
         )
         assert decoded["sub"] == "123"
         assert decoded["email"] == "test@example.com"
@@ -71,7 +74,10 @@ class TestAccessToken:
         token = create_access_token(data)
 
         decoded = jwt.decode(
-            token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_exp": False}
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            options={"verify_exp": False},
         )
         assert "exp" in decoded
 
@@ -113,7 +119,7 @@ class TestGetCurrentUser:
     def test_get_current_user_no_subject(self):
         expire = datetime.utcnow() + timedelta(minutes=60)
         data = {"exp": str(expire)}
-        token = jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+        token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
         with pytest.raises(InvalidOrExpiredToken):
             get_current_user(authorization=f"Bearer {token}")
