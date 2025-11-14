@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from config import ACCESS_TOKEN_EXPIRE_MINUTES
+from config import settings
 from tprep.app.authorization_schemas import (
     LoginRequest,
     Token,
@@ -64,6 +64,6 @@ def refresh_access_token(request: RefreshRequest) -> AccessTokenResponse:
 
     return AccessTokenResponse(
         accessToken=access_token,
-        expiresIn=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        expiresIn=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         token_type="bearer",
     )

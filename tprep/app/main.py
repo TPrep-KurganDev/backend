@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Callable, Coroutine
 
 import uvicorn
 from fastapi import FastAPI, Request, status
@@ -61,9 +61,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
 def add_exception_handlers(
     app: FastAPI, api_exceptions: dict[type[Exception], int]
 ) -> None:
-    for exc_type, status_code in api_exceptions.items():
-
-        async def handler(request: Request, exc: exc_type):  # type: ignore
+    def make_handler(
+        exc_type: type[Exception], status_code: int
+    ) -> Callable[[Request, Exception], Coroutine[Any, Any, JSONResponse]]:
+        async def handler(request: Request, exc: Exception) -> JSONResponse:
             return JSONResponse(
                 status_code=status_code,
                 content={
@@ -72,7 +73,10 @@ def add_exception_handlers(
                 },
             )
 
-        app.add_exception_handler(exc_type, handler)
+        return handler
+
+    for exc_type, status_code in api_exceptions.items():
+        app.add_exception_handler(exc_type, make_handler(exc_type, status_code))
 
 
 app = FastAPI(
@@ -86,6 +90,7 @@ app = FastAPI(
 origins = [
     "http://localhost:5173",  # Vite
     "http://127.0.0.1:5173",
+    "http://localhost:8080",
 ]
 
 app.add_middleware(
