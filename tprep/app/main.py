@@ -63,11 +63,16 @@ def add_exception_handlers(
 ) -> None:
     for exc_type, status_code in api_exceptions.items():
 
-        async def handler(request: Request, exc: exc_type):  # type: ignore
+        async def handler(
+            request: Request,
+            exc: exc_type,
+            _exc_type=exc_type,
+            _status_code=status_code,
+        ):
             return JSONResponse(
-                status_code=status_code,
+                status_code=_status_code,
                 content={
-                    "error": exc_type.__name__,
+                    "error": _exc_type.__name__,
                     "message": getattr(exc, "message", str(exc)),
                 },
             )
