@@ -9,6 +9,7 @@ from starlette.middleware.cors import CORSMiddleware
 from tprep.app.api.routes.auth import router as api_router
 from tprep.app.api.routes.exams import router as exams_router
 from tprep.app.api.routes.session import router as session_router
+from tprep.app.api.routes.users import router as users_router
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
@@ -59,15 +60,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
 
 
 def add_exception_handlers(
-    app: FastAPI, api_exceptions: dict[type[Exception], int]
+        app: FastAPI, api_exceptions: dict[type[Exception], int]
 ) -> None:
     for exc_type, status_code in api_exceptions.items():
-
         async def handler(
-            request: Request,
-            exc: exc_type,
-            _exc_type=exc_type,
-            _status_code=status_code,
+                request: Request,
+                exc: exc_type,
+                _exc_type=exc_type,
+                _status_code=status_code,
         ):
             return JSONResponse(
                 status_code=_status_code,
@@ -106,6 +106,7 @@ add_exception_handlers(app, APP_ERRORS)
 app.include_router(api_router, prefix="/api")
 app.include_router(exams_router, prefix="/api")
 app.include_router(session_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 
 @app.get("/health", tags=["health"])
