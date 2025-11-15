@@ -9,7 +9,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    # PostgreSQL сервис для тестов
     services:
       postgres:
         image: postgres:15
@@ -23,10 +22,17 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5432
+          - 5433:5432
 
     env:
-      TEST_DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+      DB_USER: test_user
+      DB_NAME: test_db
+      DB_PASSWORD: test_password
+      SECRET_KEY: super_secret_key
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      VAPID_PUBLIC_KEY: 1DbAUYfIoC60U5VtXGzeMTliBNZgRRbBKNZSMrTLH-2hbjVd4fFXp4ZMoRLDr0asU-4jzTr4Q6fKH8cPup4ZTCM
+      VAPID_PRIVATE_KEY: go6HGlufX1R4KFDff7xjV15E9dcR_1k0Tz7cG9wJtRs
 
     steps:
       - uses: actions/checkout@v4
