@@ -2,6 +2,7 @@ import pytest
 from datetime import datetime, timedelta
 from jose import jwt
 
+from tprep.app.authorization_schemas import TokenData
 from tprep.infrastructure.authorization import (
     hash_password,
     verify_password,
@@ -50,13 +51,13 @@ class TestPasswordHashing:
 
 class TestAccessToken:
     def test_create_access_token_returns_string(self):
-        data = {"sub": "123"}
+        data = TokenData(sub="123")
         token = create_access_token(data)
         assert isinstance(token, str)
         assert len(token) > 0
 
     def test_create_access_token_contains_data(self):
-        data = {"sub": "123", "email": "test@example.com"}
+        data = TokenData(sub="123", login="test@example.com")
         token = create_access_token(data)
 
         decoded = jwt.decode(
@@ -66,11 +67,11 @@ class TestAccessToken:
             options={"verify_exp": False},
         )
         assert decoded["sub"] == "123"
-        assert decoded["email"] == "test@example.com"
+        assert decoded["login"] == "test@example.com"
         assert "exp" in decoded
 
     def test_create_access_token_has_expiration(self):
-        data = {"sub": "123"}
+        data = TokenData(sub="123")
         token = create_access_token(data)
 
         decoded = jwt.decode(
@@ -95,39 +96,49 @@ class TestAccessToken:
 
 
 class TestGetCurrentUser:
-    def test_get_current_user_valid_token(self):
-        pytest.skip("JWT exp stored as string bug")
+    # def test_get_current_user_missing_bearer_prefix(self, test_db, populate_db):
+    #     populate_db(
+    #         users=[
+    #             {
+    #                 "id": 42,
+    #                 "email": f"user42@example.com",
+    #                 "user_name": "User",
+    #                 "password_hash": "hash",
+    #             }
+    #         ],
+    #     )
+    #     data = TokenData(sub="42")
+    #     token = create_access_token(data)
+    #
+    #     with pytest.raises(InvalidAuthorizationHeader):
+    #         get_current_user(token=token, db=test_db)
+    #
+    # def test_get_current_user_wrong_prefix(self, test_db, populate_db):
+    #     populate_db(
+    #         users=[
+    #             {
+    #                 "id": 42,
+    #                 "email": f"user42@example.com",
+    #                 "user_name": "User",
+    #                 "password_hash": "hash",
+    #             }
+    #         ],
+    #     )
+    #     data = TokenData(sub="42")
+    #     token = create_access_token(data)
+    #     print(token)
+    #
+    #     with pytest.raises(InvalidAuthorizationHeader):
+    #         get_current_user(token=token, db=test_db)
 
-    def test_get_current_user_missing_bearer_prefix(self):
-        data = {"sub": "42"}
-        token = create_access_token(data)
-
-        with pytest.raises(InvalidAuthorizationHeader):
-            get_current_user(authorization=token)
-
-    def test_get_current_user_wrong_prefix(self):
-        data = {"sub": "42"}
-        token = create_access_token(data)
-
-        with pytest.raises(InvalidAuthorizationHeader):
-            get_current_user(authorization=f"Token {token}")
-
-    def test_get_current_user_invalid_token(self):
+    def test_get_current_user_invalid_token(self, test_db):
         with pytest.raises(InvalidOrExpiredToken):
-            get_current_user(authorization="Bearer invalid.token.here")
+            get_current_user(token="invalid.token.here", db=test_db)
 
-    def test_get_current_user_no_subject(self):
+    def test_get_current_user_no_subject(self, test_db):
         expire = datetime.utcnow() + timedelta(minutes=60)
         data = {"exp": str(expire)}
         token = jwt.encode(data, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
         with pytest.raises(InvalidOrExpiredToken):
-            get_current_user(authorization=f"Bearer {token}")
-
-    def test_get_current_user_malformed_authorization(self):
-        with pytest.raises(InvalidAuthorizationHeader):
-            get_current_user(authorization="Bearer")
-
-    def test_get_current_user_empty_token(self):
-        with pytest.raises(InvalidOrExpiredToken):
-            get_current_user(authorization="Bearer ")
+            get_current_user(token=token, db=test_db)

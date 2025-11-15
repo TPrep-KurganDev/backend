@@ -54,7 +54,6 @@ class TestExamRepoUpdateExam:
     def test_update_exam_updates_title(
         self, test_db, populate_db, exam_id, title, creator_id
     ):
-        # Создаем пользователя и экзамен
         populate_db(
             users=[
                 {
