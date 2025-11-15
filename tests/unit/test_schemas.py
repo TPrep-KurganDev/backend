@@ -15,19 +15,19 @@ from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
 
 class TestLoginRequest:
     def test_login_request_valid(self):
-        data = {"email": "test@example.com", "password": "password123"}
+        data = {"username": "test@example.com", "password": "password123"}
         request = LoginRequest(**data)
 
         assert request.username == "test@example.com"
         assert request.password == "password123"
 
     def test_login_request_invalid_email(self):
-        data = {"email": "invalid-email", "password": "password123"}
+        data = {"username": "invalid-email", "password": "password123"}
 
         with pytest.raises(ValidationError) as exc_info:
             LoginRequest(**data)
 
-        assert "email" in str(exc_info.value).lower()
+        assert "username" in str(exc_info.value).lower()
 
     def test_login_request_missing_fields(self):
         with pytest.raises(ValidationError):
