@@ -10,9 +10,6 @@ from tprep.infrastructure.authorization import (
     verify_refresh_token,
     get_current_user,
 )
-from tprep.infrastructure.exceptions.invalid_authorization_header import (
-    InvalidAuthorizationHeader,
-)
 from tprep.infrastructure.exceptions.invalid_or_expired_token import (
     InvalidOrExpiredToken,
 )
