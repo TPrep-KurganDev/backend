@@ -18,7 +18,7 @@ class TestLoginRequest:
         data = {"email": "test@example.com", "password": "password123"}
         request = LoginRequest(**data)
 
-        assert request.email == "test@example.com"
+        assert request.username == "test@example.com"
         assert request.password == "password123"
 
     def test_login_request_invalid_email(self):
@@ -31,7 +31,7 @@ class TestLoginRequest:
 
     def test_login_request_missing_fields(self):
         with pytest.raises(ValidationError):
-            LoginRequest(email="test@example.com")
+            LoginRequest(username="test@example.com")
 
         with pytest.raises(ValidationError):
             LoginRequest(password="password123")

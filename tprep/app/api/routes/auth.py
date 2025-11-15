@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
 from config import settings
 from tprep.app.authorization_schemas import (
-    LoginRequest,
     Token,
     RefreshRequest,
     AccessTokenResponse,
+    TokenData,
 )
 from tprep.app.user_schemas import UserCreate, UserOut
 from tprep.infrastructure.authorization import (
@@ -41,26 +41,28 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
 
 
 @router.post("/auth/login", response_model=Token)
-def login_user(body: LoginRequest, db: Session = Depends(get_db)) -> Token:
+def login_user(
+    username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)
+) -> Token:
     try:
-        user = UserRepo.get_user_by_email(body.email, db)
+        user = UserRepo.get_user_by_email(username, db)
     except UserNotFound:
         raise WrongLoginOrPassword
-    if not verify_password(body.password, user.password_hash):
+    if not verify_password(password, user.password_hash):
         raise WrongLoginOrPassword
 
-    token = create_access_token({"sub": str(user.id), "login": user.user_name})
-    UserRepo.update_user_token(user.id, token, db)
+    token_data = TokenData(sub=str(user.id), login=user.user_name)
+    access_token = create_access_token(token_data)
+    UserRepo.update_user_token(user.id, access_token, db)
 
-    return Token(access_token=token, token_type="bearer")
+    return Token(access_token=access_token, token_type="bearer")
 
 
 @router.post("/auth/refresh", response_model=AccessTokenResponse)
 def refresh_access_token(request: RefreshRequest) -> AccessTokenResponse:
     token_data = verify_refresh_token(request.refreshToken)
-
-    access_token = create_access_token({"sub": str(token_data["sub"])})
-    UserRepo.update_user_token(int(token_data["sub"]), access_token)
+    access_token = create_access_token(token_data)
+    UserRepo.update_user_token(int(token_data.sub), access_token)
 
     return AccessTokenResponse(
         accessToken=access_token,
