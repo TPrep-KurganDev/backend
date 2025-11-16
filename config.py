@@ -29,6 +29,13 @@ class Settings(BaseSettings):
         description="Subject email for VAPID claims"
     )
 
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8080",
+        "http://0.0.0.0:8080",
+    ]
+
     @computed_field
     @property
     def DATABASE_URL(self) -> str:
@@ -38,6 +45,5 @@ class Settings(BaseSettings):
     @property
     def VAPID_CLAIMS(self) -> dict[str, str]:
         return {"sub": self.VAPID_CLAIMS_SUB}
-
 
 settings = Settings()
