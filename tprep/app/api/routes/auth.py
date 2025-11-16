@@ -22,7 +22,7 @@ from tprep.infrastructure.user.user import User
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.user.user_repo import UserRepo
 
-router = APIRouter()
+router = APIRouter(tags=["Auth"])
 
 
 @router.post("/auth/register", response_model=UserOut)

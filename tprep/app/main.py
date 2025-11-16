@@ -2,13 +2,15 @@ from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator, Callable, Coroutine
 
 import uvicorn
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, APIRouter
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from tprep.app.api.routes.auth import router as api_router
+from tprep.app.api.routes.auth import router as auth_router
 from tprep.app.api.routes.exams import router as exams_router
+from tprep.app.api.routes.cards import router as cards_router
 from tprep.app.api.routes.session import router as session_router
+from tprep.app.api.routes.users import router as users_router
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
@@ -102,14 +104,20 @@ app.add_middleware(
 )
 
 add_exception_handlers(app, APP_ERRORS)
-app.include_router(api_router, prefix="/api")
-app.include_router(exams_router, prefix="/api")
-app.include_router(session_router, prefix="/api")
+api_router = APIRouter(prefix="/api")
+api_router.include_router(auth_router)
+api_router.include_router(exams_router)
+api_router.include_router(cards_router)
+api_router.include_router(session_router)
+api_router.include_router(users_router)
 
 
-@app.get("/health", tags=["health"])
+@api_router.get("/health", tags=["Health"])
 async def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+app.include_router(api_router)
 
 
 if __name__ == "__main__":
