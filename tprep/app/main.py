@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request, status, APIRouter
 from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 
+from config import settings
 from tprep.app.api.routes.auth import router as auth_router
 from tprep.app.api.routes.exams import router as exams_router
 from tprep.app.api.routes.cards import router as cards_router
@@ -89,15 +90,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-origins = [
-    "http://localhost:5173",  # Vite
-    "http://127.0.0.1:5173",
-    "http://localhost:8080",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
