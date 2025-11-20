@@ -84,12 +84,29 @@ class ExamRepo:
 
     @staticmethod
     def create_card(exam_id: int, db: Session = Depends(get_db)) -> Card:
-        number = len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
+        number = ExamRepo.count_next_number(exam_id, db)
         new_card = Card(number=number, exam_id=exam_id, question="", answer="")
         db.add(new_card)
         db.commit()
         db.refresh(new_card)
         return new_card
+
+    @staticmethod
+    def create_card_by_list(
+        exam_id: int, cards_data: list[tuple[str, str]], db: Session
+    ) -> list[Card]:
+        number = ExamRepo.count_next_number(exam_id, db)
+        cards = []
+        for card_data in cards_data:
+            question, answer = card_data
+            new_card = Card(
+                number=number, exam_id=exam_id, question=question, answer=answer
+            )
+            cards.append(new_card)
+            db.add(new_card)
+            db.commit()
+            db.refresh(new_card)
+        return cards
 
     @staticmethod
     def update_card(
@@ -119,3 +136,7 @@ class ExamRepo:
         )
         db.delete(card)
         db.commit()
+
+    @staticmethod
+    def count_next_number(exam_id: int, db: Session) -> int:
+        return len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
