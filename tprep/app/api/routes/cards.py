@@ -26,7 +26,8 @@ def create_card(
         raise UserIsNotCreator("User is not creator")
     return ExamRepo.create_card(exam_id, db)
 
-@router.post("/exams/{exam_id}/cards/upload", response_model=list[CardResponse])
+
+@router.post("/exams/{exam_id}/cards/upload", response_model=list[CardResponse], description="Создает карточки из файла. Формат файла: вопрос1 | ответ1; вопрос2 | ответ2;")
 async def create_cards_from_file(
     exam_id: int,
     db: Session = Depends(get_db),
@@ -38,6 +39,7 @@ async def create_cards_from_file(
     if not FileParser.check_extension(file.filename):
         raise FileExtension("Cant parse file with this extension")
     cards_data = await FileParser.parse_file(file)
+    print(cards_data)
     return ExamRepo.create_card_by_list(exam_id, cards_data, db)
 
 

@@ -1,6 +1,5 @@
 from starlette.datastructures import UploadFile
 
-from tprep.app.card_schemas import CardBase
 from tprep.infrastructure.exceptions.file_decode import FileDecode
 
 
@@ -15,7 +14,7 @@ class FileParser:
         cards_data: list[tuple[str, str]] = []
         lines = text.split(";")
         for line in lines:
-            line = line.strip()
+            line = line.strip().replace("\n", '')
             if not line:
                 continue
             question, answer = line.split("|")
@@ -24,8 +23,8 @@ class FileParser:
             cards_data.append((question, answer))
         return cards_data
 
-
     @staticmethod
     def check_extension(filename: str | None) -> bool:
-        return filename.endswith((".txt", ".csv", ".log", ".md"))
-
+        if filename:
+            return filename.endswith((".txt", ".csv", ".log", ".md"))
+        return False
