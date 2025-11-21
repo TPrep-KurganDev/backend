@@ -41,14 +41,13 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
 
 
 @router.post("/auth/login", response_model=Token)
-def login_user(
-    username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)
+def login_user(userLogin: UserLogin, db: Session = Depends(get_db)
 ) -> Token:
     try:
-        user = UserRepo.get_user_by_email(username, db)
+        user = UserRepo.get_user_by_email(userLogin.email, db)
     except UserNotFound:
         raise WrongLoginOrPassword
-    if not verify_password(password, user.password_hash):
+    if not verify_password(userLogin.password, user.password_hash):
         raise WrongLoginOrPassword
 
     token_data = TokenData(sub=str(user.id), login=user.user_name)
