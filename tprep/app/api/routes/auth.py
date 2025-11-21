@@ -8,7 +8,7 @@ from tprep.app.authorization_schemas import (
     AccessTokenResponse,
     TokenData,
 )
-from tprep.app.user_schemas import UserCreate, UserOut
+from tprep.app.user_schemas import UserCreate, UserOut, UserLogin
 from tprep.infrastructure.authorization import (
     hash_password,
     create_access_token,
