@@ -54,7 +54,7 @@ def login_user(userLogin: UserLogin, db: Session = Depends(get_db)
     access_token = create_access_token(token_data)
     UserRepo.update_user_token(user.id, access_token, db)
 
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(user_id=user.id, access_token=access_token, token_type="bearer")
 
 
 @router.post("/auth/refresh", response_model=AccessTokenResponse)
