@@ -8,7 +8,7 @@ from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
 class ExamSessionResponse(BaseModel):
     id: str
     questions: List[int]
-    answers: List[int]
+    answers: dict[int, bool] = {}
 
     class Config:
         from_attributes = True
