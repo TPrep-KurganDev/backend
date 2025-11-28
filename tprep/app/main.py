@@ -18,6 +18,7 @@ from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.exceptions.file_decode import FileDecode
 from tprep.infrastructure.exceptions.file_extension import FileExtension
+from tprep.infrastructure.exceptions.file_parsing import FileParsing
 from tprep.infrastructure.exceptions.invalid_authorization_header import (
     InvalidAuthorizationHeader,
 )
@@ -42,6 +43,7 @@ APP_ERRORS = {
     WrongNValue: status.HTTP_422_UNPROCESSABLE_ENTITY,
     FileExtension: status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
     FileDecode: status.HTTP_400_BAD_REQUEST,
+    FileParsing: status.HTTP_400_BAD_REQUEST,
     ExamHasNoCards: status.HTTP_422_UNPROCESSABLE_ENTITY,
     QuestionNotInSession: status.HTTP_400_BAD_REQUEST,
     UserAlreadyExists: status.HTTP_409_CONFLICT,
