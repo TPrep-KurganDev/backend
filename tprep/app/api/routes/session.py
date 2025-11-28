@@ -33,6 +33,17 @@ def start_exam_session(
     return ExamSessionResponse.model_validate(session)
 
 
+@router.get("/{session_id}", response_model=ExamSessionResponse)
+def get_exam_session(
+    session_id: str
+) -> ExamSessionResponse:
+    session = SessionFactory.get_session_by_id(session_id)
+    if session is None:
+        raise SessionNotFound("Session not found")
+
+    return ExamSessionResponse.model_validate(session)
+
+
 @router.post("/{session_id}/answer")
 def set_answer(
     session_id: str, question_id: int, value: bool, db: Session = Depends(get_db)

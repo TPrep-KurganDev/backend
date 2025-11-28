@@ -11,6 +11,7 @@ class ExamCreate(ExamBase):
 
 class ExamOut(ExamBase):
     id: int
+    creator_id: int
 
     class Config:
         from_attributes = True
