@@ -39,18 +39,22 @@ class TestLoginRequest:
 
 class TestToken:
     def test_token_valid(self):
-        data = {"access_token": "abc123", "token_type": "bearer"}
+        data = {"access_token": "abc123", "token_type": "bearer", "user_id": 1}
         token = Token(**data)
 
         assert token.access_token == "abc123"
         assert token.token_type == "bearer"
+        assert token.user_id == 1
 
     def test_token_missing_fields(self):
         with pytest.raises(ValidationError):
-            Token(access_token="abc123")
+            Token(access_token="abc123", user_id=1)
 
         with pytest.raises(ValidationError):
-            Token(token_type="bearer")
+            Token(token_type="bearer", user_id=1)
+
+        with pytest.raises(ValidationError):
+            Token(access_token="abc123", token_type="bearer")
 
 
 class TestRefreshRequest:
@@ -155,14 +159,15 @@ class TestExamSchemas:
         assert exam.title == "Science Exam"
 
     def test_exam_out_includes_id(self):
-        data = {"id": 1, "title": "History Exam"}
+        data = {"id": 1, "title": "History Exam", "creator_id": 1}
         exam = ExamOut(**data)
 
         assert exam.id == 1
         assert exam.title == "History Exam"
+        assert exam.creator_id == 1
 
     def test_exam_out_missing_id(self):
-        data = {"title": "History Exam"}
+        data = {"title": "History Exam", "creator_id": 1}
 
         with pytest.raises(ValidationError):
             ExamOut(**data)
@@ -173,15 +178,19 @@ class TestExamSessionResponse:
         data = {
             "id": "session_123",
             "questions": [1, 2, 3],
+            "exam_id": 10,
         }
         response = ExamSessionResponse(**data)
 
         assert response.id == "session_123"
         assert response.questions == [1, 2, 3]
+        assert response.exam_id == 10
+        assert response.answers == {}
 
     def test_exam_session_response_missing_id(self):
         data = {
             "questions": [1, 2, 3],
+            "exam_id": 10,
         }
 
         with pytest.raises(ValidationError):
@@ -190,6 +199,7 @@ class TestExamSessionResponse:
     def test_exam_session_response_missing_questions(self):
         data = {
             "id": "session_123",
+            "exam_id": 10,
         }
 
         with pytest.raises(ValidationError):
