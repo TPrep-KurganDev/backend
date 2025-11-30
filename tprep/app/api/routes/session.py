@@ -14,7 +14,7 @@ from tprep.infrastructure.user.user import User
 router = APIRouter(prefix="/session", tags=["Session"])
 
 
-@router.post("/", response_model=ExamSessionResponse)
+@router.post("", response_model=ExamSessionResponse)
 def start_exam_session(
     request: ExamSessionStartRequest,
     db: Session = Depends(get_db),
@@ -34,9 +34,7 @@ def start_exam_session(
 
 
 @router.get("/{session_id}", response_model=ExamSessionResponse)
-def get_exam_session(
-    session_id: str
-) -> ExamSessionResponse:
+def get_exam_session(session_id: str) -> ExamSessionResponse:
     session = SessionFactory.get_session_by_id(session_id)
     if session is None:
         raise SessionNotFound("Session not found")

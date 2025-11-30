@@ -27,7 +27,11 @@ def create_card(
     return ExamRepo.create_card(exam_id, db)
 
 
-@router.post("/exams/{exam_id}/cards/upload", response_model=list[CardResponse], description="Создает карточки из файла. Формат файла: вопрос1 | ответ1; вопрос2 | ответ2;")
+@router.post(
+    "/exams/{exam_id}/cards/upload",
+    response_model=list[CardResponse],
+    description="Создает карточки из файла. Формат файла: вопрос1 | ответ1; вопрос2 | ответ2;",
+)
 async def create_cards_from_file(
     exam_id: int,
     db: Session = Depends(get_db),

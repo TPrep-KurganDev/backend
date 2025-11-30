@@ -41,8 +41,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
 
 
 @router.post("/auth/login", response_model=Token)
-def login_user(userLogin: UserLogin, db: Session = Depends(get_db)
-) -> Token:
+def login_user(userLogin: UserLogin, db: Session = Depends(get_db)) -> Token:
     try:
         user = UserRepo.get_user_by_email(userLogin.email, db)
     except UserNotFound:

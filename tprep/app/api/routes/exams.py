@@ -29,7 +29,7 @@ def get_exams(
     return ExamRepo.get_exams_created_by_user(creator_id, db)
 
 
-@router.post("/exams/", response_model=ExamOut)
+@router.post("/exams", response_model=ExamOut)
 def create_exam(
     exam_data: ExamCreate,
     user_id: int = Depends(get_current_user_id),
