@@ -38,25 +38,22 @@ class TestExamSessionInitialization:
 class TestExamSessionSetAnswer:
     def test_set_answer_correct_answer(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
         session.set_answer(1, True, test_db)
 
         mock_stat_repo.assert_not_called()
-        assert session._answers[1] is True
+        assert session.answers[1] is True
 
     def test_set_answer_incorrect_answer(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
         session.set_answer(1, False, test_db)
 
         mock_stat_repo.assert_called_once_with(1, 1, test_db)
-        assert session._answers[1] is False
+        assert session.answers[1] is False
 
     def test_set_answer_question_not_in_session(self, test_db):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
         with pytest.raises(QuestionNotInSession) as exc_info:
             session.set_answer(999, True, test_db)
@@ -65,7 +62,6 @@ class TestExamSessionSetAnswer:
 
     def test_set_answer_multiple_questions(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [1, 2, 3, 4])
-        session._answers = {}
 
         session.set_answer(1, True, test_db)
         session.set_answer(2, False, test_db)
@@ -76,29 +72,27 @@ class TestExamSessionSetAnswer:
         assert mock_stat_repo.call_count == 2
 
         # Check all answers were recorded
-        assert session._answers[1] is True
-        assert session._answers[2] is False
-        assert session._answers[3] is True
-        assert session._answers[4] is False
+        assert session.answers[1] is True
+        assert session.answers[2] is False
+        assert session.answers[3] is True
+        assert session.answers[4] is False
 
     def test_set_answer_can_overwrite_answer(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
         # First answer: correct
         session.set_answer(1, True, test_db)
-        assert session._answers[1] is True
+        assert session.answers[1] is True
 
         # Overwrite: incorrect
         session.set_answer(1, False, test_db)
-        assert session._answers[1] is False
+        assert session.answers[1] is False
 
         # inc_mistakes should be called for the second (incorrect) answer
         mock_stat_repo.assert_called_once_with(1, 1, test_db)
 
     def test_set_answer_all_questions_in_session(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [5, 10, 15])
-        session._answers = {}
 
         # These should work
         session.set_answer(5, True, test_db)
@@ -119,7 +113,6 @@ class TestExamSessionSetAnswer:
         exam_id = 100
         question_id = 7
         session = ExamSession(user_id, exam_id, [question_id])
-        session._answers = {}
 
         session.set_answer(question_id, False, test_db)
 
@@ -128,7 +121,6 @@ class TestExamSessionSetAnswer:
 
     def test_set_answer_empty_session_raises_exception(self, test_db):
         session = ExamSession(1, 10, [])
-        session._answers = {}
 
         with pytest.raises(QuestionNotInSession):
             session.set_answer(1, True, test_db)
@@ -137,27 +129,24 @@ class TestExamSessionSetAnswer:
 class TestExamSessionAnswersTracking:
     def test_answers_dict_initially_empty(self, mock_stat_repo):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
-        assert len(session._answers) == 0
+        assert len(session.answers) == 0
 
     def test_answers_dict_populated_after_set_answer(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
         session.set_answer(1, True, test_db)
         session.set_answer(2, False, test_db)
 
-        assert len(session._answers) == 2
-        assert 1 in session._answers
-        assert 2 in session._answers
+        assert len(session.answers) == 2
+        assert 1 in session.answers
+        assert 2 in session.answers
 
     def test_can_retrieve_specific_answer(self, mock_stat_repo, test_db):
         session = ExamSession(1, 10, [1, 2, 3])
-        session._answers = {}
 
         session.set_answer(1, True, test_db)
         session.set_answer(2, False, test_db)
 
-        assert session._answers[1] is True
-        assert session._answers[2] is False
+        assert session.answers[1] is True
+        assert session.answers[2] is False

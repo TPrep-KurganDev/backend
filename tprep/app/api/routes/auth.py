@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
 from config import settings
@@ -47,6 +47,26 @@ def login_user(userLogin: UserLogin, db: Session = Depends(get_db)) -> Token:
     except UserNotFound:
         raise WrongLoginOrPassword
     if not verify_password(userLogin.password, user.password_hash):
+        raise WrongLoginOrPassword
+
+    token_data = TokenData(sub=str(user.id), login=user.user_name)
+    access_token = create_access_token(token_data)
+    UserRepo.update_user_token(user.id, access_token, db)
+
+    return Token(user_id=user.id, access_token=access_token, token_type="bearer")
+
+
+@router.post("/auth/token", response_model=Token, include_in_schema=True)
+def login_for_swagger(
+    username: str = Form(..., description="User email"),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+) -> Token:
+    try:
+        user = UserRepo.get_user_by_email(username, db)
+    except UserNotFound:
+        raise WrongLoginOrPassword
+    if not verify_password(password, user.password_hash):
         raise WrongLoginOrPassword
 
     token_data = TokenData(sub=str(user.id), login=user.user_name)
