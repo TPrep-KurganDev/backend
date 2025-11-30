@@ -7,7 +7,7 @@ import requests
 BASE_URL = "http://127.0.0.1:8000/api"
 LOGIN_PATH = "/auth/login"
 REGISTER_PATH = "/auth/register"
-CREATE_EXAM_PATH = "/exams/"
+CREATE_EXAM_PATH = "/exams"
 
 ADMIN_EMAIL = "admin@test.com"
 ADMIN_PASSWORD = "testAdmin"

@@ -14,7 +14,7 @@ class FileParser:
         cards_data: list[tuple[str, str]] = []
         lines = text.split(";")
         for line in lines:
-            line = line.strip().replace("\n", '')
+            line = line.strip().replace("\n", "")
             if not line:
                 continue
             question, answer = line.split("|")
