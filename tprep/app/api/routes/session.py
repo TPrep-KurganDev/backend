@@ -14,7 +14,7 @@ from tprep.infrastructure.user.user import User
 router = APIRouter(prefix="/session", tags=["Session"])
 
 
-@router.post("", response_model=ExamSessionResponse)
+@router.post("/", response_model=ExamSessionResponse)
 def start_exam_session(
     request: ExamSessionStartRequest,
     db: Session = Depends(get_db),
