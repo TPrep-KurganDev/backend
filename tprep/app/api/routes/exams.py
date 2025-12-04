@@ -68,3 +68,12 @@ def delete_exam(
 @router.get("/exams/{exam_id}", response_model=ExamOut)
 def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
     return ExamRepo.get_exam(exam_id, db)
+
+
+@router.post("/exams/{exam_id}/pin", status_code=204)
+def pin_exam(
+    exam_id: int,
+    db: Session = Depends(get_db),
+):
+    user_id = get_current_user_id()
+    ExamRepo.pin_exam(user_id, exam_id, db)

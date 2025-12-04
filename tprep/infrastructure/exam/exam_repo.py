@@ -140,3 +140,11 @@ class ExamRepo:
     @staticmethod
     def count_next_number(exam_id: int, db: Session) -> int:
         return len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
+
+    @staticmethod
+    def pin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
+        pinned_exam = UserPinnedExam(user_id=user_id, exam_id=exam_id)
+        db.query(UserPinnedExam)
+        db.add(pinned_exam)
+        db.commit()
+        db.refresh(pinned_exam)
