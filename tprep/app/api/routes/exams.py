@@ -74,16 +74,16 @@ def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
 @router.post("/exams/{exam_id}/pin", status_code=204)
 def pin_exam(
     exam_id: int,
+    user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    user_id = get_current_user_id()
     NotificationRepo.create_notification(user_id, exam_id, db)
     ExamRepo.pin_exam(user_id, exam_id, db)
 
 @router.get("/exams/{exam_id}/check_pinning", response_model=ExamPinStatus)
 def check_pinned_exam(
     exam_id: int,
+    user_id: int = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
-    user_id = get_current_user_id()
     return ExamRepo.check_pinned_exam(user_id, exam_id, db)

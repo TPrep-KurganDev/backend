@@ -150,11 +150,22 @@ def get_cards(exam_id: int):
     data = r.json()
     print(data)
 
+def pin_exam(exam_id: int, token):
+    url = BASE_URL + f"/exams/{exam_id}/pin"
+    headers = {"Authorization": f"Bearer {token}"}
+    payload = {"exam_id": exam_id}
+    try:
+        r = requests.post(url, json=payload, headers=headers)
+    except requests.RequestException as e:
+        print(f"Network error during pin exam: {e}")
+        return None
+    print("Pin successful")
 
 if __name__ == "__main__":
     register_user(ADMIN_EMAIL, ADMIN_PASSWORD, "admin1")
     token = login_user(ADMIN_EMAIL, ADMIN_PASSWORD)
     exam_id = create_exam(token, title="Test Exam")
+    pin_exam(exam_id, token)
     card_id = add_card(exam_id, token)
     fill_card(exam_id, token, card_id)
     for i in range(10):
