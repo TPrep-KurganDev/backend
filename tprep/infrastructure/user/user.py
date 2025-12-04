@@ -20,7 +20,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     push_key: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     endpoint: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
-    auth_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    auth_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     pinned_exams: Mapped[list["UserPinnedExam"]] = relationship(
         "UserPinnedExam",
