@@ -12,6 +12,7 @@ from tprep.app.api.routes.exams import router as exams_router
 from tprep.app.api.routes.cards import router as cards_router
 from tprep.app.api.routes.session import router as session_router
 from tprep.app.api.routes.users import router as users_router
+from tprep.app.api.routes.push import router as push_router
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
@@ -109,6 +110,7 @@ api_router.include_router(exams_router)
 api_router.include_router(cards_router)
 api_router.include_router(session_router)
 api_router.include_router(users_router)
+api_router.include_router(push_router)
 
 
 @api_router.get("/health", tags=["Health"])
