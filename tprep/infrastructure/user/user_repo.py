@@ -3,9 +3,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.exam.exam import Exam
+from tprep.infrastructure import Exam, User
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
-from tprep.infrastructure.user.user import User
 
 
 class UserRepo:

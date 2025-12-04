@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from tprep.app.card_schemas import CardBase
 from tprep.app.exam_schemas import ExamCreate
-from tprep.infrastructure.exam.exam import Exam, UserPinnedExam, Card
+from tprep.infrastructure import Exam, UserPinnedExam, Card
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound

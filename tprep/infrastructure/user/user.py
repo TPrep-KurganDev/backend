@@ -4,11 +4,9 @@ from pydantic import EmailStr
 from sqlalchemy import BigInteger, String
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
-from tprep.infrastructure.notification.notificationdb import NotificationDB
 
 if TYPE_CHECKING:
-    from tprep.infrastructure.exam.exam import Exam, UserPinnedExam
-    from tprep.infrastructure.statistic.statistic import Statistic
+    from tprep.infrastructure import Exam, UserPinnedExam, Statistic, NotificationDB
 
 
 class User(Base):

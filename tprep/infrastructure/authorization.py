@@ -16,7 +16,7 @@ from tprep.infrastructure.exceptions.invalid_or_expired_token import (
     InvalidOrExpiredToken,
 )
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
-from tprep.infrastructure.user.user import User
+from tprep.infrastructure import User
 from tprep.infrastructure.user.user_repo import UserRepo
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from tprep.app.app_types import NotificationId, UserId, ExamId
-from tprep.infrastructure.notification.notificationdb import NotificationDB
+from tprep.infrastructure import NotificationDB
 
 
 class Notification(BaseModel):

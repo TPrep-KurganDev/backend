@@ -2,8 +2,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.statistic.statistic import Statistic
-from tprep.infrastructure.exam.exam import Card
+from tprep.infrastructure import Card, Statistic
 
 
 class StatRepo:

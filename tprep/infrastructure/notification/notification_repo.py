@@ -4,11 +4,11 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.notification.notificationdb import NotificationDB
+from tprep.infrastructure import NotificationDB
 
 
 class NotificationRepo:
-    INTERVALS = [timedelta(minutes=20), timedelta(hours=8), timedelta(days=1)]
+    INTERVALS = [timedelta(minutes=1), timedelta(minutes=20), timedelta(hours=8), timedelta(days=1)]
 
     @staticmethod
     def create_notification(

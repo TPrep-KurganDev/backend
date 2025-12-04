@@ -31,7 +31,7 @@ from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
-from tprep.infrastructure.models import Base
+from tprep.infrastructure import Base
 from tprep.infrastructure.database import engine
 
 APP_ERRORS = {

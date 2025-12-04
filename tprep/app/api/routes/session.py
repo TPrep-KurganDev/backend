@@ -8,8 +8,7 @@ from tprep.app.session_schemas import ExamSessionResponse, ExamSessionStartReque
 from tprep.infrastructure.exceptions.session_not_found import SessionNotFound
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
-from tprep.infrastructure.exam.exam import Exam
-from tprep.infrastructure.user.user import User
+from tprep.infrastructure import Exam, User
 
 router = APIRouter(prefix="/session", tags=["Session"])
 

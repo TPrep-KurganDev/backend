@@ -2,11 +2,10 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import BigInteger, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from tprep.infrastructure.models import Base
+from tprep.infrastructure import Base
 
 if TYPE_CHECKING:
-    from tprep.infrastructure.exam.exam import Card, Exam
-    from tprep.infrastructure.user.user import User
+    from tprep.infrastructure import Card, Exam, User
 
 
 class Statistic(Base):
