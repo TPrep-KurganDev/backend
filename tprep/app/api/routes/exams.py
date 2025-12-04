@@ -9,7 +9,7 @@ from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user_repo import UserRepo
 
-from tprep.app.exam_schemas import ExamOut, ExamCreate
+from tprep.app.exam_schemas import ExamOut, ExamCreate, ExamPinStatus
 
 router = APIRouter(tags=["Exams"])
 
@@ -79,3 +79,11 @@ def pin_exam(
     user_id = get_current_user_id()
     NotificationRepo.create_notification(user_id, exam_id, db)
     ExamRepo.pin_exam(user_id, exam_id, db)
+
+@router.get("/exams/{exam_id}/check_pinning", response_model=ExamPinStatus)
+def check_pinned_exam(
+    exam_id: int,
+    db: Session = Depends(get_db),
+):
+    user_id = get_current_user_id()
+    return ExamRepo.check_pinned_exam(user_id, exam_id, db)

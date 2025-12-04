@@ -148,3 +148,14 @@ class ExamRepo:
         db.add(pinned_exam)
         db.commit()
         db.refresh(pinned_exam)
+
+    @staticmethod
+    def check_pinned_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> bool:
+        pinned_exam = (
+            db.query(UserPinnedExam)
+            .filter(UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id)
+            .first()
+        )
+        if pinned_exam:
+            return True
+        return False
