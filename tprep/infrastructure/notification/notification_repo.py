@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+from typing import List
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -37,3 +38,13 @@ class NotificationRepo:
         if notification:
             db.delete(notification)
             db.commit()
+
+    @staticmethod
+    def delete_notification_by_id(
+        notification_id: int, db: Session = Depends(get_db)
+    ):
+        db.query(NotificationDB).filter(NotificationDB.id == notification_id).delete()
+
+    @staticmethod
+    def get_all_notifications_of_user(user_id: int, db: Session = Depends(get_db)) -> List[NotificationDB]:
+        return db.query(NotificationDB).filter(NotificationDB.user_id == user_id).all()
