@@ -44,6 +44,7 @@ class NotificationRepo:
         notification_id: int, db: Session = Depends(get_db)
     ):
         db.query(NotificationDB).filter(NotificationDB.id == notification_id).delete()
+        db.commit()
 
     @staticmethod
     def get_all_notifications_of_user(user_id: int, db: Session = Depends(get_db)) -> List[NotificationDB]:

@@ -80,6 +80,16 @@ def pin_exam(
     NotificationRepo.create_notification(user_id, exam_id, db)
     ExamRepo.pin_exam(user_id, exam_id, db)
 
+@router.post("/exams/{exam_id}/unpin", status_code=204)
+def unpin_exam(
+    exam_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    NotificationRepo.delete_notification(user_id, exam_id, db)
+    ExamRepo.unpin_exam(user_id, exam_id, db)
+
+
 @router.get("/exams/{exam_id}/check_pinning", response_model=ExamPinStatus)
 def check_pinned_exam(
     exam_id: int,
