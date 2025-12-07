@@ -10,6 +10,7 @@ class Notification(BaseModel):
     id: NotificationId
     user_id: UserId
     exam_id: ExamId
+    exam_title: str
     time: datetime
 
     @classmethod
@@ -18,6 +19,7 @@ class Notification(BaseModel):
             id=NotificationId(model.id),
             user_id=UserId(model.user_id),
             exam_id=ExamId(model.exam_id),
+            exam_title=model.exam.title,
             time=model.time,
         )
 
