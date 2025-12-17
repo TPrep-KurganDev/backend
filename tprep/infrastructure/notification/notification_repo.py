@@ -1,14 +1,20 @@
 from datetime import datetime, timezone, timedelta
+from typing import List
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.notification.notificationdb import NotificationDB
+from tprep.infrastructure import NotificationDB
 
 
 class NotificationRepo:
-    INTERVALS = [timedelta(minutes=20), timedelta(hours=8), timedelta(days=1)]
+    INTERVALS = [
+        timedelta(minutes=1),
+        timedelta(minutes=20),
+        timedelta(hours=8),
+        timedelta(days=1),
+    ]
 
     @staticmethod
     def create_notification(
@@ -37,3 +43,16 @@ class NotificationRepo:
         if notification:
             db.delete(notification)
             db.commit()
+
+    @staticmethod
+    def delete_notification_by_id(
+        notification_id: int, db: Session = Depends(get_db)
+    ) -> None:
+        db.query(NotificationDB).filter(NotificationDB.id == notification_id).delete()
+        db.commit()
+
+    @staticmethod
+    def get_all_notifications_of_user(
+        user_id: int, db: Session = Depends(get_db)
+    ) -> List[NotificationDB]:
+        return db.query(NotificationDB).filter(NotificationDB.user_id == user_id).all()

@@ -6,21 +6,20 @@ from sqlalchemy.orm import Session
 from pywebpush import webpush, WebPushException
 
 from tprep.app.requests_models import Notification
-from tprep.infrastructure.notification.notificationdb import NotificationDB
+from tprep.infrastructure import NotificationDB, User
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
-from tprep.infrastructure.user.user import User
 from config import settings
 
 BATCH_SIZE = 1000
-INTERVAL_SECONDS = 300
+INTERVAL_SECONDS = 30
 
 
 def fetch_due_notifications(
     db: Session, batch_size: int = BATCH_SIZE
 ) -> Generator[Notification, Any, None]:
     now = datetime.now(timezone.utc)
-    query = db.query(NotificationDB).filter(NotificationDB.time >= now)
+    query = db.query(NotificationDB).filter(NotificationDB.time <= now)
 
     for notif in query.yield_per(batch_size):
         yield Notification.from_db_model(notif)

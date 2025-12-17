@@ -202,3 +202,116 @@ class TestUserRepoRegisterUser:
         saved_user = test_db.query(User).filter(User.id == 1).first()
         assert saved_user.email == "fulluser@example.com"
         assert saved_user.user_name == "Full User"
+
+
+class TestUserRepoGetUserById:
+    def test_get_user_by_id_returns_user_when_exists(self, test_db, populate_db):
+        populate_db(
+            users=[
+                {
+                    "id": 1,
+                    "email": "test@example.com",
+                    "user_name": "Test",
+                    "password_hash": "hash",
+                }
+            ]
+        )
+
+        user = UserRepo.get_user_by_id(1, test_db)
+
+        assert user.id == 1
+        assert user.email == "test@example.com"
+        assert user.user_name == "Test"
+
+    def test_get_user_by_id_raises_exception_when_not_found(self, test_db):
+        with pytest.raises(UserNotFound):
+            UserRepo.get_user_by_id(999, test_db)
+
+
+class TestUserRepoUpdateUserToken:
+    def test_update_user_token_updates_token(self, test_db, populate_db):
+        populate_db(
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ]
+        )
+
+        updated_user = UserRepo.update_user_token(1, "new_token", test_db)
+
+        assert updated_user.auth_token == "new_token"
+
+        # Проверяем в БД
+        user_from_db = test_db.query(User).filter(User.id == 1).first()
+        assert user_from_db.auth_token == "new_token"
+
+
+class TestUserRepoRegisterPush:
+    def test_register_push_sets_push_fields(self, test_db, populate_db):
+        populate_db(
+            users=[
+                {
+                    "id": 1,
+                    "email": "push@example.com",
+                    "user_name": "PushUser",
+                    "password_hash": "hash",
+                }
+            ]
+        )
+
+        UserRepo.register_push(
+            user_id=1,
+            push_key="push_key_123",
+            auth="auth_token_123",
+            endpoint="endpoint_url",
+            db=test_db,
+        )
+
+        user = test_db.query(User).filter(User.id == 1).first()
+
+        assert user.push_key == "push_key_123"
+        assert user.auth_token == "auth_token_123"
+        assert user.endpoint == "endpoint_url"
+
+    def test_register_push_raises_when_user_not_found(self, test_db):
+        with pytest.raises(UserNotFound):
+            UserRepo.register_push(
+                user_id=999,
+                push_key="push",
+                auth="auth",
+                endpoint="endpoint",
+                db=test_db,
+            )
+
+
+class TestUserRepoUnregisterPush:
+    def test_unregister_push_clears_push_fields(self, test_db, populate_db):
+        populate_db(
+            users=[
+                {
+                    "id": 1,
+                    "email": "push@example.com",
+                    "user_name": "PushUser",
+                    "password_hash": "hash",
+                    "push_key": "push_key",
+                    "auth_token": "auth_token",
+                    "endpoint": "endpoint",
+                }
+            ]
+        )
+
+        UserRepo.unregister_push(1, test_db)
+
+        user = test_db.query(User).filter(User.id == 1).first()
+
+        assert user.push_key is None
+        assert user.auth_token is None
+        assert user.endpoint is None
+
+    def test_unregister_push_raises_when_user_not_found(self, test_db):
+        with pytest.raises(UserNotFound):
+            UserRepo.unregister_push(999, test_db)

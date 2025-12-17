@@ -6,9 +6,10 @@ from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
+from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user_repo import UserRepo
 
-from tprep.app.exam_schemas import ExamOut, ExamCreate
+from tprep.app.exam_schemas import ExamOut, ExamCreate, ExamPinStatus
 
 router = APIRouter(tags=["Exams"])
 
@@ -68,3 +69,32 @@ def delete_exam(
 @router.get("/exams/{exam_id}", response_model=ExamOut)
 def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
     return ExamRepo.get_exam(exam_id, db)
+
+
+@router.post("/exams/{exam_id}/pin", status_code=204)
+def pin_exam(
+    exam_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> None:
+    NotificationRepo.create_notification(user_id, exam_id, db)
+    ExamRepo.pin_exam(user_id, exam_id, db)
+
+
+@router.post("/exams/{exam_id}/unpin", status_code=204)
+def unpin_exam(
+    exam_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> None:
+    NotificationRepo.delete_notification(user_id, exam_id, db)
+    ExamRepo.unpin_exam(user_id, exam_id, db)
+
+
+@router.get("/exams/{exam_id}/check_pinning", response_model=ExamPinStatus)
+def check_pinned_exam(
+    exam_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> bool:
+    return ExamRepo.check_pinned_exam(user_id, exam_id, db)

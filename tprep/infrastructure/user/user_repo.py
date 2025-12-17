@@ -3,9 +3,8 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.exam.exam import Exam
+from tprep.infrastructure import Exam, User
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
-from tprep.infrastructure.user.user import User
 
 
 class UserRepo:
@@ -57,23 +56,17 @@ class UserRepo:
         return user
 
     @staticmethod
-    def get_user_by_id_and_token(
-        user_id: int, token: str, db: Session = Depends(get_db)
-    ) -> User:
-        user = (
-            db.query(User).filter(User.id == user_id, User.auth_token == token).first()
-        )
-        if not user:
-            raise UserNotFound
-        return user
-
-    @staticmethod
     def register_push(
-        user_id: int, push_key: str, endpoint: str, db: Session = Depends(get_db)
+        user_id: int,
+        push_key: str,
+        auth: str,
+        endpoint: str,
+        db: Session = Depends(get_db),
     ) -> None:
         user = UserRepo.get_user_by_id(user_id, db)
         user.push_key = push_key
         user.endpoint = endpoint
+        user.auth_token = auth
         db.add(user)
         db.commit()
 
@@ -81,5 +74,6 @@ class UserRepo:
     def unregister_push(user_id: int, db: Session = Depends(get_db)) -> None:
         user = UserRepo.get_user_by_id(user_id, db)
         user.push_key = None
+        user.auth_token = None
         user.endpoint = None
         db.commit()

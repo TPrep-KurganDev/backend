@@ -4,10 +4,7 @@ from unittest.mock import patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from tprep.infrastructure.models import Base
-from tprep.infrastructure.user.user import User
-from tprep.infrastructure.exam.exam import Exam, Card
-from tprep.infrastructure.statistic.statistic import Statistic
+from tprep.infrastructure import User, Exam, Card, Statistic, Base
 
 
 # URL для тестовой БД (можно переопределить через переменную окружения)

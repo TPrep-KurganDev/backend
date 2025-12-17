@@ -19,7 +19,13 @@ def register_push(
     if not user_id:
         raise HTTPException(status_code=401, detail="User not authenticated")
 
-    UserRepo.register_push(user_id, data.push_key, endpoint=data.endpoint, db=db)
+    UserRepo.register_push(
+        user_id=user_id,
+        auth=data.auth,
+        push_key=data.push_key,
+        endpoint=data.endpoint,
+        db=db,
+    )
     return StatusResponse(status="ok")
 
 
