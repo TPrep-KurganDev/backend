@@ -150,12 +150,13 @@ def get_cards(exam_id: int):
     data = r.json()
     print(data)
 
+
 def pin_exam(exam_id: int, token):
     url = BASE_URL + f"/exams/{exam_id}/pin"
     headers = {"Authorization": f"Bearer {token}"}
     payload = {"exam_id": exam_id}
     try:
-        r = requests.post(url, json=payload, headers=headers)
+        requests.post(url, json=payload, headers=headers)
     except requests.RequestException as e:
         print(f"Network error during pin exam: {e}")
         return None
@@ -167,7 +168,7 @@ def check_pin(exam_id: int, token):
     headers = {"Authorization": f"Bearer {token}"}
     payload = {"exam_id": exam_id}
     try:
-        r = requests.get(url, json=payload, headers=headers)
+        requests.get(url, json=payload, headers=headers)
     except requests.RequestException as e:
         print(f"Network error during pin exam: {e}")
         return None

@@ -1,19 +1,12 @@
-from http import HTTPStatus
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from tprep.app.api.routes.auth import router
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.authorization import hash_password, create_access_token
-from tprep.app.authorization_schemas import TokenData
-from tprep.infrastructure.exceptions.invalid_or_expired_token import InvalidOrExpiredToken
+from tprep.infrastructure.authorization import hash_password
 from tprep.infrastructure.exceptions.user_already_exists import UserAlreadyExists
 from tprep.infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
-from tprep.infrastructure.user.user import User
-from config import settings
-
 
 
 @pytest.fixture

@@ -9,7 +9,12 @@ from tprep.infrastructure import NotificationDB
 
 
 class NotificationRepo:
-    INTERVALS = [timedelta(minutes=1), timedelta(minutes=20), timedelta(hours=8), timedelta(days=1)]
+    INTERVALS = [
+        timedelta(minutes=1),
+        timedelta(minutes=20),
+        timedelta(hours=8),
+        timedelta(days=1),
+    ]
 
     @staticmethod
     def create_notification(
@@ -42,10 +47,12 @@ class NotificationRepo:
     @staticmethod
     def delete_notification_by_id(
         notification_id: int, db: Session = Depends(get_db)
-    ):
+    ) -> None:
         db.query(NotificationDB).filter(NotificationDB.id == notification_id).delete()
         db.commit()
 
     @staticmethod
-    def get_all_notifications_of_user(user_id: int, db: Session = Depends(get_db)) -> List[NotificationDB]:
+    def get_all_notifications_of_user(
+        user_id: int, db: Session = Depends(get_db)
+    ) -> List[NotificationDB]:
         return db.query(NotificationDB).filter(NotificationDB.user_id == user_id).all()

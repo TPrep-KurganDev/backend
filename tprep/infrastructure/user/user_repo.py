@@ -55,10 +55,13 @@ class UserRepo:
         db.refresh(user)
         return user
 
-
     @staticmethod
     def register_push(
-        user_id: int, push_key: str, auth: str, endpoint: str, db: Session = Depends(get_db)
+        user_id: int,
+        push_key: str,
+        auth: str,
+        endpoint: str,
+        db: Session = Depends(get_db),
     ) -> None:
         user = UserRepo.get_user_by_id(user_id, db)
         user.push_key = push_key

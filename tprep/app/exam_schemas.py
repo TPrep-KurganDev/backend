@@ -8,8 +8,10 @@ class ExamBase(BaseModel):
 class ExamCreate(ExamBase):
     pass
 
+
 class ExamPinStatus(BaseModel):
     is_pinned: bool
+
 
 class ExamOut(ExamBase):
     id: int

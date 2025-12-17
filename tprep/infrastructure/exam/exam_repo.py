@@ -151,14 +151,20 @@ class ExamRepo:
 
     @staticmethod
     def unpin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
-        db.query(UserPinnedExam).filter(UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id).delete()
+        db.query(UserPinnedExam).filter(
+            UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id
+        ).delete()
         db.commit()
 
     @staticmethod
-    def check_pinned_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> bool:
+    def check_pinned_exam(
+        user_id: int, exam_id: int, db: Session = Depends(get_db)
+    ) -> bool:
         pinned_exam = (
             db.query(UserPinnedExam)
-            .filter(UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id)
+            .filter(
+                UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id
+            )
             .first()
         )
         if pinned_exam:

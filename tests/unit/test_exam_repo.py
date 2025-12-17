@@ -274,16 +274,30 @@ class TestExamRepoDeleteExam:
 class TestExamRepoGetCardsByExamId:
     def test_returns_cards_for_exam(self, test_db, populate_db):
         populate_db(
-            users=[{
-                "id": 1,
-                "email": "user@example.com",
-                "user_name": "User",
-                "password_hash": "hash",
-            }],
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
             cards=[
-                {"card_id": 1, "exam_id": 1, "number": 1, "question": "Q1", "answer": "A1"},
-                {"card_id": 2, "exam_id": 1, "number": 2, "question": "Q2", "answer": "A2"},
+                {
+                    "card_id": 1,
+                    "exam_id": 1,
+                    "number": 1,
+                    "question": "Q1",
+                    "answer": "A1",
+                },
+                {
+                    "card_id": 2,
+                    "exam_id": 1,
+                    "number": 2,
+                    "question": "Q2",
+                    "answer": "A2",
+                },
             ],
         )
 
@@ -295,12 +309,14 @@ class TestExamRepoGetCardsByExamId:
 
     def test_returns_empty_list_when_no_cards(self, test_db, populate_db):
         populate_db(
-            users=[{
-                "id": 1,
-                "email": "user@example.com",
-                "user_name": "User",
-                "password_hash": "hash",
-            }],
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
         )
 
@@ -311,20 +327,24 @@ class TestExamRepoGetCardsByExamId:
 class TestExamRepoGetCard:
     def test_get_card_success(self, test_db, populate_db):
         populate_db(
-            users=[{
-                "id": 1,
-                "email": "user@example.com",
-                "user_name": "User",
-                "password_hash": "hash",
-            }],
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
-            cards=[{
-                "card_id": 10,
-                "exam_id": 1,
-                "number": 1,
-                "question": "Q",
-                "answer": "A",
-            }],
+            cards=[
+                {
+                    "card_id": 10,
+                    "exam_id": 1,
+                    "number": 1,
+                    "question": "Q",
+                    "answer": "A",
+                }
+            ],
         )
 
         card = ExamRepo.get_card(10, test_db)
@@ -340,16 +360,30 @@ class TestExamRepoGetCard:
 class TestExamRepoCreateCard:
     def test_create_card_assigns_correct_number(self, test_db, populate_db):
         populate_db(
-            users=[{
-                "id": 1,
-                "email": "user@example.com",
-                "user_name": "User",
-                "password_hash": "hash",
-            }],
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
             cards=[
-                {"card_id": 12, "exam_id": 1, "number": 1, "question": "Q1", "answer": "A1"},
-                {"card_id": 13, "exam_id": 1, "number": 2, "question": "Q2", "answer": "A2"},
+                {
+                    "card_id": 12,
+                    "exam_id": 1,
+                    "number": 1,
+                    "question": "Q1",
+                    "answer": "A1",
+                },
+                {
+                    "card_id": 13,
+                    "exam_id": 1,
+                    "number": 2,
+                    "question": "Q2",
+                    "answer": "A2",
+                },
             ],
         )
 
@@ -362,20 +396,24 @@ class TestExamRepoCreateCard:
 class TestExamRepoUpdateCard:
     def test_update_card_updates_fields(self, test_db, populate_db):
         populate_db(
-            users=[{
-                "id": 1,
-                "email": "user@example.com",
-                "user_name": "User",
-                "password_hash": "hash",
-            }],
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
-            cards=[{
-                "card_id": 1,
-                "exam_id": 1,
-                "number": 1,
-                "question": "Old",
-                "answer": "Old",
-            }],
+            cards=[
+                {
+                    "card_id": 1,
+                    "exam_id": 1,
+                    "number": 1,
+                    "question": "Old",
+                    "answer": "Old",
+                }
+            ],
         )
 
         card_data = CardBase(question="New", answer="New")
@@ -392,20 +430,24 @@ class TestExamRepoUpdateCard:
 class TestExamRepoDeleteCard:
     def test_delete_card_removes_card(self, test_db, populate_db):
         populate_db(
-            users=[{
-                "id": 1,
-                "email": "user@example.com",
-                "user_name": "User",
-                "password_hash": "hash",
-            }],
+            users=[
+                {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "user_name": "User",
+                    "password_hash": "hash",
+                }
+            ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
-            cards=[{
-                "card_id": 1,
-                "exam_id": 1,
-                "number": 1,
-                "question": "Q",
-                "answer": "A",
-            }],
+            cards=[
+                {
+                    "card_id": 1,
+                    "exam_id": 1,
+                    "number": 1,
+                    "question": "Q",
+                    "answer": "A",
+                }
+            ],
         )
 
         ExamRepo.delete_card(1, 1, test_db)
@@ -418,8 +460,18 @@ class TestExamRepoPinning:
     def test_pin_and_check_exam(self, test_db, populate_db):
         populate_db(
             users=[
-                {"id": 1, "email": "u1@example.com", "user_name": "U1", "password_hash": "hash"},
-                {"id": 2, "email": "u2@example.com", "user_name": "U2", "password_hash": "hash"},
+                {
+                    "id": 1,
+                    "email": "u1@example.com",
+                    "user_name": "U1",
+                    "password_hash": "hash",
+                },
+                {
+                    "id": 2,
+                    "email": "u2@example.com",
+                    "user_name": "U2",
+                    "password_hash": "hash",
+                },
             ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
         )
@@ -431,8 +483,18 @@ class TestExamRepoPinning:
     def test_unpin_exam(self, test_db, populate_db):
         populate_db(
             users=[
-                {"id": 1, "email": "u1@example.com", "user_name": "U1", "password_hash": "hash"},
-                {"id": 2, "email": "u2@example.com", "user_name": "U2", "password_hash": "hash"},
+                {
+                    "id": 1,
+                    "email": "u1@example.com",
+                    "user_name": "U1",
+                    "password_hash": "hash",
+                },
+                {
+                    "id": 2,
+                    "email": "u2@example.com",
+                    "user_name": "U2",
+                    "password_hash": "hash",
+                },
             ],
             exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
         )
