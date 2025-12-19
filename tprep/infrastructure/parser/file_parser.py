@@ -101,7 +101,7 @@ class FileParser:
         return cards_data
 
     @staticmethod
-    def check_extension(filename: str) -> bool:
+    def check_extension(filename: str | None) -> bool:
         supported_extensions = {".txt", ".csv", ".log", ".md", ".xlsx", ".docx"}
         extension = FileParser.get_extension(filename)
         if extension:
