@@ -8,8 +8,7 @@ from tprep.app.session_schemas import ExamSessionResponse, ExamSessionStartReque
 from tprep.infrastructure.exceptions.session_not_found import SessionNotFound
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
-from tprep.infrastructure.exam.exam import Exam
-from tprep.infrastructure.user.user import User
+from tprep.infrastructure import Exam, User
 
 router = APIRouter(prefix="/session", tags=["Session"])
 
@@ -29,6 +28,15 @@ def start_exam_session(
         raise ExamNotFound()
 
     session = SessionFactory.create_session(user, exam, request.strategy, request.n, db)
+
+    return ExamSessionResponse.model_validate(session)
+
+
+@router.get("/{session_id}", response_model=ExamSessionResponse)
+def get_exam_session(session_id: str) -> ExamSessionResponse:
+    session = SessionFactory.get_session_by_id(session_id)
+    if session is None:
+        raise SessionNotFound("Session not found")
 
     return ExamSessionResponse.model_validate(session)
 

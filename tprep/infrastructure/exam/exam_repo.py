@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from tprep.app.card_schemas import CardBase
 from tprep.app.exam_schemas import ExamCreate
-from tprep.infrastructure.exam.exam import Exam, UserPinnedExam, Card
+from tprep.infrastructure import Exam, UserPinnedExam, Card
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
@@ -140,3 +140,33 @@ class ExamRepo:
     @staticmethod
     def count_next_number(exam_id: int, db: Session) -> int:
         return len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
+
+    @staticmethod
+    def pin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
+        pinned_exam = UserPinnedExam(user_id=user_id, exam_id=exam_id)
+        db.query(UserPinnedExam)
+        db.add(pinned_exam)
+        db.commit()
+        db.refresh(pinned_exam)
+
+    @staticmethod
+    def unpin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
+        db.query(UserPinnedExam).filter(
+            UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id
+        ).delete()
+        db.commit()
+
+    @staticmethod
+    def check_pinned_exam(
+        user_id: int, exam_id: int, db: Session = Depends(get_db)
+    ) -> bool:
+        pinned_exam = (
+            db.query(UserPinnedExam)
+            .filter(
+                UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id
+            )
+            .first()
+        )
+        if pinned_exam:
+            return True
+        return False

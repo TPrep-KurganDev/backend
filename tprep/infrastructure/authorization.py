@@ -16,12 +16,12 @@ from tprep.infrastructure.exceptions.invalid_or_expired_token import (
     InvalidOrExpiredToken,
 )
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
-from tprep.infrastructure.user.user import User
+from tprep.infrastructure import User
 from tprep.infrastructure.user.user_repo import UserRepo
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 
 def hash_password(password: str) -> str:
@@ -59,6 +59,11 @@ def verify_refresh_token(token: str) -> TokenData:
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
+    user_id = get_current_user_id(token)
+    return UserRepo.get_user_by_id(user_id, db)
+
+
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -66,14 +71,8 @@ def get_current_user(
         user_id: int = int(payload.get("sub"))
         if user_id is None:
             raise InvalidOrExpiredToken
-
-        user = UserRepo.get_user_by_id_and_token(user_id, token, db)
-        return user
+        return user_id
 
     except JWTError as e:
         print(f"Authentication failed. Error: {e}")
         raise InvalidOrExpiredToken
-
-
-def get_current_user_id(current_user: User = Depends(get_current_user)) -> int:
-    return current_user.id

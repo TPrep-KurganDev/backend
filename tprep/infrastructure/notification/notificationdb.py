@@ -6,8 +6,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
 
 if TYPE_CHECKING:
-    from tprep.infrastructure.exam.exam import Exam
-    from tprep.infrastructure.user.user import User
+    from tprep.infrastructure import Exam, User
 
 
 class NotificationDB(Base):

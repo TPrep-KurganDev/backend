@@ -49,5 +49,31 @@ services:
         uvicorn tprep.app.main:app --host 0.0.0.0 --port 8000 --reload
       "
 
+  notificator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tprep_notificator
+    environment:
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      DB_PASSWORD: ${DB_PASSWORD}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./tprep:/app/tprep
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Starting notificator...' &&
+        python -m tprep.notificator.notificator
+      "
+
 volumes:
   postgres_data:

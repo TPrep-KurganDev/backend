@@ -58,7 +58,13 @@ down:
 logs:
 	docker-compose logs -f app
 
+logs-notificator:
+	docker-compose logs -f notificator
+
 restart: down up
+
+restart-notificator:
+	docker-compose restart notificator
 
 # Test database commands
 test-db-up:

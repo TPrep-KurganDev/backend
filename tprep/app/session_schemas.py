@@ -8,6 +8,8 @@ from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
 class ExamSessionResponse(BaseModel):
     id: str
     questions: List[int]
+    answers: dict[int, bool] = {}
+    exam_id: int
 
     class Config:
         from_attributes = True

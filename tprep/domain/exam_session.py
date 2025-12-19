@@ -16,13 +16,13 @@ class ExamSession:
 
         self.id = str(uuid4())
         self.created_at = datetime.utcnow()
-        self._answers: dict[int, bool] = {}
+        self.answers: dict[int, bool] = {}
 
     def set_answer(self, question_id: int, is_right: bool, db: Session) -> None:
         if question_id not in self.questions:
             raise QuestionNotInSession(
                 f"Question {question_id} is not part of this session."
             )
-        self._answers[question_id] = is_right
+        self.answers[question_id] = is_right
         if not is_right:
             StatRepo.inc_mistakes(self.user_id, question_id, db)

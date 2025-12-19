@@ -4,11 +4,9 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from tprep.domain.exam_session import ExamSession
-from tprep.infrastructure.exam.exam import Exam, Card
+from tprep.infrastructure import Exam, Card, User, Statistic
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
-from tprep.infrastructure.statistic.statistic import Statistic
-from tprep.infrastructure.user.user import User
 from tprep.infrastructure.database import get_db
 
 

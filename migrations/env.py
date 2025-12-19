@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config, create_engine, pool
 from alembic import context
 
 from config import settings
-from tprep.infrastructure.models import Base
+from tprep.infrastructure import Base
 
 config = context.config
 
