@@ -79,7 +79,7 @@ class FileParser:
     @staticmethod
     def parse_txt(content: bytes) -> list[tuple[str, str]]:
         try:
-            text = content.decode("utf-8")
+            text = content.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
         except UnicodeDecodeError:
             raise FileDecode("Cant decode this file (UTF-8 expected)")
 
