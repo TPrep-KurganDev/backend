@@ -1,3 +1,6 @@
+import asyncio
+import os
+
 from fastapi import UploadFile
 from docx import Document
 import pandas as pd
@@ -48,7 +51,7 @@ class FileParser:
 
             return cards_data
 
-        except Exception as e:
+        except Exception:
             raise FileParsing(f"Error parsing {file_extension} file")
 
     @staticmethod
@@ -73,7 +76,7 @@ class FileParser:
 
             return cards_data
 
-        except Exception as e:
+        except Exception:
             raise FileParsing("Error parsing DOCX file")
 
     @staticmethod
