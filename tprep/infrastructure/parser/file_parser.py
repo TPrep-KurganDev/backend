@@ -1,6 +1,3 @@
-import asyncio
-import os
-
 from fastapi import UploadFile
 from docx import Document
 import pandas as pd
