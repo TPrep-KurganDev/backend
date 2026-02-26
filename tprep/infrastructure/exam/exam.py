@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR
+from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from tprep.infrastructure.models import Base
 
@@ -13,6 +13,7 @@ class Exam(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
+    scope: Mapped[str] = mapped_column(String(255), nullable=False)
     creator_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
@@ -29,7 +30,7 @@ class Exam(Base):
         passive_deletes=True,
     )
 
-    pinned_by: Mapped[list["UserPinnedExam"]] = relationship(
+    pinned_by: Mapped[list["UserExams"]] = relationship(
         "UserPinnedExam",
         back_populates="exam",
         cascade="all, delete-orphan",
@@ -51,7 +52,7 @@ class Exam(Base):
     )
 
 
-class UserPinnedExam(Base):
+class UserExams(Base):
     __tablename__ = "user_pinned_exams"
 
     user_id: Mapped[int] = mapped_column(
@@ -66,6 +67,9 @@ class UserPinnedExam(Base):
         primary_key=True,
         index=True,
     )
+
+    rights: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user: Mapped["User"] = relationship(
         "User",

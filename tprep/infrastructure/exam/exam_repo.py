@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from tprep.app.card_schemas import CardBase
 from tprep.app.exam_schemas import ExamCreate
-from tprep.infrastructure import Exam, UserPinnedExam, Card
+from tprep.infrastructure import Exam, UserExams, Card
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
@@ -58,8 +58,8 @@ class ExamRepo:
             raise UserNotFound("User with specified pinned id does not exist")
         return (
             db.query(Exam)
-            .join(UserPinnedExam, Exam.id == UserPinnedExam.exam_id)
-            .filter(UserPinnedExam.user_id == pinned_id)
+            .join(UserExams, Exam.id == UserExams.exam_id)
+            .filter(UserExams.user_id == pinned_id)
             .all()
         )
 
@@ -143,16 +143,16 @@ class ExamRepo:
 
     @staticmethod
     def pin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
-        pinned_exam = UserPinnedExam(user_id=user_id, exam_id=exam_id)
-        db.query(UserPinnedExam)
+        pinned_exam = UserExams(user_id=user_id, exam_id=exam_id)
+        db.query(UserExams)
         db.add(pinned_exam)
         db.commit()
         db.refresh(pinned_exam)
 
     @staticmethod
     def unpin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
-        db.query(UserPinnedExam).filter(
-            UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id
+        db.query(UserExams).filter(
+            UserExams.user_id == user_id, UserExams.exam_id == exam_id
         ).delete()
         db.commit()
 
@@ -161,9 +161,9 @@ class ExamRepo:
         user_id: int, exam_id: int, db: Session = Depends(get_db)
     ) -> bool:
         pinned_exam = (
-            db.query(UserPinnedExam)
+            db.query(UserExams)
             .filter(
-                UserPinnedExam.user_id == user_id, UserPinnedExam.exam_id == exam_id
+                UserExams.user_id == user_id, UserExams.exam_id == exam_id
             )
             .first()
         )
