@@ -15,6 +15,7 @@ from tprep.app.api.routes.users import router as users_router
 from tprep.app.api.routes.push import router as push_router
 from tprep.app.api.routes.notifications import router as notifications_router
 from tprep.infrastructure.exceptions.UnexceptableStrategy import UnexceptableStrategy
+from tprep.infrastructure.exceptions.ai_generation_failed import AiGenerationFailed
 from tprep.infrastructure.exceptions.card_not_found import CardNotFound
 from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
@@ -55,6 +56,7 @@ APP_ERRORS = {
     InvalidOrExpiredToken: status.HTTP_401_UNAUTHORIZED,
     InvalidAuthorizationHeader: status.HTTP_401_UNAUTHORIZED,
     UnexceptableStrategy: status.HTTP_422_UNPROCESSABLE_ENTITY,
+    AiGenerationFailed: status.HTTP_502_BAD_GATEWAY,
 }
 
 
