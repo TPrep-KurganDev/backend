@@ -60,7 +60,7 @@ class FileParser:
 
             for paragraph in document.paragraphs:
                 line = paragraph.text.strip()
-                if not line or '|' not in line:
+                if not line or "|" not in line:
                     continue
                 try:
                     question, answer = line.split("|", 1)
@@ -87,7 +87,7 @@ class FileParser:
         lines = text.split("\n")
         for line in lines:
             line = line.strip()
-            if not line or '|' not in line:
+            if not line or "|" not in line:
                 continue
             try:
                 question, answer = line.split("|", 1)
