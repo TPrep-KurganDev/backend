@@ -1,16 +1,24 @@
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query
+
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from tprep.infrastructure.exam.exam import Exam
+
+from tprep.infrastructure.exam.exam import Exam, UserExams
 from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
+from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user_repo import UserRepo
 
-from tprep.app.exam_schemas import ExamOut, ExamCreate, ExamPinStatus
+from tprep.app.exam_schemas import (
+    ExamOut,
+    ExamCreate,
+    ExamPinStatus,
+    ExamRightsResponse,
+)
 
 router = APIRouter(tags=["Exams"])
 
@@ -37,7 +45,7 @@ def create_exam(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> Exam:
-    new_exam = Exam(title=exam_data.title, creator_id=user_id)
+    new_exam = Exam(title=exam_data.title, scope=exam_data.scope, creator_id=user_id)
     ExamRepo.add_exam(new_exam, user_id, db)
     return new_exam
 
@@ -49,8 +57,8 @@ def update_exam(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> Exam:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
 
     return ExamRepo.update_exam(exam_id, exam_data, db)
 
@@ -99,3 +107,116 @@ def check_pinned_exam(
     db: Session = Depends(get_db),
 ) -> bool:
     return ExamRepo.check_pinned_exam(user_id, exam_id, db)
+
+
+@router.post("/exams/{exam_id}/rights", status_code=204)
+def grant_editor_rights(
+    exam_id: UUID,
+    target_user_id: UUID = Query(..., alias="user_id"),
+    author_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> None:
+    if not ExamRepo.user_can_edit_exam(author_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to manage exam rights")
+
+    if not UserRepo.check_user_exists(target_user_id, db):
+        raise HTTPException(status_code=404, detail="Target user not found")
+
+    link = (
+        db.query(UserExams)
+        .filter(
+            UserExams.user_id == target_user_id,
+            UserExams.exam_id == exam_id,
+        )
+        .first()
+    )
+
+    if link:
+        link.rights = "editor"
+    else:
+        link = UserExams(
+            user_id=target_user_id,
+            exam_id=exam_id,
+            rights="editor",
+            is_pinned=False,
+        )
+        db.add(link)
+
+    db.commit()
+
+
+@router.patch("/exams/{exam_id}/rights", response_model=ExamRightsResponse)
+def change_user_rights(
+    exam_id: UUID,
+    target_user_id: UUID = Query(..., alias="user_id"),
+    rights: str = Query(..., description="New rights: editor or viewer"),
+    author_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> ExamRightsResponse:
+    if rights not in {"editor", "viewer"}:
+        raise HTTPException(status_code=400, detail="Invalid rights value")
+
+    if not ExamRepo.user_can_edit_exam(author_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to manage exam rights")
+
+    link = (
+        db.query(UserExams)
+        .filter(
+            UserExams.user_id == target_user_id,
+            UserExams.exam_id == exam_id,
+        )
+        .first()
+    )
+
+    if not link:
+        # если прав вообще не было — создаём запись
+        link = UserExams(
+            user_id=target_user_id,
+            exam_id=exam_id,
+            rights=rights,
+            is_pinned=False,
+        )
+        db.add(link)
+    else:
+        link.rights = rights
+
+    db.commit()
+
+    editor_ids = ExamRepo.get_editor_ids(exam_id, db)
+    return ExamRightsResponse(user_id=editor_ids)
+
+
+@router.delete("/exams/{exam_id}/rights", status_code=204)
+def revoke_user_rights(
+    exam_id: UUID,
+    target_user_id: UUID = Query(..., alias="user_id"),
+    author_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> None:
+    if not ExamRepo.user_can_edit_exam(author_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to manage exam rights")
+
+    (
+        db.query(UserExams)
+        .filter(
+            UserExams.user_id == target_user_id,
+            UserExams.exam_id == exam_id,
+        )
+        .delete()
+    )
+    db.commit()
+
+
+@router.get("/exams/{exam_id}/rights", response_model=ExamRightsResponse)
+def get_exam_editors(
+    exam_id: UUID,
+    requester_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> ExamRightsResponse:
+    if not ExamRepo.user_can_edit_exam(requester_id, exam_id, db):
+        raise UserIsNotCreator(
+            "Only exam creator or editors can view rights information"
+        )
+
+    editor_ids = ExamRepo.get_editor_ids(exam_id, db)
+    return ExamRightsResponse(user_id=editor_ids)

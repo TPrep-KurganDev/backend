@@ -61,7 +61,7 @@ class Exam(Base):
 
 
 class UserExams(Base):
-    __tablename__ = "user_pinned_exams"
+    __tablename__ = "user_exams"
 
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class ExamBase(BaseModel):
     title: str
+    scope: str = "default"
 
 
 class ExamCreate(ExamBase):
@@ -13,6 +14,10 @@ class ExamCreate(ExamBase):
 
 class ExamPinStatus(BaseModel):
     is_pinned: bool
+
+
+class ExamRightsResponse(BaseModel):
+    user_id: list[UUID]
 
 
 class ExamOut(ExamBase):

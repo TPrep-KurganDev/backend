@@ -144,6 +144,31 @@ class ExamRepo:
         return len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
 
     @staticmethod
+    def user_can_edit_exam(user_id: UUID, exam_id: UUID, db: Session) -> bool:
+        if UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+            return True
+
+        editor_link = (
+            db.query(UserExams)
+            .filter(
+                UserExams.user_id == user_id,
+                UserExams.exam_id == exam_id,
+                UserExams.rights == "editor",
+            )
+            .first()
+        )
+        return editor_link is not None
+
+    @staticmethod
+    def get_editor_ids(exam_id: UUID, db: Session) -> list[UUID]:
+        editors = (
+            db.query(UserExams)
+            .filter(UserExams.exam_id == exam_id, UserExams.rights == "editor")
+            .all()
+        )
+        return [editor.user_id for editor in editors]
+
+    @staticmethod
     def pin_exam(user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)) -> None:
         pinned_exam = UserExams(user_id=user_id, exam_id=exam_id)
         db.query(UserExams)

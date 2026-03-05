@@ -24,8 +24,8 @@ def create_card(
     db: Session = Depends(get_db),
     user_id: UUID = Depends(get_current_user_id),
 ) -> Card:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
     return ExamRepo.create_card(exam_id, db)
 
 
@@ -40,8 +40,8 @@ async def create_cards_from_file(
     user_id: UUID = Depends(get_current_user_id),
     file: UploadFile = File(...),
 ) -> List[Card]:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
     if not FileParser.check_extension(file.filename):
         raise FileExtension("Cant parse file with this extension")
     cards_data = await FileParser.parse_file(file)
@@ -71,8 +71,8 @@ def update_card(
     db: Session = Depends(get_db),
     user_id: UUID = Depends(get_current_user_id),
 ) -> Card:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
 
@@ -83,7 +83,7 @@ def delete_card(
     db: Session = Depends(get_db),
     user_id: UUID = Depends(get_current_user_id),
 ) -> None:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
 
     ExamRepo.delete_card(exam_id, card_id, db)
