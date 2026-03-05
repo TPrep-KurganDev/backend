@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
@@ -12,7 +14,7 @@ router = APIRouter(tags=["Users"])
 
 @router.get("/users/{user_id}", response_model=UserOut)
 def get_user_by_id(
-    user_id: int,
+    user_id: UUID,
     db: Session = Depends(get_db),
 ) -> User:
     return UserRepo.get_user_by_id(user_id, db)

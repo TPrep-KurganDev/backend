@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -13,7 +15,7 @@ from tprep.infrastructure.user.user_repo import UserRepo
 
 class ExamRepo:
     @staticmethod
-    def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
+    def get_exam(exam_id: UUID, db: Session = Depends(get_db)) -> Exam:
         exam = db.query(Exam).filter(Exam.id == exam_id).first()
         if exam is None:
             raise ExamNotFound(f"Exam with id:{exam_id} not found")
@@ -21,7 +23,7 @@ class ExamRepo:
 
     @staticmethod
     def update_exam(
-        exam_id: int, exam_data: ExamCreate, db: Session = Depends(get_db)
+        exam_id: UUID, exam_data: ExamCreate, db: Session = Depends(get_db)
     ) -> Exam:
         exam = ExamRepo.get_exam(exam_id, db)
 
@@ -34,7 +36,7 @@ class ExamRepo:
         return exam
 
     @staticmethod
-    def add_exam(exam: Exam, creator_id: int, db: Session = Depends(get_db)) -> None:
+    def add_exam(exam: Exam, creator_id: UUID, db: Session = Depends(get_db)) -> None:
         if not UserRepo.check_user_exists(creator_id, db):
             raise UserNotFound("User with specified creator id does not exist")
 
@@ -44,7 +46,7 @@ class ExamRepo:
 
     @staticmethod
     def get_exams_created_by_user(
-        creator_id: int, db: Session = Depends(get_db)
+        creator_id: UUID, db: Session = Depends(get_db)
     ) -> list[Exam]:
         if not UserRepo.check_user_exists(creator_id, db):
             raise UserNotFound("User with specified creator id does not exist")
@@ -52,7 +54,7 @@ class ExamRepo:
 
     @staticmethod
     def get_exams_pinned_by_user(
-        pinned_id: int, db: Session = Depends(get_db)
+        pinned_id: UUID, db: Session = Depends(get_db)
     ) -> list[Exam]:
         if not UserRepo.check_user_exists(pinned_id, db):
             raise UserNotFound("User with specified pinned id does not exist")
@@ -64,14 +66,14 @@ class ExamRepo:
         )
 
     @staticmethod
-    def delete_exam(exam_id: int, db: Session = Depends(get_db)) -> None:
+    def delete_exam(exam_id: UUID, db: Session = Depends(get_db)) -> None:
         exam = ExamRepo.get_exam(exam_id, db)
 
         db.delete(exam)
         db.commit()
 
     @staticmethod
-    def get_cards_by_exam_id(exam_id: int, db: Session = Depends(get_db)) -> list[Card]:
+    def get_cards_by_exam_id(exam_id: UUID, db: Session = Depends(get_db)) -> list[Card]:
         cards = db.query(Card).filter(Card.exam_id == exam_id).all()
         return cards
 
@@ -83,7 +85,7 @@ class ExamRepo:
         return card
 
     @staticmethod
-    def create_card(exam_id: int, db: Session = Depends(get_db)) -> Card:
+    def create_card(exam_id: UUID, db: Session = Depends(get_db)) -> Card:
         number = ExamRepo.count_next_number(exam_id, db)
         new_card = Card(number=number, exam_id=exam_id, question="", answer="")
         db.add(new_card)
@@ -93,7 +95,7 @@ class ExamRepo:
 
     @staticmethod
     def create_card_by_list(
-        exam_id: int, cards_data: list[tuple[str, str]], db: Session
+        exam_id: UUID, cards_data: list[tuple[str, str]], db: Session
     ) -> list[Card]:
         number = ExamRepo.count_next_number(exam_id, db)
         cards = []
@@ -110,7 +112,7 @@ class ExamRepo:
 
     @staticmethod
     def update_card(
-        exam_id: int, card_id: int, card_data: CardBase, db: Session = Depends(get_db)
+        exam_id: UUID, card_id: int, card_data: CardBase, db: Session = Depends(get_db)
     ) -> Card:
         card = (
             db.query(Card)
@@ -128,7 +130,7 @@ class ExamRepo:
         return card
 
     @staticmethod
-    def delete_card(exam_id: int, card_id: int, db: Session = Depends(get_db)) -> None:
+    def delete_card(exam_id: UUID, card_id: int, db: Session = Depends(get_db)) -> None:
         card = (
             db.query(Card)
             .filter(Card.card_id == card_id, Card.exam_id == exam_id)
@@ -138,11 +140,11 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
-    def count_next_number(exam_id: int, db: Session) -> int:
+    def count_next_number(exam_id: UUID, db: Session) -> int:
         return len(db.query(Card).filter(Card.exam_id == exam_id).all()) + 1
 
     @staticmethod
-    def pin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
+    def pin_exam(user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)) -> None:
         pinned_exam = UserExams(user_id=user_id, exam_id=exam_id)
         db.query(UserExams)
         db.add(pinned_exam)
@@ -150,7 +152,7 @@ class ExamRepo:
         db.refresh(pinned_exam)
 
     @staticmethod
-    def unpin_exam(user_id: int, exam_id: int, db: Session = Depends(get_db)) -> None:
+    def unpin_exam(user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)) -> None:
         db.query(UserExams).filter(
             UserExams.user_id == user_id, UserExams.exam_id == exam_id
         ).delete()
@@ -158,7 +160,7 @@ class ExamRepo:
 
     @staticmethod
     def check_pinned_exam(
-        user_id: int, exam_id: int, db: Session = Depends(get_db)
+        user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)
     ) -> bool:
         pinned_exam = (
             db.query(UserExams)

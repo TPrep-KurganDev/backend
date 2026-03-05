@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, model_validator
 
@@ -9,14 +10,14 @@ class ExamSessionResponse(BaseModel):
     id: str
     questions: List[int]
     answers: dict[int, bool] = {}
-    exam_id: int
+    exam_id: UUID
 
     class Config:
         from_attributes = True
 
 
 class ExamSessionStartRequest(BaseModel):
-    exam_id: int
+    exam_id: UUID
     strategy: str = "full"
     n: Optional[int] = None
 

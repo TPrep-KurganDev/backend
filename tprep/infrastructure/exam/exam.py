@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
 from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR, Boolean
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from tprep.infrastructure.models import Base
 
 if TYPE_CHECKING:
@@ -11,11 +14,16 @@ if TYPE_CHECKING:
 class Exam(Base):
     __tablename__ = "exams"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        index=True,
+        default=uuid4,
+    )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     scope: Mapped[str] = mapped_column(String(255), nullable=False)
-    creator_id: Mapped[int] = mapped_column(
-        BigInteger,
+    creator_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
     )
 
@@ -55,14 +63,14 @@ class Exam(Base):
 class UserExams(Base):
     __tablename__ = "user_pinned_exams"
 
-    user_id: Mapped[int] = mapped_column(
-        BigInteger,
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
         primary_key=True,
         index=True,
     )
-    exam_id: Mapped[int] = mapped_column(
-        BigInteger,
+    exam_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("exams.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
         primary_key=True,
         index=True,
@@ -89,8 +97,8 @@ class Card(Base):
     __tablename__ = "cards"
 
     card_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    exam_id: Mapped[int] = mapped_column(
-        BigInteger,
+    exam_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("exams.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

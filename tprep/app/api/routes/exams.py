@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from tprep.infrastructure.exam.exam import Exam
@@ -16,7 +17,7 @@ router = APIRouter(tags=["Exams"])
 
 @router.get("/exams/pinned", response_model=List[ExamOut])
 def get_pinned_exams(
-    pinned_id: int = Query(None, description="Id of the user that pinned exam"),
+    pinned_id: UUID = Query(None, description="Id of the user that pinned exam"),
     db: Session = Depends(get_db),
 ) -> list[Exam]:
     return ExamRepo.get_exams_pinned_by_user(pinned_id, db)
@@ -24,7 +25,7 @@ def get_pinned_exams(
 
 @router.get("/exams/created", response_model=List[ExamOut])
 def get_exams(
-    creator_id: int = Query(None, description="Id of the user that created exam"),
+    creator_id: UUID = Query(None, description="Id of the user that created exam"),
     db: Session = Depends(get_db),
 ) -> list[Exam]:
     return ExamRepo.get_exams_created_by_user(creator_id, db)
@@ -33,7 +34,7 @@ def get_exams(
 @router.post("/exams", response_model=ExamOut)
 def create_exam(
     exam_data: ExamCreate,
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> Exam:
     new_exam = Exam(title=exam_data.title, creator_id=user_id)
@@ -43,9 +44,9 @@ def create_exam(
 
 @router.patch("/exams/{exam_id}", response_model=ExamOut)
 def update_exam(
-    exam_id: int,
+    exam_id: UUID,
     exam_data: ExamCreate,
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> Exam:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
@@ -56,8 +57,8 @@ def update_exam(
 
 @router.delete("/exams/{exam_id}", status_code=204)
 def delete_exam(
-    exam_id: int,
-    user_id: int = Depends(get_current_user_id),
+    exam_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> None:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
@@ -67,14 +68,14 @@ def delete_exam(
 
 
 @router.get("/exams/{exam_id}", response_model=ExamOut)
-def get_exam(exam_id: int, db: Session = Depends(get_db)) -> Exam:
+def get_exam(exam_id: UUID, db: Session = Depends(get_db)) -> Exam:
     return ExamRepo.get_exam(exam_id, db)
 
 
 @router.post("/exams/{exam_id}/pin", status_code=204)
 def pin_exam(
-    exam_id: int,
-    user_id: int = Depends(get_current_user_id),
+    exam_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> None:
     NotificationRepo.create_notification(user_id, exam_id, db)
@@ -83,8 +84,8 @@ def pin_exam(
 
 @router.post("/exams/{exam_id}/unpin", status_code=204)
 def unpin_exam(
-    exam_id: int,
-    user_id: int = Depends(get_current_user_id),
+    exam_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> None:
     NotificationRepo.delete_notification(user_id, exam_id, db)
@@ -93,8 +94,8 @@ def unpin_exam(
 
 @router.get("/exams/{exam_id}/check_pinning", response_model=ExamPinStatus)
 def check_pinned_exam(
-    exam_id: int,
-    user_id: int = Depends(get_current_user_id),
+    exam_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> bool:
     return ExamRepo.check_pinned_exam(user_id, exam_id, db)

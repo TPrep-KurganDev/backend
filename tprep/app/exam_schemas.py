@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -14,8 +16,8 @@ class ExamPinStatus(BaseModel):
 
 
 class ExamOut(ExamBase):
-    id: int
-    creator_id: int
+    id: UUID
+    creator_id: UUID
 
     class Config:
         from_attributes = True

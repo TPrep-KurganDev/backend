@@ -1,4 +1,5 @@
 from typing import cast
+from uuid import UUID
 
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -63,15 +64,15 @@ def get_current_user(
     return UserRepo.get_user_by_id(user_id, db)
 
 
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> int:
+def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
-        user_id: int = int(payload.get("sub"))
-        if user_id is None:
+        sub = payload.get("sub")
+        if sub is None:
             raise InvalidOrExpiredToken
-        return user_id
+        return UUID(sub)
 
     except JWTError as e:
         print(f"Authentication failed. Error: {e}")

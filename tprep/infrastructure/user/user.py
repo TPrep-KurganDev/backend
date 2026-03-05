@@ -1,8 +1,11 @@
 from typing import TYPE_CHECKING, Optional
+from uuid import UUID, uuid4
 
 from pydantic import EmailStr
-from sqlalchemy import BigInteger, String
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import String
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from tprep.infrastructure.models import Base
 
 if TYPE_CHECKING:
@@ -12,7 +15,12 @@ if TYPE_CHECKING:
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        index=True,
+        default=uuid4,
+    )
     email: Mapped["EmailStr"] = mapped_column(
         String(255), unique=True, nullable=False, index=True
     )
