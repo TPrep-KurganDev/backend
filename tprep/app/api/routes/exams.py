@@ -169,7 +169,6 @@ def change_user_rights(
     )
 
     if not link:
-        # если прав вообще не было — создаём запись
         link = UserExams(
             user_id=target_user_id,
             exam_id=exam_id,
