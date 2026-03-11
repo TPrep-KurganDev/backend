@@ -31,7 +31,7 @@ class User(Base):
     auth_token: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     pinned_exams: Mapped[list["UserExams"]] = relationship(
-        "UserPinnedExam",
+        "UserExams",
         back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,

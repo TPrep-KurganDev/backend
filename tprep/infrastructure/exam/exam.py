@@ -39,7 +39,7 @@ class Exam(Base):
     )
 
     pinned_by: Mapped[list["UserExams"]] = relationship(
-        "UserPinnedExam",
+        "UserExams",
         back_populates="exam",
         cascade="all, delete-orphan",
         passive_deletes=True,
