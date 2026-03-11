@@ -1,4 +1,6 @@
 from typing import List
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 
@@ -27,12 +29,12 @@ router = APIRouter(tags=["Cards"])
 
 @router.post("/exams/{exam_id}/cards", response_model=CardResponse)
 def create_card(
-    exam_id: int,
+    exam_id: UUID,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ) -> Card:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
     return ExamRepo.create_card(exam_id, db)
 
 
@@ -42,13 +44,13 @@ def create_card(
     description="Создает карточки из файла. Формат файла: вопрос1 | ответ1; вопрос2 | ответ2;",
 )
 async def create_cards_from_file(
-    exam_id: int,
+    exam_id: UUID,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     file: UploadFile = File(...),
 ) -> List[Card]:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
     if not FileParser.check_extension(file.filename):
         raise FileExtension("Cant parse file with this extension")
     cards_data = await FileParser.parse_file(file)
@@ -57,7 +59,7 @@ async def create_cards_from_file(
 
 
 @router.get("/exams/{exam_id}/cards", response_model=List[CardResponse])
-def get_cards_list(exam_id: int, db: Session = Depends(get_db)) -> List[Card]:
+def get_cards_list(exam_id: UUID, db: Session = Depends(get_db)) -> List[Card]:
     cards = ExamRepo.get_cards_by_exam_id(exam_id, db)
     return cards
 
@@ -72,26 +74,26 @@ def get_card(
 
 @router.patch("/exams/{exam_id}/cards/{card_id}", response_model=CardBase)
 def update_card(
-    exam_id: int,
+    exam_id: UUID,
     card_id: int,
     card_data: CardBase,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ) -> Card:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
 
 @router.delete("/exams/{exam_id}/cards/{card_id}", status_code=204)
 def delete_card(
-    exam_id: int,
+    exam_id: UUID,
     card_id: int,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ) -> None:
-    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+    if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
+        raise UserIsNotCreator("User has no rights to edit this exam")
 
     ExamRepo.delete_card(exam_id, card_id, db)
 

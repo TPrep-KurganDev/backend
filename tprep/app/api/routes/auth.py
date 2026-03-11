@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
@@ -80,7 +82,7 @@ def login_for_swagger(
 def refresh_access_token(request: RefreshRequest) -> AccessTokenResponse:
     token_data = verify_refresh_token(request.refreshToken)
     access_token = create_access_token(token_data)
-    UserRepo.update_user_token(int(token_data.sub), access_token)
+    UserRepo.update_user_token(UUID(token_data.sub), access_token)
 
     return AccessTokenResponse(
         accessToken=access_token,

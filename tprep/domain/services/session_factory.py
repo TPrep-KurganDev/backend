@@ -1,4 +1,5 @@
 from random import sample
+from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -55,7 +56,7 @@ class SessionFactory:
 
     @staticmethod
     def get_smart_cards(
-        user_id: int, exam_id: int, limit: int, db: Session = Depends(get_db)
+        user_id: UUID, exam_id: UUID, limit: int, db: Session = Depends(get_db)
     ) -> list[int]:
         stats = (
             db.query(Statistic.card_id, Statistic.mistakes_count)

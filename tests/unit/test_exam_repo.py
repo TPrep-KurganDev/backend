@@ -179,7 +179,7 @@ class TestExamRepoGetExamsPinnedByUser:
     def test_get_exams_pinned_by_user_returns_pinned_exams(
         self, test_db, populate_db, exam_id, title
     ):
-        from tprep.infrastructure.exam.exam import UserPinnedExam
+        from tprep.infrastructure.exam.exam import UserExams
 
         # Создаем пользователей и экзамены
         populate_db(
@@ -201,7 +201,7 @@ class TestExamRepoGetExamsPinnedByUser:
         )
 
         # Создаем связь (пользователь 2 закрепил экзамен)
-        pinned = UserPinnedExam(user_id=2, exam_id=exam_id)
+        pinned = UserExams(user_id=2, exam_id=exam_id)
         test_db.add(pinned)
         test_db.commit()
 

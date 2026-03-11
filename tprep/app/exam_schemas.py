@@ -1,8 +1,10 @@
+from uuid import UUID
 from pydantic import BaseModel
 
 
 class ExamBase(BaseModel):
     title: str
+    scope: str = "default"
 
 
 class ExamCreate(ExamBase):
@@ -13,9 +15,13 @@ class ExamPinStatus(BaseModel):
     is_pinned: bool
 
 
+class ExamRightsResponse(BaseModel):
+    user_id: list[UUID]
+
+
 class ExamOut(ExamBase):
-    id: int
-    creator_id: int
+    id: UUID
+    creator_id: UUID
 
     class Config:
         from_attributes = True

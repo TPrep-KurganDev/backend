@@ -1,3 +1,6 @@
+from typing import List
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -17,7 +20,7 @@ router = APIRouter(prefix="/session", tags=["Session"])
 def start_exam_session(
     request: ExamSessionStartRequest,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ) -> ExamSessionResponse:
     user = db.query(User).get(user_id)
     if not user:
