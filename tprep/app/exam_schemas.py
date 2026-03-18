@@ -1,10 +1,17 @@
+from enum import StrEnum
 from uuid import UUID
 from pydantic import BaseModel
 
 
+class ExamScope(StrEnum):
+    default = "default"
+    link = "link"
+    personal = "personal"
+
+
 class ExamBase(BaseModel):
     title: str
-    scope: str = "default"
+    scope: ExamScope = ExamScope.default
 
 
 class ExamCreate(ExamBase):

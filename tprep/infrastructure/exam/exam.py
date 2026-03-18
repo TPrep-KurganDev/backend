@@ -21,7 +21,7 @@ class Exam(Base):
         default=uuid4,
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    scope: Mapped[str] = mapped_column(String(255), nullable=False)
+    scope: Mapped[str] = mapped_column(String(255), nullable=False, default="default")
     creator_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ

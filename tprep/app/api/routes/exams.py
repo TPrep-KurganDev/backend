@@ -8,7 +8,7 @@ from tprep.infrastructure.exam.exam import Exam, UserExams
 from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
-from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
+from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user_repo import UserRepo
@@ -58,7 +58,7 @@ def update_exam(
     db: Session = Depends(get_db),
 ) -> Exam:
     if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to edit this exam")
+        raise UserIsNotEditor("User has no rights to edit this exam")
 
     return ExamRepo.update_exam(exam_id, exam_data, db)
 
@@ -70,14 +70,21 @@ def delete_exam(
     db: Session = Depends(get_db),
 ) -> None:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+        raise UserIsNotEditor("User is not creator")
 
     ExamRepo.delete_exam(exam_id, db)
 
 
 @router.get("/exams/{exam_id}", response_model=ExamOut)
-def get_exam(exam_id: UUID, db: Session = Depends(get_db)) -> Exam:
-    return ExamRepo.get_exam(exam_id, db)
+def get_exam(
+    exam_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> Exam:
+    exam = ExamRepo.get_exam(exam_id, db)
+    if not ExamRepo.user_can_view_exam(user_id, exam, db):
+        raise UserIsNotEditor("User has no rights to view this exam")
+    return exam
 
 
 @router.post("/exams/{exam_id}/pin", status_code=204)
@@ -117,7 +124,7 @@ def grant_editor_rights(
     db: Session = Depends(get_db),
 ) -> None:
     if not ExamRepo.user_can_edit_exam(author_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to manage exam rights")
+        raise UserIsNotEditor("User has no rights to manage exam rights")
 
     if not UserRepo.check_user_exists(target_user_id, db):
         raise HTTPException(status_code=404, detail="Target user not found")
@@ -157,7 +164,7 @@ def change_user_rights(
         raise HTTPException(status_code=400, detail="Invalid rights value")
 
     if not ExamRepo.user_can_edit_exam(author_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to manage exam rights")
+        raise UserIsNotEditor("User has no rights to manage exam rights")
 
     link = (
         db.query(UserExams)
@@ -193,7 +200,7 @@ def revoke_user_rights(
     db: Session = Depends(get_db),
 ) -> None:
     if not ExamRepo.user_can_edit_exam(author_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to manage exam rights")
+        raise UserIsNotEditor("User has no rights to manage exam rights")
 
     (
         db.query(UserExams)
@@ -213,7 +220,7 @@ def get_exam_editors(
     db: Session = Depends(get_db),
 ) -> ExamRightsResponse:
     if not ExamRepo.user_can_edit_exam(requester_id, exam_id, db):
-        raise UserIsNotCreator(
+        raise UserIsNotEditor(
             "Only exam creator or editors can view rights information"
         )
 

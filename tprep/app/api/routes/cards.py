@@ -10,7 +10,7 @@ from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.file_extension import FileExtension
-from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
+from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
 from tprep.infrastructure.user.user_repo import UserRepo
 from tprep.infrastructure.parser.file_parser import FileParser
 
@@ -25,7 +25,7 @@ def create_card(
     user_id: UUID = Depends(get_current_user_id),
 ) -> Card:
     if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to edit this exam")
+        raise UserIsNotEditor("User has no rights to edit this exam")
     return ExamRepo.create_card(exam_id, db)
 
 
@@ -41,7 +41,7 @@ async def create_cards_from_file(
     file: UploadFile = File(...),
 ) -> List[Card]:
     if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to edit this exam")
+        raise UserIsNotEditor("User has no rights to edit this exam")
     if not FileParser.check_extension(file.filename):
         raise FileExtension("Cant parse file with this extension")
     cards_data = await FileParser.parse_file(file)
@@ -50,7 +50,14 @@ async def create_cards_from_file(
 
 
 @router.get("/exams/{exam_id}/cards", response_model=List[CardResponse])
-def get_cards_list(exam_id: UUID, db: Session = Depends(get_db)) -> List[Card]:
+def get_cards_list(
+    exam_id: UUID,
+    user_id: UUID = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+) -> List[Card]:
+    exam = ExamRepo.get_exam(exam_id, db)
+    if not ExamRepo.user_can_view_exam(user_id, exam, db):
+        raise UserIsNotEditor("User has no rights to view this exam")
     cards = ExamRepo.get_cards_by_exam_id(exam_id, db)
     return cards
 
@@ -72,7 +79,7 @@ def update_card(
     user_id: UUID = Depends(get_current_user_id),
 ) -> Card:
     if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to edit this exam")
+        raise UserIsNotEditor("User has no rights to edit this exam")
     return ExamRepo.update_card(exam_id, card_id, card_data, db)
 
 
@@ -84,6 +91,6 @@ def delete_card(
     user_id: UUID = Depends(get_current_user_id),
 ) -> None:
     if not ExamRepo.user_can_edit_exam(user_id, exam_id, db):
-        raise UserIsNotCreator("User has no rights to edit this exam")
+        raise UserIsNotEditor("User has no rights to edit this exam")
 
     ExamRepo.delete_card(exam_id, card_id, db)

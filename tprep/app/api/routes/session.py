@@ -11,6 +11,8 @@ from tprep.app.session_schemas import ExamSessionResponse, ExamSessionStartReque
 from tprep.infrastructure.exceptions.session_not_found import SessionNotFound
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
+from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
+from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure import Exam, User
 
 router = APIRouter(prefix="/session", tags=["Session"])
@@ -29,6 +31,8 @@ def start_exam_session(
     exam = db.query(Exam).get(request.exam_id)
     if not exam:
         raise ExamNotFound()
+    if not ExamRepo.user_can_view_exam(user_id, exam, db):
+        raise UserIsNotEditor("User has no rights to start session for this exam")
 
     session = SessionFactory.create_session(user, exam, request.strategy, request.n, db)
 

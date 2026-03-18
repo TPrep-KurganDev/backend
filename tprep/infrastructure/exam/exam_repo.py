@@ -169,6 +169,12 @@ class ExamRepo:
         return [editor.user_id for editor in editors]
 
     @staticmethod
+    def user_can_view_exam(user_id: UUID, exam: Exam, db: Session) -> bool:
+        if exam.scope != "personal":
+            return True
+        return ExamRepo.user_can_edit_exam(user_id, exam.id, db)
+
+    @staticmethod
     def pin_exam(user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)) -> None:
         pinned_exam = UserExams(user_id=user_id, exam_id=exam_id)
         db.query(UserExams)
