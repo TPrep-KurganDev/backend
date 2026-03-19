@@ -138,7 +138,6 @@ def generate_answers(
     for result in results:
         card = card_lookup[result.card_id]
         if result.success and result.answer is not None:
-            card.answer = result.answer
             successful += 1
         else:
             failed += 1
@@ -153,8 +152,6 @@ def generate_answers(
                 error=result.error,
             )
         )
-
-    db.commit()
 
     return GenerateAnswersResponse(
         total=len(results),
