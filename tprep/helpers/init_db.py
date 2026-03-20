@@ -8,13 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL is None:
-    raise ValueError("DATABASE_URL не может быть пустым")
-
-match = re.match(r"postgresql\+psycopg2://(.*):(.*)@(.*):(\d+)/(.*)", DATABASE_URL)
-if not match:
-    raise ValueError("DATABASE_URL некорректен")
-user, password, host, port, dbname = match.groups()
+user, password, host, port, dbname = os.getenv("DB_USER"), os.getenv("DB_PASSWORD"), os.getenv("DB_HOST"), os.getenv("DB_PORT"), os.getenv("DB_NAME")
 
 conn = psycopg2.connect(
     dbname="postgres", user=user, password=password, host=host, port=port
