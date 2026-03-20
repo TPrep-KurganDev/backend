@@ -156,7 +156,7 @@ def generate_answers(
                 card_id=card.card_id,
                 number=card.number,
                 question=card.question,
-                answer=card.answer,
+                answer=result.answer,
                 success=result.success,
                 error=result.error,
             )
