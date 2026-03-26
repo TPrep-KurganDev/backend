@@ -12,6 +12,7 @@ from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
 from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user_repo import UserRepo
+from tprep.infrastructure.ocr import extract_text_from_image
 
 from tprep.app.exam_schemas import (
     ExamOut,
@@ -19,6 +20,7 @@ from tprep.app.exam_schemas import (
     ExamPinStatus,
     ExamRightsResponse,
 )
+from tprep.app.ocr_schemas import OcrRequest, OcrResponse
 
 router = APIRouter(tags=["Exams"])
 
@@ -226,3 +228,13 @@ def get_exam_editors(
 
     editor_ids = ExamRepo.get_editor_ids(exam_id, db)
     return ExamRightsResponse(user_id=editor_ids)
+
+
+@router.post("/exams/ocr", response_model=OcrResponse)
+def ocr_image(
+    payload: OcrRequest,
+    _user_id: UUID = Depends(get_current_user_id),
+) -> OcrResponse:
+    lines = extract_text_from_image(payload.image_name)
+    text = "\n".join(lines).strip()
+    return OcrResponse(text=text, lines=lines)
