@@ -19,6 +19,6 @@ def test_extract_text_from_image_example_png_integration() -> None:
         pytest.skip("images/example.png is missing")
 
     lines = extract_text_from_image("example.png")
-    assert lines == ["Гении не рождаются"]
+    assert lines == ["Гении не рождаются"] #сюда ввести тексты по строкам, который на картинке
     assert isinstance(lines, list)
 
