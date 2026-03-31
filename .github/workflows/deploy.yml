@@ -13,16 +13,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /opt/tprep
-            sed -i 's/^BACKEND_VERSION=.*/BACKEND_VERSION=${{ github.event.inputs.tag }}/' .env
-            docker compose pull backend notificator
-            docker compose up -d backend notificator
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          echo -e "Host server\n  HostName ${{ secrets.SSH_HOST }}\n  User ${{ secrets.SSH_USER }}\n  IdentityFile ~/.ssh/deploy_key\n  StrictHostKeyChecking no" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
+      - name: Deploy and health check
+        run: |
+          ssh server '
+            cd deploy
+            sed -i "s/^BACKEND_VERSION=.*/BACKEND_VERSION=${{ inputs.tag }}/" .env
+            docker compose pull backend
+            docker compose up -d backend
             sleep 5
             curl -f http://localhost:8000/api/health || { echo "Health check failed!"; exit 1; }
+          '
