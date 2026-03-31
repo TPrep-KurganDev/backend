@@ -1,0 +1,28 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Image tag to deploy (e.g. sha-abc1234 or latest)"
+        required: true
+        default: "latest"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/tprep
+            sed -i 's/^BACKEND_VERSION=.*/BACKEND_VERSION=${{ github.event.inputs.tag }}/' .env
+            docker compose pull backend notificator
+            docker compose up -d backend notificator
+            sleep 5
+            curl -f http://localhost:8000/api/health || { echo "Health check failed!"; exit 1; }
