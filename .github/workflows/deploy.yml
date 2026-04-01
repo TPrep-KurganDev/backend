@@ -44,7 +44,7 @@ jobs:
             docker compose pull backend
             docker compose up -d backend
             for i in $(seq 1 10); do
-              status=$(docker inspect --format="{{.State.Health.Status}}" tprep_backend 2>/dev/null)
+              status=$(docker inspect --format="{{.State.Health.Status}}" tprep_backend_prod 2>/dev/null)
               [ "$status" = "healthy" ] && exit 0
               sleep 3
             done
