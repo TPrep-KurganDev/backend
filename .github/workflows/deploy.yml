@@ -22,11 +22,25 @@ jobs:
           echo -e "Host server\n  HostName ${{ secrets.SSH_HOST }}\n  User ${{ secrets.SSH_USER }}\n  IdentityFile ~/.ssh/deploy_key\n  StrictHostKeyChecking no" > ~/.ssh/config
           chmod 600 ~/.ssh/config
 
+      - name: Generate .env on server
+        run: |
+          ssh server bash -c 'cat > ~/deploy/.env << EOF
+          DB_USER=${{ secrets.DB_USER }}
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+          VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+          BACKEND_VERSION=${{ inputs.tag }}
+          EOF'
+
       - name: Deploy and health check
         run: |
           ssh server '
             cd deploy
-            sed -i "s/^BACKEND_VERSION=.*/BACKEND_VERSION=${{ inputs.tag }}/" .env
             docker compose pull backend
             docker compose up -d backend
             sleep 5
