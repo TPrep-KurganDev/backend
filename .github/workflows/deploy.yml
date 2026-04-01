@@ -43,6 +43,11 @@ jobs:
             cd deploy
             docker compose pull backend
             docker compose up -d backend
-            sleep 5
-            curl -f http://localhost:8000/api/health || { echo "Health check failed!"; exit 1; }
+            for i in $(seq 1 10); do
+              status=$(docker inspect --format="{{.State.Health.Status}}" tprep_backend 2>/dev/null)
+              [ "$status" = "healthy" ] && exit 0
+              sleep 3
+            done
+            echo "Health check failed!"
+            exit 1
           '
