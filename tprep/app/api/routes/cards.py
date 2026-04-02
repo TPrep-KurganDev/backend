@@ -124,8 +124,6 @@ def generate_answers(
     else:
         cards = all_cards
 
-    cards = [c for c in cards if not c.answer or not c.answer.strip()]
-
     ai_generator = AiAnswerGenerator()
     card_pairs = [(c.card_id, c.question) for c in cards]
     results = ai_generator.generate_answers_batch(card_pairs)
