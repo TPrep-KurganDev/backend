@@ -29,6 +29,8 @@ class Settings(BaseSettings):
         description="Subject email for VAPID claims"
     )
 
+    OPENROUTER_API_KEY: str = Field(..., description="API Key of OPERNROUTER")
+
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
