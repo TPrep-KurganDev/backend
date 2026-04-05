@@ -4,9 +4,12 @@ from jose import jwt
 
 from tprep.app.authorization_schemas import TokenData
 from tprep.infrastructure.authorization import (
+    JWT_PURPOSE_ACCESS,
+    JWT_PURPOSE_REFRESH,
     hash_password,
     verify_password,
     create_access_token,
+    create_refresh_token,
     verify_refresh_token,
     get_current_user,
 )
@@ -65,6 +68,7 @@ class TestAccessToken:
         )
         assert decoded["sub"] == "123"
         assert decoded["login"] == "test@example.com"
+        assert decoded["purpose"] == JWT_PURPOSE_ACCESS
         assert "exp" in decoded
 
     def test_create_access_token_has_expiration(self):
@@ -79,8 +83,32 @@ class TestAccessToken:
         )
         assert "exp" in decoded
 
+    def test_create_refresh_token_contains_purpose(self):
+        data = TokenData(sub="42", login="u")
+        token = create_refresh_token(data)
+        decoded = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            options={"verify_exp": False},
+        )
+        assert decoded["sub"] == "42"
+        assert decoded["purpose"] == JWT_PURPOSE_REFRESH
+        assert decoded["login"] == "u"
+
     def test_verify_refresh_token_valid(self):
-        pytest.skip("JWT exp stored as string bug")
+        data = TokenData(sub="99", login="name")
+        token = create_refresh_token(data)
+        result = verify_refresh_token(token)
+        assert result.sub == "99"
+        assert result.login == "name"
+
+    def test_verify_refresh_token_rejects_access_token(self):
+        data = TokenData(sub="1", login="x")
+        access = create_access_token(data)
+
+        with pytest.raises(InvalidOrExpiredToken):
+            verify_refresh_token(access)
 
     def test_verify_refresh_token_invalid(self):
         invalid_token = "invalid.token.here"
@@ -89,7 +117,15 @@ class TestAccessToken:
             verify_refresh_token(invalid_token)
 
     def test_verify_refresh_token_no_subject(self):
-        pytest.skip("JWT exp stored as string bug")
+        expire = datetime.utcnow() + timedelta(days=7)
+        bad = jwt.encode(
+            {"purpose": JWT_PURPOSE_REFRESH, "exp": expire},
+            settings.SECRET_KEY,
+            algorithm=settings.ALGORITHM,
+        )
+
+        with pytest.raises(InvalidOrExpiredToken):
+            verify_refresh_token(bad)
 
 
 class TestGetCurrentUser:
