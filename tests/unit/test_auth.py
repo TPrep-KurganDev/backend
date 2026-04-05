@@ -91,6 +91,7 @@ class TestAuthLogin:
         assert data["user_id"] == 1
         assert data["token_type"] == "bearer"
         assert isinstance(data["access_token"], str)
+        assert isinstance(data["refresh_token"], str)
 
     def test_login_wrong_password_raises(self, client, populate_db):
         populate_db(
@@ -150,6 +151,7 @@ class TestAuthTokenSwagger:
         data = response.json()
         assert data["user_id"] == 1
         assert data["token_type"] == "bearer"
+        assert isinstance(data.get("refresh_token"), str)
 
     def test_login_for_swagger_wrong_password_raises(self, client, populate_db):
         populate_db(

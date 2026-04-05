@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(..., description="Secret key for JWT encoding")
     ALGORITHM: str = Field(default="HS256", description="JWT algorithm")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60, description="Access token expiry in minutes")
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(
+        default=7, description="Refresh token expiry in days"
+    )
 
     BCRYPT_SCHEME: str = Field(default="bcrypt", description="Hashing scheme for passwords")
 
