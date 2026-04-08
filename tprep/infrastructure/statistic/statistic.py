@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import BigInteger, ForeignKey, Index, UniqueConstraint
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from tprep.infrastructure import Base
 
 if TYPE_CHECKING:
@@ -13,14 +16,18 @@ class Statistic(Base):
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
 
-    user_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("users.id", ondelete="CASCADE"), index=True
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
     )
     card_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("cards.card_id", ondelete="CASCADE"), index=True
     )
-    exam_id: Mapped[int] = mapped_column(
-        BigInteger, ForeignKey("exams.id", ondelete="CASCADE"), index=True
+    exam_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("exams.id", ondelete="CASCADE"),
+        index=True,
     )
 
     mistakes_count: Mapped[int] = mapped_column(BigInteger)

@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -14,7 +15,7 @@ router = APIRouter(tags=["Notifications"])
 
 @router.get("/notifications", response_model=List[NotificationOut])
 def get_notifications(
-    user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)
+    user_id: UUID = Depends(get_current_user_id), db: Session = Depends(get_db)
 ) -> List[NotificationOut]:
     notifications = NotificationRepo.get_all_notifications_of_user(
         user_id=user_id, db=db

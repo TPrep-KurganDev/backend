@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
@@ -94,10 +96,10 @@ def refresh_access_token(
     request: RefreshRequest, db: Session = Depends(get_db)
 ) -> AccessTokenResponse:
     verified = verify_refresh_token(request.refreshToken)
-    user = UserRepo.get_user_by_id(int(verified.sub), db)
+    user = UserRepo.get_user_by_id(UUID(verified.sub), db)
     token_data = TokenData(sub=str(user.id), login=user.user_name)
     access_token = create_access_token(token_data)
-    UserRepo.update_user_token(user.id, access_token, db)
+    UserRepo.update_user_token(UUID(token_data.sub), access_token)
 
     return AccessTokenResponse(
         accessToken=access_token,

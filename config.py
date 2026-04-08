@@ -32,7 +32,7 @@ class Settings(BaseSettings):
         description="Subject email for VAPID claims"
     )
 
-    OPENROUTER_API_KEY: str = Field(default="", description="API key for OpenRouter AI")
+    OPENROUTER_API_KEY: str = Field(default="", description="API Key of OPERNROUTER")
 
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
