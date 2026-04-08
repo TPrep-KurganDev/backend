@@ -11,7 +11,6 @@ from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
 from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
-from tprep.infrastructure.exceptions.exam_not_found import ExamNotFound
 from tprep.infrastructure.notification.notification_repo import NotificationRepo
 from tprep.infrastructure.user.user_repo import UserRepo
 from tprep.infrastructure.ocr import (

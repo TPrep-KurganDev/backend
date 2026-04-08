@@ -94,7 +94,6 @@ def get_current_user_id(token: str = Depends(oauth2_scheme)) -> UUID:
         if payload.get("purpose") == JWT_PURPOSE_REFRESH:
             raise InvalidOrExpiredToken
         sub = payload.get("sub")
-        user_id: int = int(payload.get("sub"))
         if sub is None:
             raise InvalidOrExpiredToken
         return UUID(sub)

@@ -1,7 +1,6 @@
 import uuid
-import pytest
 
-from tprep.infrastructure import User, Exam, Card
+from tprep.infrastructure import Card
 from tprep.infrastructure.statistic.stat_repo import StatRepo
 from tprep.infrastructure.statistic.statistic import Statistic
 

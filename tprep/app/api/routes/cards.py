@@ -117,7 +117,7 @@ def generate_answers(
     user_id: int = Depends(get_current_user_id),
 ) -> GenerateAnswersResponse:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
-        raise UserIsNotCreator("User is not creator")
+        raise UserIsNotEditor("User is not editor")
 
     all_cards = ExamRepo.get_cards_by_exam_id(exam_id, db)
 
