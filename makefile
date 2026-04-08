@@ -1,4 +1,4 @@
-PYTHON_VERSION := 3.12
+PYTHON_VERSION := 3.13
 VENV ?= .venv
 JOBS ?= 4
 

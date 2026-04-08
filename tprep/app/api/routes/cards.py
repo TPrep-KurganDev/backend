@@ -4,15 +4,24 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File
 from sqlalchemy.orm import Session
 
-from tprep.app.card_schemas import CardBase, CardResponse
+from tprep.app.card_schemas import (
+    CardBase,
+    CardResponse,
+    GenerateAnswersRequest,
+    GenerateAnswersResponse,
+    CardGenerationResult,
+)
 from tprep.infrastructure.exam.exam import Card
 from tprep.infrastructure.authorization import get_current_user_id
 from tprep.infrastructure.exam.exam_repo import ExamRepo
 from tprep.infrastructure.database import get_db
+from tprep.infrastructure.exceptions.card_not_found import CardNotFound
+from tprep.infrastructure.exceptions.exam_has_no_cards import ExamHasNoCards
 from tprep.infrastructure.exceptions.file_extension import FileExtension
 from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
 from tprep.infrastructure.user.user_repo import UserRepo
 from tprep.infrastructure.parser.file_parser import FileParser
+from tprep.domain.services.ai_answer_generator import AiAnswerGenerator
 
 
 router = APIRouter(tags=["Cards"])
@@ -94,3 +103,66 @@ def delete_card(
         raise UserIsNotEditor("User has no rights to edit this exam")
 
     ExamRepo.delete_card(exam_id, card_id, db)
+
+
+@router.post(
+    "/exams/{exam_id}/cards/generate-answers",
+    response_model=GenerateAnswersResponse,
+    description="Generate AI answers for exam cards using OpenRouter AI",
+)
+def generate_answers(
+    exam_id: int,
+    request: GenerateAnswersRequest | None = None,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user_id),
+) -> GenerateAnswersResponse:
+    if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
+        raise UserIsNotCreator("User is not creator")
+
+    all_cards = ExamRepo.get_cards_by_exam_id(exam_id, db)
+
+    if not all_cards:
+        raise ExamHasNoCards("Exam has no cards")
+
+    if request and request.card_ids is not None:
+        cards = [c for c in all_cards if c.card_id in request.card_ids]
+        found_ids = {c.card_id for c in cards}
+        missing = set(request.card_ids) - found_ids
+        if missing:
+            raise CardNotFound(f"Cards not found in exam {exam_id}: {missing}")
+    else:
+        cards = all_cards
+
+    ai_generator = AiAnswerGenerator()
+    card_pairs = [(c.card_id, c.question) for c in cards]
+    results = ai_generator.generate_answers_batch(card_pairs)
+
+    card_lookup = {c.card_id: c for c in cards}
+    response_cards: list[CardGenerationResult] = []
+    successful = 0
+    failed = 0
+
+    for result in results:
+        card = card_lookup[result.card_id]
+        if result.success and result.answer is not None:
+            successful += 1
+        else:
+            failed += 1
+
+        response_cards.append(
+            CardGenerationResult(
+                card_id=card.card_id,
+                number=card.number,
+                question=card.question,
+                answer=result.answer,
+                success=result.success,
+                error=result.error,
+            )
+        )
+
+    return GenerateAnswersResponse(
+        total=len(results),
+        successful=successful,
+        failed=failed,
+        cards=response_cards,
+    )

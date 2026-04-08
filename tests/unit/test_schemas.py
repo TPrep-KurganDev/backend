@@ -39,22 +39,31 @@ class TestLoginRequest:
 
 class TestToken:
     def test_token_valid(self):
-        data = {"access_token": "abc123", "token_type": "bearer", "user_id": 1}
+        data = {
+            "access_token": "abc123",
+            "refresh_token": "ref456",
+            "token_type": "bearer",
+            "user_id": 1,
+        }
         token = Token(**data)
 
         assert token.access_token == "abc123"
+        assert token.refresh_token == "ref456"
         assert token.token_type == "bearer"
         assert token.user_id == 1
 
     def test_token_missing_fields(self):
         with pytest.raises(ValidationError):
-            Token(access_token="abc123", user_id=1)
+            Token(access_token="abc123", refresh_token="r", user_id=1)
 
         with pytest.raises(ValidationError):
             Token(token_type="bearer", user_id=1)
 
         with pytest.raises(ValidationError):
             Token(access_token="abc123", token_type="bearer")
+
+        with pytest.raises(ValidationError):
+            Token(access_token="abc123", refresh_token="r", token_type="bearer")
 
 
 class TestRefreshRequest:

@@ -60,7 +60,7 @@ class FileParser:
 
             for paragraph in document.paragraphs:
                 line = paragraph.text.strip()
-                if not line or '|' not in line:
+                if not line or "|" not in line:
                     continue
                 try:
                     question, answer = line.split("|", 1)
@@ -87,7 +87,7 @@ class FileParser:
         lines = text.split("\n")
         for line in lines:
             line = line.strip()
-            if not line or '|' not in line:
+            if not line or "|" not in line:
                 continue
             try:
                 question, answer = line.split("|", 1)
@@ -101,7 +101,7 @@ class FileParser:
         return cards_data
 
     @staticmethod
-    def check_extension(filename: str) -> bool:
+    def check_extension(filename: str | None) -> bool:
         supported_extensions = {".txt", ".csv", ".log", ".md", ".xlsx", ".docx"}
         extension = FileParser.get_extension(filename)
         if extension:
