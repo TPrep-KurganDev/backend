@@ -18,7 +18,7 @@ def register_push(
     user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> StatusResponse:
-    if not user_id:
+    if user_id is None:
         raise HTTPException(status_code=401, detail="User not authenticated")
 
     UserRepo.register_push(

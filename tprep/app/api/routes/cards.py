@@ -111,10 +111,10 @@ def delete_card(
     description="Generate AI answers for exam cards using OpenRouter AI",
 )
 def generate_answers(
-    exam_id: int,
+    exam_id: UUID,
     request: GenerateAnswersRequest | None = None,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ) -> GenerateAnswersResponse:
     if not UserRepo.check_that_user_is_creator(user_id, exam_id, db):
         raise UserIsNotEditor("User is not editor")
