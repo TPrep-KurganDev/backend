@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from pydantic import ValidationError
 
 from tprep.app.authorization_schemas import (
@@ -39,25 +40,29 @@ class TestLoginRequest:
 
 class TestToken:
     def test_token_valid(self):
+        user_id = str(uuid.uuid4())
         data = {
             "access_token": "abc123",
             "refresh_token": "ref456",
             "token_type": "bearer",
-            "user_id": 1,
+            "user_id": user_id,
         }
         token = Token(**data)
 
         assert token.access_token == "abc123"
         assert token.refresh_token == "ref456"
         assert token.token_type == "bearer"
-        assert token.user_id == 1
+        # Исправление: приводим UUID к строке
+        assert str(token.user_id) == user_id
 
     def test_token_missing_fields(self):
-        with pytest.raises(ValidationError):
-            Token(access_token="abc123", refresh_token="r", user_id=1)
+        user_id = str(uuid.uuid4())
 
         with pytest.raises(ValidationError):
-            Token(token_type="bearer", user_id=1)
+            Token(access_token="abc123", refresh_token="r", user_id=user_id)
+
+        with pytest.raises(ValidationError):
+            Token(token_type="bearer", user_id=user_id)
 
         with pytest.raises(ValidationError):
             Token(access_token="abc123", token_type="bearer")
@@ -98,8 +103,8 @@ class TestAccessTokenResponse:
             AccessTokenResponse(**data)
 
         assert (
-            "expiresIn" in str(exc_info.value)
-            or "expires_in" in str(exc_info.value).lower()
+                "expiresIn" in str(exc_info.value)
+                or "expires_in" in str(exc_info.value).lower()
         )
 
 
@@ -136,10 +141,12 @@ class TestUserSchemas:
             UserCreate(**data)
 
     def test_user_out_includes_id(self):
-        data = {"id": 1, "email": "user@example.com", "user_name": "John Doe"}
+        user_id = str(uuid.uuid4())
+        data = {"id": user_id, "email": "user@example.com", "user_name": "John Doe"}
         user = UserOut(**data)
 
-        assert user.id == 1
+        # Исправление: приводим UUID к строке
+        assert str(user.id) == user_id
         assert user.email == "user@example.com"
         assert user.user_name == "John Doe"
 
@@ -168,12 +175,15 @@ class TestExamSchemas:
         assert exam.title == "Science Exam"
 
     def test_exam_out_includes_id(self):
-        data = {"id": 1, "title": "History Exam", "creator_id": 1}
+        exam_id = str(uuid.uuid4())
+        creator_id = str(uuid.uuid4())
+        data = {"id": exam_id, "title": "History Exam", "creator_id": creator_id}
         exam = ExamOut(**data)
 
-        assert exam.id == 1
+        # Исправление: приводим UUID к строке
+        assert str(exam.id) == exam_id
         assert exam.title == "History Exam"
-        assert exam.creator_id == 1
+        assert str(exam.creator_id) == creator_id
 
     def test_exam_out_missing_id(self):
         data = {"title": "History Exam", "creator_id": 1}
@@ -184,22 +194,24 @@ class TestExamSchemas:
 
 class TestExamSessionResponse:
     def test_exam_session_response_valid(self):
+        exam_id = str(uuid.uuid4())
         data = {
             "id": "session_123",
             "questions": [1, 2, 3],
-            "exam_id": 10,
+            "exam_id": exam_id,
         }
         response = ExamSessionResponse(**data)
 
         assert response.id == "session_123"
         assert response.questions == [1, 2, 3]
-        assert response.exam_id == 10
+        # Исправление: приводим UUID к строке
+        assert str(response.exam_id) == exam_id
         assert response.answers == {}
 
     def test_exam_session_response_missing_id(self):
         data = {
             "questions": [1, 2, 3],
-            "exam_id": 10,
+            "exam_id": str(uuid.uuid4()),
         }
 
         with pytest.raises(ValidationError):
@@ -208,7 +220,7 @@ class TestExamSessionResponse:
     def test_exam_session_response_missing_questions(self):
         data = {
             "id": "session_123",
-            "exam_id": 10,
+            "exam_id": str(uuid.uuid4()),
         }
 
         with pytest.raises(ValidationError):
@@ -217,35 +229,43 @@ class TestExamSessionResponse:
 
 class TestExamSessionStartRequest:
     def test_exam_session_start_request_valid_random(self):
-        data = {"exam_id": 10, "strategy": "random", "n": 5}
+        exam_id = str(uuid.uuid4())
+        data = {"exam_id": exam_id, "strategy": "random", "n": 5}
         request = ExamSessionStartRequest(**data)
 
-        assert request.exam_id == 10
+        # Исправление: приводим UUID к строке
+        assert str(request.exam_id) == exam_id
         assert request.strategy == "random"
         assert request.n == 5
 
     def test_exam_session_start_request_valid_full(self):
-        data = {"exam_id": 10, "strategy": "full"}
+        exam_id = str(uuid.uuid4())
+        data = {"exam_id": exam_id, "strategy": "full"}
         request = ExamSessionStartRequest(**data)
 
+        assert str(request.exam_id) == exam_id
         assert request.strategy == "full"
         assert request.n is None
 
     def test_exam_session_start_request_valid_smart(self):
-        data = {"exam_id": 10, "strategy": "smart"}
+        exam_id = str(uuid.uuid4())
+        data = {"exam_id": exam_id, "strategy": "smart"}
         request = ExamSessionStartRequest(**data)
 
+        assert str(request.exam_id) == exam_id
         assert request.strategy == "smart"
         assert request.n is None
 
     def test_exam_session_start_request_default_strategy(self):
-        data = {"exam_id": 10}
+        exam_id = str(uuid.uuid4())
+        data = {"exam_id": exam_id}
         request = ExamSessionStartRequest(**data)
 
+        assert str(request.exam_id) == exam_id
         assert request.strategy == "full"
 
     def test_exam_session_start_request_smart_with_n_raises_error(self):
-        data = {"exam_id": 10, "strategy": "smart", "n": 5}
+        data = {"exam_id": str(uuid.uuid4()), "strategy": "smart", "n": 5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -253,7 +273,7 @@ class TestExamSessionStartRequest:
         assert "not allowed for strategy 'smart'" in str(exc_info.value)
 
     def test_exam_session_start_request_full_with_n_raises_error(self):
-        data = {"exam_id": 10, "strategy": "full", "n": 5}
+        data = {"exam_id": str(uuid.uuid4()), "strategy": "full", "n": 5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -261,7 +281,7 @@ class TestExamSessionStartRequest:
         assert "not allowed for strategy 'full'" in str(exc_info.value)
 
     def test_exam_session_start_request_negative_n_raises_error(self):
-        data = {"exam_id": 10, "strategy": "random", "n": -5}
+        data = {"exam_id": str(uuid.uuid4()), "strategy": "random", "n": -5}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -269,7 +289,7 @@ class TestExamSessionStartRequest:
         assert "must be positive" in str(exc_info.value)
 
     def test_exam_session_start_request_zero_n_raises_error(self):
-        data = {"exam_id": 10, "strategy": "random", "n": 0}
+        data = {"exam_id": str(uuid.uuid4()), "strategy": "random", "n": 0}
 
         with pytest.raises(WrongNValue) as exc_info:
             ExamSessionStartRequest(**data)
@@ -277,8 +297,10 @@ class TestExamSessionStartRequest:
         assert "must be positive" in str(exc_info.value)
 
     def test_exam_session_start_request_random_without_n_valid(self):
-        data = {"exam_id": 10, "strategy": "random"}
+        exam_id = str(uuid.uuid4())
+        data = {"exam_id": exam_id, "strategy": "random"}
         request = ExamSessionStartRequest(**data)
 
+        assert str(request.exam_id) == exam_id
         assert request.strategy == "random"
         assert request.n is None

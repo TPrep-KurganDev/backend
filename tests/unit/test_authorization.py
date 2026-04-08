@@ -129,41 +129,6 @@ class TestAccessToken:
 
 
 class TestGetCurrentUser:
-    # def test_get_current_user_missing_bearer_prefix(self, test_db, populate_db):
-    #     populate_db(
-    #         users=[
-    #             {
-    #                 "id": 42,
-    #                 "email": f"user42@example.com",
-    #                 "user_name": "User",
-    #                 "password_hash": "hash",
-    #             }
-    #         ],
-    #     )
-    #     data = TokenData(sub="42")
-    #     token = create_access_token(data)
-    #
-    #     with pytest.raises(InvalidAuthorizationHeader):
-    #         get_current_user(token=token, db=test_db)
-    #
-    # def test_get_current_user_wrong_prefix(self, test_db, populate_db):
-    #     populate_db(
-    #         users=[
-    #             {
-    #                 "id": 42,
-    #                 "email": f"user42@example.com",
-    #                 "user_name": "User",
-    #                 "password_hash": "hash",
-    #             }
-    #         ],
-    #     )
-    #     data = TokenData(sub="42")
-    #     token = create_access_token(data)
-    #     print(token)
-    #
-    #     with pytest.raises(InvalidAuthorizationHeader):
-    #         get_current_user(token=token, db=test_db)
-
     def test_get_current_user_invalid_token(self, test_db):
         with pytest.raises(InvalidOrExpiredToken):
             get_current_user(token="invalid.token.here", db=test_db)
