@@ -50,12 +50,10 @@ jobs:
             done
             echo "Health check failed!"
 
-            # Показываем логи контейнера
             echo "=== Docker logs ==="
             docker logs --tail 50 tprep_backend_prod
-            
-            # Показываем детали health check
+
             echo "=== Health check details ==="
-            docker inspect --format='{{json .State.Health}}' tprep_backend_prod | jq .
+            docker inspect --format "{{json .State.Health}}" tprep_backend_prod
             exit 1
           '
