@@ -35,8 +35,6 @@ from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
-from tprep.infrastructure import Base
-from tprep.infrastructure.database import engine
 
 APP_ERRORS = {
     Exception: status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -62,12 +60,6 @@ APP_ERRORS = {
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
-    Base.metadata.create_all(bind=engine)
-
-    #    clear_db()
-    #    db = SessionLocal()
-    #   create_mock_users(db)
-    #    db.close()
     yield
 
 

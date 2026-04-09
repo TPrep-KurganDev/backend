@@ -37,11 +37,18 @@ jobs:
           BACKEND_VERSION=${{ inputs.tag }}
           EOF'
 
-      - name: Deploy and health check
+      - name: Run migrations
         run: |
           ssh server '
             cd deploy
             docker compose pull backend
+            docker compose run --rm --no-deps backend alembic upgrade head
+          '
+
+      - name: Deploy and health check
+        run: |
+          ssh server '
+            cd deploy
             docker compose up -d backend
             for i in $(seq 1 10); do
               status=$(docker inspect --format="{{.State.Health.Status}}" tprep_backend_prod 2>/dev/null)
@@ -51,7 +58,3 @@ jobs:
             echo "Health check failed!"
             exit 1
           '
-
-      - name: Run migrations
-        run: |
-          ssh server 'docker exec tprep_backend_prod alembic upgrade head'
