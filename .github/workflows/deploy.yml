@@ -51,3 +51,7 @@ jobs:
             echo "Health check failed!"
             exit 1
           '
+
+      - name: Run migrations
+        run: |
+          ssh server 'docker exec tprep_backend_prod alembic upgrade head'
