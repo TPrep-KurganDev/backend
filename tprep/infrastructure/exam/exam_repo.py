@@ -73,7 +73,9 @@ class ExamRepo:
         db.commit()
 
     @staticmethod
-    def get_cards_by_exam_id(exam_id: UUID, db: Session = Depends(get_db)) -> list[Card]:
+    def get_cards_by_exam_id(
+        exam_id: UUID, db: Session = Depends(get_db)
+    ) -> list[Card]:
         cards = db.query(Card).filter(Card.exam_id == exam_id).all()
         return cards
 
@@ -195,9 +197,7 @@ class ExamRepo:
     ) -> bool:
         pinned_exam = (
             db.query(UserExams)
-            .filter(
-                UserExams.user_id == user_id, UserExams.exam_id == exam_id
-            )
+            .filter(UserExams.user_id == user_id, UserExams.exam_id == exam_id)
             .first()
         )
         if pinned_exam:

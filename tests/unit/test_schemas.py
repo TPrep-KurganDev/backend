@@ -103,8 +103,8 @@ class TestAccessTokenResponse:
             AccessTokenResponse(**data)
 
         assert (
-                "expiresIn" in str(exc_info.value)
-                or "expires_in" in str(exc_info.value).lower()
+            "expiresIn" in str(exc_info.value)
+            or "expires_in" in str(exc_info.value).lower()
         )
 
 

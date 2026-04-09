@@ -19,9 +19,7 @@ class TestExamRepoGetExam:
             "Empty Exam",
         ],
     )
-    def test_get_exam_returns_exam_when_exists(
-            self, test_db, populate_db, title
-    ):
+    def test_get_exam_returns_exam_when_exists(self, test_db, populate_db, title):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
 
@@ -39,7 +37,7 @@ class TestExamRepoGetExam:
                     "email": "user2@example.com",
                     "user_name": "User2",
                     "password_hash": "hash",
-                }
+                },
             ]
         else:
             creator_id = user_id
@@ -77,9 +75,7 @@ class TestExamRepoUpdateExam:
             "Mock Exam 2",
         ],
     )
-    def test_update_exam_updates_title(
-            self, test_db, populate_db, title
-    ):
+    def test_update_exam_updates_title(self, test_db, populate_db, title):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
 
@@ -117,9 +113,7 @@ class TestExamRepoAddExam:
             "Mock Exam 2",
         ],
     )
-    def test_add_exam_adds_exam_to_database(
-            self, test_db, populate_db, title
-    ):
+    def test_add_exam_adds_exam_to_database(self, test_db, populate_db, title):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
         exam_id_uuid = uuid.UUID(exam_id)
@@ -181,7 +175,7 @@ class TestExamRepoGetExamsCreatedByUser:
         assert titles == {"Exam 1", "Exam 2"}
 
     def test_get_exams_created_by_user_returns_empty_list_when_no_exams(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
 
@@ -201,7 +195,7 @@ class TestExamRepoGetExamsCreatedByUser:
         assert result == []
 
     def test_get_exams_created_by_user_raises_exception_when_user_not_found(
-            self, test_db
+        self, test_db
     ):
         fake_id = str(uuid.uuid4())
         with pytest.raises(UserNotFound):
@@ -217,7 +211,7 @@ class TestExamRepoGetExamsPinnedByUser:
         ],
     )
     def test_get_exams_pinned_by_user_returns_pinned_exams(
-            self, test_db, populate_db, title
+        self, test_db, populate_db, title
     ):
         from tprep.infrastructure.exam.exam import UserExams
 
@@ -247,7 +241,9 @@ class TestExamRepoGetExamsPinnedByUser:
         )
 
         # ИСПРАВЛЕНИЕ: Явно указываем rights и is_pinned
-        pinned = UserExams(user_id=user_id_2_uuid, exam_id=exam_id_uuid, rights="", is_pinned=True)
+        pinned = UserExams(
+            user_id=user_id_2_uuid, exam_id=exam_id_uuid, rights="", is_pinned=True
+        )
         test_db.add(pinned)
         test_db.commit()
 
@@ -258,7 +254,7 @@ class TestExamRepoGetExamsPinnedByUser:
         assert result[0].title == title
 
     def test_get_exams_pinned_by_user_returns_empty_list_when_no_pins(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
 
@@ -278,7 +274,7 @@ class TestExamRepoGetExamsPinnedByUser:
         assert result == []
 
     def test_get_exams_pinned_by_user_raises_exception_when_user_not_found(
-            self, test_db
+        self, test_db
     ):
         fake_id = str(uuid.uuid4())
         with pytest.raises(UserNotFound):
@@ -293,9 +289,7 @@ class TestExamRepoDeleteExam:
             "Mock Exam 2",
         ],
     )
-    def test_delete_exam_removes_exam_from_database(
-            self, test_db, populate_db, title
-    ):
+    def test_delete_exam_removes_exam_from_database(self, test_db, populate_db, title):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
         exam_id_uuid = uuid.UUID(exam_id)
@@ -413,7 +407,9 @@ class TestExamRepoGetCard:
         # Находим карту по вопросу, так как ID мы не знаем заранее
         # Или можно получить все карты экзамена и взять нужную
         all_cards = ExamRepo.get_cards_by_exam_id(exam_id, test_db)
-        target_card = next(c for c in all_cards if c.question == "UniqueQuestionForTest")
+        target_card = next(
+            c for c in all_cards if c.question == "UniqueQuestionForTest"
+        )
 
         # Теперь тестируем get_card с реальным ID
         card = ExamRepo.get_card(target_card.card_id, test_db)
@@ -492,7 +488,9 @@ class TestExamRepoUpdateCard:
         )
 
         # Получаем созданный ID карты
-        created_card = test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).first()
+        created_card = (
+            test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).first()
+        )
         card_id = created_card.card_id
 
         card_data = CardBase(question="New", answer="New")
@@ -505,7 +503,9 @@ class TestExamRepoUpdateCard:
         fake_exam_id = str(uuid.uuid4())
         # Несуществующий integer ID
         with pytest.raises(CardNotFound):
-            ExamRepo.update_card(fake_exam_id, 999999, CardBase(question="Q", answer="A"), test_db)
+            ExamRepo.update_card(
+                fake_exam_id, 999999, CardBase(question="Q", answer="A"), test_db
+            )
 
 
 class TestExamRepoDeleteCard:
@@ -534,7 +534,9 @@ class TestExamRepoDeleteCard:
         )
 
         # Получаем ID созданной карты
-        created_card = test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).first()
+        created_card = (
+            test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).first()
+        )
         card_id = created_card.card_id
 
         ExamRepo.delete_card(exam_id, card_id, test_db)

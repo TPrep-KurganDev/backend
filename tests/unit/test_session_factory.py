@@ -59,7 +59,7 @@ class TestSessionFactoryCreateSessionFull:
         assert len(session.questions) == 3
 
     def test_create_session_full_strategy_stores_in_session_ids(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -107,7 +107,7 @@ class TestSessionFactoryCreateSessionFull:
         assert SessionFactory.session_ids[session.id] == session
 
     def test_create_session_full_strategy_raises_exception_with_no_cards(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -181,7 +181,7 @@ class TestSessionFactoryCreateSessionRandom:
         assert len(session.questions) == 2
 
     def test_create_session_random_strategy_without_n_uses_all(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -228,7 +228,7 @@ class TestSessionFactoryCreateSessionRandom:
         assert len(session.questions) == 3
 
     def test_create_session_random_strategy_n_larger_than_cards(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -324,7 +324,7 @@ class TestSessionFactoryCreateSessionSmart:
     @patch.object(SessionFactory, "get_smart_cards")
     @patch.object(SessionFactory, "smart_session_size")
     def test_create_session_smart_strategy(
-            self, mock_size, mock_get_smart, test_db, populate_db
+        self, mock_size, mock_get_smart, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -378,7 +378,7 @@ class TestSessionFactoryCreateSessionSmart:
     @patch.object(SessionFactory, "get_smart_cards")
     @patch.object(SessionFactory, "smart_session_size")
     def test_create_session_smart_strategy_with_no_statistics(
-            self, mock_size, mock_get_smart, test_db, populate_db
+        self, mock_size, mock_get_smart, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -545,7 +545,7 @@ class TestSessionFactoryGetSessionById:
 
 class TestSessionFactoryGetSmartCards:
     def test_get_smart_cards_returns_cards_ordered_by_mistakes(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -583,15 +583,35 @@ class TestSessionFactoryGetSmartCards:
             ],
         )
 
-        cards_in_db = test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).order_by(Card.number).all()
+        cards_in_db = (
+            test_db.query(Card)
+            .filter(Card.exam_id == uuid.UUID(exam_id))
+            .order_by(Card.number)
+            .all()
+        )
         # Ожидаем, что они отсортированы по number: Q1 -> id1, Q2 -> id2, Q3 -> id3
         card_id_1 = cards_in_db[0].card_id
         card_id_2 = cards_in_db[1].card_id
         card_id_3 = cards_in_db[2].card_id
 
-        stat1 = Statistic(user_id=uuid.UUID(user_id), card_id=card_id_3, exam_id=uuid.UUID(exam_id), mistakes_count=8)
-        stat2 = Statistic(user_id=uuid.UUID(user_id), card_id=card_id_1, exam_id=uuid.UUID(exam_id), mistakes_count=5)
-        stat3 = Statistic(user_id=uuid.UUID(user_id), card_id=card_id_2, exam_id=uuid.UUID(exam_id), mistakes_count=2)
+        stat1 = Statistic(
+            user_id=uuid.UUID(user_id),
+            card_id=card_id_3,
+            exam_id=uuid.UUID(exam_id),
+            mistakes_count=8,
+        )
+        stat2 = Statistic(
+            user_id=uuid.UUID(user_id),
+            card_id=card_id_1,
+            exam_id=uuid.UUID(exam_id),
+            mistakes_count=5,
+        )
+        stat3 = Statistic(
+            user_id=uuid.UUID(user_id),
+            card_id=card_id_2,
+            exam_id=uuid.UUID(exam_id),
+            mistakes_count=2,
+        )
 
         test_db.add_all([stat1, stat2, stat3])
         test_db.commit()
@@ -639,12 +659,27 @@ class TestSessionFactoryGetSmartCards:
         )
 
         # Получаем реальные ID
-        cards_in_db = test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).order_by(Card.number).all()
+        cards_in_db = (
+            test_db.query(Card)
+            .filter(Card.exam_id == uuid.UUID(exam_id))
+            .order_by(Card.number)
+            .all()
+        )
         card_id_1 = cards_in_db[0].card_id
         card_id_3 = cards_in_db[2].card_id
 
-        stat1 = Statistic(user_id=uuid.UUID(user_id), card_id=card_id_3, exam_id=uuid.UUID(exam_id), mistakes_count=8)
-        stat2 = Statistic(user_id=uuid.UUID(user_id), card_id=card_id_1, exam_id=uuid.UUID(exam_id), mistakes_count=5)
+        stat1 = Statistic(
+            user_id=uuid.UUID(user_id),
+            card_id=card_id_3,
+            exam_id=uuid.UUID(exam_id),
+            mistakes_count=8,
+        )
+        stat2 = Statistic(
+            user_id=uuid.UUID(user_id),
+            card_id=card_id_1,
+            exam_id=uuid.UUID(exam_id),
+            mistakes_count=5,
+        )
 
         test_db.add_all([stat1, stat2])
         test_db.commit()
@@ -654,7 +689,7 @@ class TestSessionFactoryGetSmartCards:
         assert len(cards) == 2
 
     def test_get_smart_cards_returns_empty_when_no_statistics(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
