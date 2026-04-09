@@ -19,7 +19,13 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Drop all existing tables to reset schema (data is not preserved)
+    # Drop all existing tables and indexes to reset schema (data is not preserved)
+    op.execute("DROP INDEX IF EXISTS idx_notifications_time")
+    op.execute("DROP INDEX IF EXISTS idx_statistics_exam_id")
+    op.execute("DROP INDEX IF EXISTS idx_statistics_card_id")
+    op.execute("DROP INDEX IF EXISTS idx_statistics_user_id")
+    op.execute("DROP INDEX IF EXISTS idx_cards_exam_id")
+    op.execute("DROP INDEX IF EXISTS idx_user_pinned_user_id")
     op.execute("DROP TABLE IF EXISTS notifications CASCADE")
     op.execute("DROP TABLE IF EXISTS statistics CASCADE")
     op.execute("DROP TABLE IF EXISTS user_exams CASCADE")
@@ -58,14 +64,12 @@ def upgrade() -> None:
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("users.id", ondelete="CASCADE"),
             primary_key=True,
-            index=True,
         ),
         sa.Column(
             "exam_id",
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("exams.id", ondelete="CASCADE"),
             primary_key=True,
-            index=True,
         ),
         sa.Column("rights", sa.String(255), nullable=False),
         sa.Column("is_pinned", sa.Boolean, nullable=False, server_default="false"),
@@ -80,7 +84,6 @@ def upgrade() -> None:
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("exams.id", ondelete="CASCADE"),
             nullable=False,
-            index=True,
         ),
         sa.Column("question", sa.VARCHAR(500), nullable=False),
         sa.Column("answer", sa.VARCHAR(500), nullable=False),
@@ -90,26 +93,23 @@ def upgrade() -> None:
 
     op.create_table(
         "statistics",
-        sa.Column("id", sa.BigInteger, primary_key=True, index=True),
+        sa.Column("id", sa.BigInteger, primary_key=True),
         sa.Column(
             "user_id",
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("users.id", ondelete="CASCADE"),
-            index=True,
             nullable=False,
         ),
         sa.Column(
             "card_id",
             sa.BigInteger,
             sa.ForeignKey("cards.card_id", ondelete="CASCADE"),
-            index=True,
             nullable=False,
         ),
         sa.Column(
             "exam_id",
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("exams.id", ondelete="CASCADE"),
-            index=True,
             nullable=False,
         ),
         sa.Column("mistakes_count", sa.BigInteger, nullable=False),
@@ -121,7 +121,7 @@ def upgrade() -> None:
 
     op.create_table(
         "notifications",
-        sa.Column("id", sa.BigInteger, primary_key=True, index=True),
+        sa.Column("id", sa.BigInteger, primary_key=True),
         sa.Column(
             "user_id",
             postgresql.UUID(as_uuid=True),
