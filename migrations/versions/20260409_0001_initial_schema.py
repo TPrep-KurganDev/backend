@@ -19,20 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Drop all existing tables and indexes to reset schema (data is not preserved)
-    op.execute("DROP INDEX IF EXISTS idx_notifications_time")
-    op.execute("DROP INDEX IF EXISTS idx_statistics_exam_id")
-    op.execute("DROP INDEX IF EXISTS idx_statistics_card_id")
-    op.execute("DROP INDEX IF EXISTS idx_statistics_user_id")
-    op.execute("DROP INDEX IF EXISTS idx_cards_exam_id")
-    op.execute("DROP INDEX IF EXISTS idx_user_pinned_user_id")
-    op.execute("DROP TABLE IF EXISTS notifications CASCADE")
-    op.execute("DROP TABLE IF EXISTS statistics CASCADE")
-    op.execute("DROP TABLE IF EXISTS user_exams CASCADE")
-    op.execute("DROP TABLE IF EXISTS cards CASCADE")
-    op.execute("DROP TABLE IF EXISTS exams CASCADE")
-    op.execute("DROP TABLE IF EXISTS users CASCADE")
-
     op.create_table(
         "users",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True, index=True),
