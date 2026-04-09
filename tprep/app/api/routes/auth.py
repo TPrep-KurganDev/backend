@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm import Session
 
@@ -12,6 +14,7 @@ from tprep.app.user_schemas import UserCreate, UserOut, UserLogin
 from tprep.infrastructure.authorization import (
     hash_password,
     create_access_token,
+    create_refresh_token,
     verify_password,
     verify_refresh_token,
 )
@@ -51,9 +54,15 @@ def login_user(userLogin: UserLogin, db: Session = Depends(get_db)) -> Token:
 
     token_data = TokenData(sub=str(user.id), login=user.user_name)
     access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
     UserRepo.update_user_token(user.id, access_token, db)
 
-    return Token(user_id=user.id, access_token=access_token, token_type="bearer")
+    return Token(
+        user_id=user.id,
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+    )
 
 
 @router.post("/auth/token", response_model=Token, include_in_schema=True)
@@ -71,16 +80,26 @@ def login_for_swagger(
 
     token_data = TokenData(sub=str(user.id), login=user.user_name)
     access_token = create_access_token(token_data)
+    refresh_token = create_refresh_token(token_data)
     UserRepo.update_user_token(user.id, access_token, db)
 
-    return Token(user_id=user.id, access_token=access_token, token_type="bearer")
+    return Token(
+        user_id=user.id,
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+    )
 
 
 @router.post("/auth/refresh", response_model=AccessTokenResponse)
-def refresh_access_token(request: RefreshRequest) -> AccessTokenResponse:
-    token_data = verify_refresh_token(request.refreshToken)
+def refresh_access_token(
+    request: RefreshRequest, db: Session = Depends(get_db)
+) -> AccessTokenResponse:
+    verified = verify_refresh_token(request.refreshToken)
+    user = UserRepo.get_user_by_id(UUID(verified.sub), db)
+    token_data = TokenData(sub=str(user.id), login=user.user_name)
     access_token = create_access_token(token_data)
-    UserRepo.update_user_token(int(token_data.sub), access_token)
+    UserRepo.update_user_token(UUID(token_data.sub), access_token)
 
     return AccessTokenResponse(
         accessToken=access_token,

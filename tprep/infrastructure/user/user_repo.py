@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends
 from pydantic import EmailStr
 from sqlalchemy.orm import Session
@@ -9,13 +11,13 @@ from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 
 class UserRepo:
     @staticmethod
-    def check_user_exists(user_id: int, db: Session = Depends(get_db)) -> bool:
+    def check_user_exists(user_id: UUID, db: Session = Depends(get_db)) -> bool:
         user = db.query(User).filter(User.id == user_id).first()
         return bool(user)
 
     @staticmethod
     def check_that_user_is_creator(
-        user_id: int, exam_id: int, db: Session = Depends(get_db)
+        user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)
     ) -> bool:
         link = (
             db.query(Exam)
@@ -32,7 +34,7 @@ class UserRepo:
         return user
 
     @staticmethod
-    def get_user_by_id(user_id: int, db: Session = Depends(get_db)) -> User:
+    def get_user_by_id(user_id: UUID, db: Session = Depends(get_db)) -> User:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
             raise UserNotFound(f"User with id:{user_id} not found")
@@ -47,7 +49,7 @@ class UserRepo:
 
     @staticmethod
     def update_user_token(
-        user_id: int, token: str, db: Session = Depends(get_db)
+        user_id: UUID, token: str, db: Session = Depends(get_db)
     ) -> User:
         user = db.query(User).filter(User.id == user_id).one()
         user.auth_token = token
@@ -57,7 +59,7 @@ class UserRepo:
 
     @staticmethod
     def register_push(
-        user_id: int,
+        user_id: UUID,
         push_key: str,
         auth: str,
         endpoint: str,
@@ -71,7 +73,7 @@ class UserRepo:
         db.commit()
 
     @staticmethod
-    def unregister_push(user_id: int, db: Session = Depends(get_db)) -> None:
+    def unregister_push(user_id: UUID, db: Session = Depends(get_db)) -> None:
         user = UserRepo.get_user_by_id(user_id, db)
         user.push_key = None
         user.auth_token = None

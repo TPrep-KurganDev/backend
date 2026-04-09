@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
-from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import BigInteger, String, ForeignKey, Index, VARCHAR, Boolean
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from tprep.infrastructure.models import Base
 
 if TYPE_CHECKING:
@@ -11,10 +14,16 @@ if TYPE_CHECKING:
 class Exam(Base):
     __tablename__ = "exams"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        index=True,
+        default=uuid4,
+    )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    creator_id: Mapped[int] = mapped_column(
-        BigInteger,
+    scope: Mapped[str] = mapped_column(String(255), nullable=False, default="default")
+    creator_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
     )
 
@@ -29,8 +38,8 @@ class Exam(Base):
         passive_deletes=True,
     )
 
-    pinned_by: Mapped[list["UserPinnedExam"]] = relationship(
-        "UserPinnedExam",
+    pinned_by: Mapped[list["UserExams"]] = relationship(
+        "UserExams",
         back_populates="exam",
         cascade="all, delete-orphan",
         passive_deletes=True,
@@ -51,21 +60,24 @@ class Exam(Base):
     )
 
 
-class UserPinnedExam(Base):
-    __tablename__ = "user_pinned_exams"
+class UserExams(Base):
+    __tablename__ = "user_exams"
 
-    user_id: Mapped[int] = mapped_column(
-        BigInteger,
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
         primary_key=True,
         index=True,
     )
-    exam_id: Mapped[int] = mapped_column(
-        BigInteger,
+    exam_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("exams.id", ondelete="CASCADE"),  # passive_deletes УБРАТЬ
         primary_key=True,
         index=True,
     )
+
+    rights: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user: Mapped["User"] = relationship(
         "User",
@@ -85,8 +97,8 @@ class Card(Base):
     __tablename__ = "cards"
 
     card_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    exam_id: Mapped[int] = mapped_column(
-        BigInteger,
+    exam_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("exams.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

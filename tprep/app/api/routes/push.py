@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from tprep.app.push_schemas import PushUpdate
 from sqlalchemy.orm import Session
@@ -13,10 +15,10 @@ router = APIRouter()
 @router.post("/push/register", response_model=StatusResponse)
 def register_push(
     data: PushUpdate,
-    user_id: int = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ) -> StatusResponse:
-    if not user_id:
+    if user_id is None:
         raise HTTPException(status_code=401, detail="User not authenticated")
 
     UserRepo.register_push(
@@ -31,7 +33,7 @@ def register_push(
 
 @router.post("/push/unregister", response_model=StatusResponse)
 def unregister_push(
-    user_id: int = Depends(get_current_user_id), db: Session = Depends(get_db)
+    user_id: UUID = Depends(get_current_user_id), db: Session = Depends(get_db)
 ) -> StatusResponse:
     UserRepo.unregister_push(user_id, db)
     return StatusResponse(status="ok")

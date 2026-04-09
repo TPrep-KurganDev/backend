@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -43,10 +44,11 @@ class TestAuthRegister:
         assert data["user_name"] == "test"
 
     def test_register_user_already_exists(self, client, populate_db):
+        user_id = str(uuid.uuid4())
         populate_db(
             users=[
                 {
-                    "id": 1,
+                    "id": user_id,
                     "email": "test@example.com",
                     "user_name": "test",
                     "password_hash": hash_password("secret"),
@@ -67,10 +69,11 @@ class TestAuthRegister:
 
 class TestAuthLogin:
     def test_login_success(self, client, populate_db):
+        user_id = str(uuid.uuid4())
         populate_db(
             users=[
                 {
-                    "id": 1,
+                    "id": user_id,
                     "email": "login@example.com",
                     "user_name": "loginuser",
                     "password_hash": hash_password("secret"),
@@ -88,15 +91,18 @@ class TestAuthLogin:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["user_id"] == 1
+        # Сравниваем с тем же UUID, который сгенерировали
+        assert data["user_id"] == user_id
         assert data["token_type"] == "bearer"
         assert isinstance(data["access_token"], str)
+        assert isinstance(data["refresh_token"], str)
 
     def test_login_wrong_password_raises(self, client, populate_db):
+        user_id = str(uuid.uuid4())
         populate_db(
             users=[
                 {
-                    "id": 1,
+                    "id": user_id,
                     "email": "login@example.com",
                     "user_name": "loginuser",
                     "password_hash": hash_password("secret"),
@@ -126,10 +132,11 @@ class TestAuthLogin:
 
 class TestAuthTokenSwagger:
     def test_login_for_swagger_success(self, client, populate_db):
+        user_id = str(uuid.uuid4())
         populate_db(
             users=[
                 {
-                    "id": 1,
+                    "id": user_id,
                     "email": "swagger@example.com",
                     "user_name": "swagger",
                     "password_hash": hash_password("secret"),
@@ -148,14 +155,16 @@ class TestAuthTokenSwagger:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["user_id"] == 1
+        assert data["user_id"] == user_id
         assert data["token_type"] == "bearer"
+        assert isinstance(data.get("refresh_token"), str)
 
     def test_login_for_swagger_wrong_password_raises(self, client, populate_db):
+        user_id = str(uuid.uuid4())
         populate_db(
             users=[
                 {
-                    "id": 1,
+                    "id": user_id,
                     "email": "swagger@example.com",
                     "user_name": "swagger",
                     "password_hash": hash_password("secret"),

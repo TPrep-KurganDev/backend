@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -7,7 +9,9 @@ from tprep.infrastructure import Card, Statistic
 
 class StatRepo:
     @staticmethod
-    def inc_mistakes(user_id: int, card_id: int, db: Session = Depends(get_db)) -> None:
+    def inc_mistakes(
+        user_id: UUID, card_id: int, db: Session = Depends(get_db)
+    ) -> None:
         stat = (
             db.query(Statistic)
             .filter(Statistic.user_id == user_id, Statistic.card_id == card_id)

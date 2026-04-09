@@ -1,5 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from typing import List
+from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -18,7 +19,7 @@ class NotificationRepo:
 
     @staticmethod
     def create_notification(
-        user_id: int, exam_id: int, db: Session = Depends(get_db)
+        user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)
     ) -> None:
         now = datetime.now(timezone.utc)
         for delta in NotificationRepo.INTERVALS:
@@ -31,7 +32,7 @@ class NotificationRepo:
 
     @staticmethod
     def delete_notification(
-        user_id: int, exam_id: int, db: Session = Depends(get_db)
+        user_id: UUID, exam_id: UUID, db: Session = Depends(get_db)
     ) -> None:
         notification = (
             db.query(NotificationDB)
@@ -53,6 +54,6 @@ class NotificationRepo:
 
     @staticmethod
     def get_all_notifications_of_user(
-        user_id: int, db: Session = Depends(get_db)
+        user_id: UUID, db: Session = Depends(get_db)
     ) -> List[NotificationDB]:
         return db.query(NotificationDB).filter(NotificationDB.user_id == user_id).all()

@@ -31,7 +31,7 @@ from tprep.infrastructure.exceptions.invalid_or_expired_token import (
 from tprep.infrastructure.exceptions.question_not_in_session import QuestionNotInSession
 from tprep.infrastructure.exceptions.session_not_found import SessionNotFound
 from tprep.infrastructure.exceptions.user_already_exists import UserAlreadyExists
-from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotCreator
+from tprep.infrastructure.exceptions.user_is_not_creator import UserIsNotEditor
 from tprep.infrastructure.exceptions.user_not_found import UserNotFound
 from tprep.infrastructure.exceptions.wrong_login_or_password import WrongLoginOrPassword
 from tprep.infrastructure.exceptions.wrong_n_value import WrongNValue
@@ -50,7 +50,7 @@ APP_ERRORS = {
     ExamHasNoCards: status.HTTP_422_UNPROCESSABLE_ENTITY,
     QuestionNotInSession: status.HTTP_400_BAD_REQUEST,
     UserAlreadyExists: status.HTTP_409_CONFLICT,
-    UserIsNotCreator: status.HTTP_403_FORBIDDEN,
+    UserIsNotEditor: status.HTTP_403_FORBIDDEN,
     UserNotFound: status.HTTP_404_NOT_FOUND,
     WrongLoginOrPassword: status.HTTP_401_UNAUTHORIZED,
     InvalidOrExpiredToken: status.HTTP_401_UNAUTHORIZED,
