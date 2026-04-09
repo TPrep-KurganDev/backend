@@ -16,7 +16,7 @@ class TestUserRepoCheckUserExists:
         ],
     )
     def test_check_user_exists_returns_true_when_user_exists(
-            self, test_db, populate_db, email, user_name, password_hash
+        self, test_db, populate_db, email, user_name, password_hash
     ):
         user_id = str(uuid.uuid4())
         populate_db(
@@ -43,7 +43,7 @@ class TestUserRepoCheckUserExists:
 
 class TestUserRepoCheckThatUserIsCreator:
     def test_check_that_user_is_creator_returns_true_when_user_is_creator(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -65,7 +65,7 @@ class TestUserRepoCheckThatUserIsCreator:
         assert result is True
 
     def test_check_that_user_is_creator_returns_false_when_user_is_not_creator(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id_1 = str(uuid.uuid4())
         user_id_2 = str(uuid.uuid4())
@@ -94,7 +94,7 @@ class TestUserRepoCheckThatUserIsCreator:
         assert result is False
 
     def test_check_that_user_is_creator_returns_false_when_exam_does_not_exist(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         fake_exam_id = str(uuid.uuid4())
@@ -125,7 +125,7 @@ class TestUserRepoGetUserByEmail:
         ],
     )
     def test_get_user_by_email_returns_user_when_exists(
-            self, test_db, populate_db, email, user_name, password_hash
+        self, test_db, populate_db, email, user_name, password_hash
     ):
         user_id = str(uuid.uuid4())
         populate_db(
@@ -164,7 +164,7 @@ class TestUserRepoRegisterUser:
         ],
     )
     def test_register_user_adds_user_to_database(
-            self, test_db, email, user_name, password_hash
+        self, test_db, email, user_name, password_hash
     ):
         user_id = str(uuid.uuid4())
         new_user = User(
@@ -184,7 +184,10 @@ class TestUserRepoRegisterUser:
     def test_register_user_returns_user_with_id(self, test_db):
         user_id = str(uuid.uuid4())
         new_user = User(
-            id=user_id, email="new@example.com", user_name="New User", password_hash="hash"
+            id=user_id,
+            email="new@example.com",
+            user_name="New User",
+            password_hash="hash",
         )
 
         result = UserRepo.register_user(new_user, test_db)

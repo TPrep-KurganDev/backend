@@ -32,7 +32,7 @@ CARD_STRUCTURE_PROMPT = (
     "4. Если текст сплошной — разбей логически на карточки (один факт или тема на карточку).\n"
     "5. Поля question и answer — непустые строки, каждая не длиннее "
     f"{_CARD_FIELD_MAX_LEN} символов; при необходимости сократи.\n"
-    "6. Если распознать пары нельзя — верни {\"cards\":[]}.\n"
+    '6. Если распознать пары нельзя — верни {"cards":[]}.\n'
 )
 
 
@@ -42,6 +42,7 @@ class OcrConfigurationError(Exception):
 
 class OcrParseError(ValueError):
     """Ответ модели не удалось разобрать в список карточек."""
+
 
 def _image_to_base64(image_path: str | Path, max_size: int = 1024) -> str:
     """Сжимает изображение (если нужно) и кодирует в base64"""
@@ -54,6 +55,7 @@ def _image_to_base64(image_path: str | Path, max_size: int = 1024) -> str:
     buffer = BytesIO()
     img.save(buffer, format="JPEG", quality=85)
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
 
 def _images_base_dir() -> Path:
     return (Path(__file__).resolve().parents[2] / "images").resolve()
@@ -185,15 +187,20 @@ def recognize_handwriting(
         headers={**_HEADERS, "Authorization": f"Bearer {api_key}"},
         json={
             "model": model,
-            "messages": [{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}}
-                ]
-            }],
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"},
+                        },
+                    ],
+                }
+            ],
             "max_tokens": max_tokens,
-            "temperature": 0.1
+            "temperature": 0.1,
         },
         timeout=timeout,
     )

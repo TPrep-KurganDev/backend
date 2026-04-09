@@ -40,7 +40,7 @@ class TestStatRepoIncMistakes:
             user_id=uuid.UUID(user_id),
             card_id=card_id,
             exam_id=uuid.UUID(exam_id),
-            mistakes_count=5
+            mistakes_count=5,
         )
         test_db.add(stat)
         test_db.commit()
@@ -50,14 +50,16 @@ class TestStatRepoIncMistakes:
         # Проверяем что счетчик увеличился
         updated_stat = (
             test_db.query(Statistic)
-            .filter(Statistic.user_id == uuid.UUID(user_id), Statistic.card_id == card_id)
+            .filter(
+                Statistic.user_id == uuid.UUID(user_id), Statistic.card_id == card_id
+            )
             .first()
         )
         assert updated_stat is not None
         assert updated_stat.mistakes_count == 6
 
     def test_inc_mistakes_creates_new_statistic_when_not_exists(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id = str(uuid.uuid4())
         exam_id = str(uuid.uuid4())
@@ -90,7 +92,9 @@ class TestStatRepoIncMistakes:
         # Проверяем что статистика создана
         stat = (
             test_db.query(Statistic)
-            .filter(Statistic.user_id == uuid.UUID(user_id), Statistic.card_id == card_id)
+            .filter(
+                Statistic.user_id == uuid.UUID(user_id), Statistic.card_id == card_id
+            )
             .first()
         )
         assert stat is not None
@@ -128,7 +132,7 @@ class TestStatRepoIncMistakes:
             user_id=uuid.UUID(user_id),
             card_id=card_id,
             exam_id=uuid.UUID(exam_id),
-            mistakes_count=5
+            mistakes_count=5,
         )
         test_db.add(stat)
         test_db.commit()
@@ -140,14 +144,16 @@ class TestStatRepoIncMistakes:
         # Проверяем результат
         updated_stat = (
             test_db.query(Statistic)
-            .filter(Statistic.user_id == uuid.UUID(user_id), Statistic.card_id == card_id)
+            .filter(
+                Statistic.user_id == uuid.UUID(user_id), Statistic.card_id == card_id
+            )
             .first()
         )
         assert updated_stat is not None
         assert updated_stat.mistakes_count == 8
 
     def test_inc_mistakes_different_users_separate_statistics(
-            self, test_db, populate_db
+        self, test_db, populate_db
     ):
         user_id_1 = str(uuid.uuid4())
         user_id_2 = str(uuid.uuid4())
@@ -187,13 +193,13 @@ class TestStatRepoIncMistakes:
             user_id=uuid.UUID(user_id_1),
             card_id=card_id,
             exam_id=uuid.UUID(exam_id),
-            mistakes_count=5
+            mistakes_count=5,
         )
         stat2 = Statistic(
             user_id=uuid.UUID(user_id_2),
             card_id=card_id,
             exam_id=uuid.UUID(exam_id),
-            mistakes_count=3
+            mistakes_count=3,
         )
         test_db.add_all([stat1, stat2])
         test_db.commit()
@@ -204,12 +210,16 @@ class TestStatRepoIncMistakes:
         # Проверяем что изменилась только статистика пользователя 1
         updated_stat1 = (
             test_db.query(Statistic)
-            .filter(Statistic.user_id == uuid.UUID(user_id_1), Statistic.card_id == card_id)
+            .filter(
+                Statistic.user_id == uuid.UUID(user_id_1), Statistic.card_id == card_id
+            )
             .first()
         )
         updated_stat2 = (
             test_db.query(Statistic)
-            .filter(Statistic.user_id == uuid.UUID(user_id_2), Statistic.card_id == card_id)
+            .filter(
+                Statistic.user_id == uuid.UUID(user_id_2), Statistic.card_id == card_id
+            )
             .first()
         )
 
