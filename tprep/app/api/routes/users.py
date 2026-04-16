@@ -20,7 +20,7 @@ def get_user_by_id(
     return UserRepo.get_user_by_id(user_id, db)
 
 
-@router.get("/users/{user_email}", response_model=UserOut)
+@router.get("/users/email/{user_email}", response_model=UserOut)
 def get_user_by_email(
     user_email: EmailStr,
     db: Session = Depends(get_db),
