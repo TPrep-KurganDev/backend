@@ -280,3 +280,10 @@ def ocr_create_cards(
         )
 
     return ExamRepo.create_card_by_list(exam_id, cards_data, db)
+
+@router.get("/exams/search", response_model=list[ExamOut])
+def get_exam_editors(
+    db: Session = Depends(get_db),
+    searched: str = Query(..., description="Searched string")
+) -> list[Exam]:
+    return ExamRepo.get_public_exams(searched, db)
