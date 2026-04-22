@@ -206,4 +206,4 @@ class ExamRepo:
 
     @staticmethod
     def get_public_exams(searched: str, db: Session) -> list[Exam]:
-        return list(db.query(Exam).filter(Exam.scope == "default" and Exam.title.like(f"%{searched}%")).limit(10))
+        return list(db.query(Exam).filter(Exam.scope == "default", Exam.title.like(f"%{searched}%")).limit(10))

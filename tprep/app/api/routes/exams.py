@@ -58,6 +58,14 @@ def create_exam(
     return new_exam
 
 
+@router.get("/exams/search", response_model=list[ExamOut])
+def get_searched_public_exams(
+    db: Session = Depends(get_db),
+    searched: str = Query(..., description="Searched string")
+) -> list[Exam]:
+    return ExamRepo.get_public_exams(searched, db)
+
+
 @router.patch("/exams/{exam_id}", response_model=ExamOut)
 def update_exam(
     exam_id: UUID,
@@ -280,10 +288,3 @@ def ocr_create_cards(
         )
 
     return ExamRepo.create_card_by_list(exam_id, cards_data, db)
-
-@router.get("/exams/search", response_model=list[ExamOut])
-def get_searched_public_exams(
-    db: Session = Depends(get_db),
-    searched: str = Query(..., description="Searched string")
-) -> list[Exam]:
-    return ExamRepo.get_public_exams(searched, db)
