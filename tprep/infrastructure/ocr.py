@@ -17,9 +17,6 @@ _HEADERS = {
     "X-Title": "Backend OCR Service",
 }
 
-DEFAULT_OCR_MODEL = "qwen/qwen3.6-plus:free"
-
-
 _CARD_FIELD_MAX_LEN = 500
 
 CARD_STRUCTURE_PROMPT = (
@@ -80,12 +77,11 @@ def _resolve_image_path(image_name: str) -> Path:
 def extract_text_from_image(
     image_name: str,
     *,
-    api_key: Optional[str] = None,
-    model: Optional[str] = None,
+    api_key: Optional[str] = os.getenv("OPENROUTER_API_KEY")
 ) -> list[str]:
     """Распознаёт текст с изображения через OpenRouter; `image_name` — имя или путь относительно images/."""
     path = _resolve_image_path(image_name)
-    resolved_model = DEFAULT_OCR_MODEL
+    resolved_model = os.getenv("OCR_DEFAULT_MODEL")
     text = recognize_handwriting(path, api_key=api_key, model=resolved_model)
     return text.splitlines()
 
@@ -141,28 +137,28 @@ def parse_cards_json_response(raw: str) -> list[tuple[str, str]]:
 def cards_from_image(
     image_name: str,
     *,
-    api_key: Optional[str] = None,
-    model: Optional[str] = None,
+    api_key: Optional[str] = os.getenv("OPENROUTER_API_KEY"),
+    model: Optional[str] = os.getenv("OCR_DEFAULT_MODEL"),
 ) -> list[tuple[str, str]]:
     """Распознаёт изображение и возвращает пары (question, answer) для ExamRepo.create_card_by_list."""
     path = _resolve_image_path(image_name)
-    resolved_model: str = model or DEFAULT_OCR_MODEL
+    resolved_model: str = model or os.getenv("OCR_DEFAULT_MODEL")
     raw = recognize_handwriting(
         path,
         api_key=api_key,
         model=resolved_model,
         prompt=CARD_STRUCTURE_PROMPT,
-        max_tokens=4096,
+        max_tokens=2048,
     )
     return parse_cards_json_response(raw)
 
 
 def recognize_handwriting(
     image_path: str | Path,
-    api_key: Optional[str] = None,
-    model: str = DEFAULT_OCR_MODEL,
+    api_key: Optional[str] = os.getenv("OPENROUTER_API_KEY"),
+    model: str = os.getenv("OCR_DEFAULT_MODEL"),
     prompt: Optional[str] = None,
-    timeout: int = 120,
+    timeout: int = 60,
     max_tokens: int = 2048,
 ) -> str:
     """Отправляет изображение на OCR через OpenRouter API"""
@@ -172,6 +168,8 @@ def recognize_handwriting(
             "Не указан API_KEY. Передайте параметром `api_key=` "
             "или установите переменную OPENROUTER_API_KEY в .env"
         )
+
+    print(api_key)
 
     prompt = prompt or (
         "Ты специалист по распознаванию рукописного текста на русском языке. "
