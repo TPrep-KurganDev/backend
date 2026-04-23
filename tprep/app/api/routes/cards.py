@@ -144,7 +144,7 @@ def generate_answers(
 
     for result in results:
         card = card_lookup[result.card_id]
-        if result.success and result.answer is not None:
+        if result.success:
             successful += 1
         else:
             failed += 1
