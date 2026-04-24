@@ -34,6 +34,8 @@ class Settings(BaseSettings):
 
     OPENROUTER_API_KEY: str = Field(default="", description="API Key of OPERNROUTER")
 
+    OCR_DEFAULT_MODEL: str = Field(default="qwen/qwen3.5-9b", description="Default OCR name")
+
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
