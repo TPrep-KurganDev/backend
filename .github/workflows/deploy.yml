@@ -39,13 +39,6 @@ jobs:
           BACKEND_VERSION=${{ inputs.tag }}
           EOF'
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Deploy and health check
         run: |
           ssh server '
