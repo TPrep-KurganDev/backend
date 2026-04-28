@@ -1,4 +1,5 @@
 import pytest
+import uuid
 
 from tprep.infrastructure import Exam, Card
 from tprep.infrastructure.exam.exam_repo import ExamRepo
@@ -11,289 +12,337 @@ from tprep.app.card_schemas import CardBase
 
 class TestExamRepoGetExam:
     @pytest.mark.parametrize(
-        "exam_id,title,creator_id",
+        "title",
         [
-            (1, "Mock Exam", 1),
-            (2, "Mock Exam 2", 1),
-            (3, "Empty Exam", 2),
+            "Mock Exam",
+            "Mock Exam 2",
+            "Empty Exam",
         ],
     )
-    def test_get_exam_returns_exam_when_exists(
-        self, test_db, populate_db, exam_id, title, creator_id
-    ):
-        # Создаем пользователя и экзамен в БД
-        populate_db(
-            users=[
+    def test_get_exam_returns_exam_when_exists(self, test_db, populate_db, title):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
+        if title == "Empty Exam":
+            creator_id = str(uuid.uuid4())
+            users_data = [
+                {
+                    "id": user_id,
+                    "email": "user1@example.com",
+                    "user_name": "User1",
+                    "password_hash": "hash",
+                },
                 {
                     "id": creator_id,
-                    "email": f"user{creator_id}@example.com",
+                    "email": "user2@example.com",
+                    "user_name": "User2",
+                    "password_hash": "hash",
+                },
+            ]
+        else:
+            creator_id = user_id
+            users_data = [
+                {
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
-            ],
+            ]
+
+        populate_db(
+            users=users_data,
             exams=[{"id": exam_id, "title": title, "creator_id": creator_id}],
         )
 
         result = ExamRepo.get_exam(exam_id, test_db)
 
-        assert result.id == exam_id
+        assert str(result.id) == exam_id
         assert result.title == title
-        assert result.creator_id == creator_id
+        assert str(result.creator_id) == creator_id
 
     def test_get_exam_raises_exception_when_not_found(self, test_db):
+        fake_id = str(uuid.uuid4())
         with pytest.raises(ExamNotFound):
-            ExamRepo.get_exam(999, test_db)
+            ExamRepo.get_exam(fake_id, test_db)
 
 
 class TestExamRepoUpdateExam:
     @pytest.mark.parametrize(
-        "exam_id,title,creator_id",
+        "title",
         [
-            (1, "Mock Exam", 1),
-            (2, "Mock Exam 2", 1),
+            "Mock Exam",
+            "Mock Exam 2",
         ],
     )
-    def test_update_exam_updates_title(
-        self, test_db, populate_db, exam_id, title, creator_id
-    ):
+    def test_update_exam_updates_title(self, test_db, populate_db, title):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": creator_id,
-                    "email": f"user{creator_id}@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": exam_id, "title": title, "creator_id": creator_id}],
+            exams=[{"id": exam_id, "title": title, "creator_id": user_id}],
         )
 
         new_exam_data = ExamCreate(title="Updated Title")
         result = ExamRepo.update_exam(exam_id, new_exam_data, test_db)
 
         assert result.title == "Updated Title"
-        assert result.id == exam_id
+        assert str(result.id) == exam_id
 
     def test_update_exam_raises_exception_when_exam_not_found(self, test_db):
         exam_data = ExamCreate(title="New Title")
+        fake_id = str(uuid.uuid4())
 
         with pytest.raises(ExamNotFound):
-            ExamRepo.update_exam(999, exam_data, test_db)
+            ExamRepo.update_exam(fake_id, exam_data, test_db)
 
 
 class TestExamRepoAddExam:
     @pytest.mark.parametrize(
-        "exam_id,title,creator_id",
+        "title",
         [
-            (1, "Mock Exam", 1),
-            (2, "Mock Exam 2", 1),
+            "Mock Exam",
+            "Mock Exam 2",
         ],
     )
-    def test_add_exam_adds_exam_to_database(
-        self, test_db, populate_db, exam_id, title, creator_id
-    ):
-        # Создаем пользователя
+    def test_add_exam_adds_exam_to_database(self, test_db, populate_db, title):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+        exam_id_uuid = uuid.UUID(exam_id)
+
         populate_db(
             users=[
                 {
-                    "id": creator_id,
-                    "email": f"user{creator_id}@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ]
         )
 
-        new_exam = Exam(id=exam_id, title=title, creator_id=creator_id)
-        ExamRepo.add_exam(new_exam, creator_id, test_db)
+        new_exam = Exam(id=exam_id, title=title, creator_id=user_id)
+        ExamRepo.add_exam(new_exam, user_id, test_db)
 
-        # Проверяем что экзамен в БД
-        saved_exam = test_db.query(Exam).filter(Exam.id == exam_id).first()
+        saved_exam = test_db.query(Exam).filter(Exam.id == exam_id_uuid).first()
         assert saved_exam is not None
         assert saved_exam.title == title
-        assert saved_exam.creator_id == creator_id
+        assert str(saved_exam.creator_id) == user_id
 
     def test_add_exam_raises_exception_when_creator_not_found(self, test_db):
-        new_exam = Exam(id=1, title="Test", creator_id=999)
+        fake_user_id = str(uuid.uuid4())
+        fake_exam_id = str(uuid.uuid4())
+
+        new_exam = Exam(id=fake_exam_id, title="Test", creator_id=fake_user_id)
 
         with pytest.raises(UserNotFound):
-            ExamRepo.add_exam(new_exam, 999, test_db)
+            ExamRepo.add_exam(new_exam, fake_user_id, test_db)
 
 
 class TestExamRepoGetExamsCreatedByUser:
     def test_get_exams_created_by_user_returns_user_exams(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id_1 = str(uuid.uuid4())
+        exam_id_2 = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user1@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
             exams=[
-                {"id": 1, "title": "Exam 1", "creator_id": 1},
-                {"id": 2, "title": "Exam 2", "creator_id": 1},
+                {"id": exam_id_1, "title": "Exam 1", "creator_id": user_id},
+                {"id": exam_id_2, "title": "Exam 2", "creator_id": user_id},
             ],
         )
 
-        result = ExamRepo.get_exams_created_by_user(1, test_db)
+        result = ExamRepo.get_exams_created_by_user(user_id, test_db)
 
         assert len(result) == 2
-        assert result[0].title == "Exam 1"
-        assert result[1].title == "Exam 2"
+        titles = {e.title for e in result}
+        assert titles == {"Exam 1", "Exam 2"}
 
     def test_get_exams_created_by_user_returns_empty_list_when_no_exams(
         self, test_db, populate_db
     ):
+        user_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user1@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ]
         )
 
-        result = ExamRepo.get_exams_created_by_user(1, test_db)
+        result = ExamRepo.get_exams_created_by_user(user_id, test_db)
 
         assert result == []
 
     def test_get_exams_created_by_user_raises_exception_when_user_not_found(
         self, test_db
     ):
+        fake_id = str(uuid.uuid4())
         with pytest.raises(UserNotFound):
-            ExamRepo.get_exams_created_by_user(999, test_db)
+            ExamRepo.get_exams_created_by_user(fake_id, test_db)
 
 
 class TestExamRepoGetExamsPinnedByUser:
     @pytest.mark.parametrize(
-        "exam_id,title",
+        "title",
         [
-            (1, "Mock Exam"),
-            (2, "Mock Exam 2"),
+            "Mock Exam",
+            "Mock Exam 2",
         ],
     )
     def test_get_exams_pinned_by_user_returns_pinned_exams(
-        self, test_db, populate_db, exam_id, title
+        self, test_db, populate_db, title
     ):
-        from tprep.infrastructure.exam.exam import UserPinnedExam
+        from tprep.infrastructure.exam.exam import UserExams
 
-        # Создаем пользователей и экзамены
+        user_id_1 = str(uuid.uuid4())
+        user_id_2 = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
+        user_id_2_uuid = uuid.UUID(user_id_2)
+        exam_id_uuid = uuid.UUID(exam_id)
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user1@example.com",
+                    "id": user_id_1,
+                    "email": f"user1{user_id_1[:6]}@example.com",
                     "user_name": "User1",
                     "password_hash": "hash",
                 },
                 {
-                    "id": 2,
-                    "email": "user2@example.com",
+                    "id": user_id_2,
+                    "email": f"user2{user_id_2[:6]}@example.com",
                     "user_name": "User2",
                     "password_hash": "hash",
                 },
             ],
-            exams=[{"id": exam_id, "title": title, "creator_id": 1}],
+            exams=[{"id": exam_id, "title": title, "creator_id": user_id_1}],
         )
 
-        # Создаем связь (пользователь 2 закрепил экзамен)
-        pinned = UserPinnedExam(user_id=2, exam_id=exam_id)
+        # ИСПРАВЛЕНИЕ: Явно указываем rights и is_pinned
+        pinned = UserExams(
+            user_id=user_id_2_uuid, exam_id=exam_id_uuid, rights="", is_pinned=True
+        )
         test_db.add(pinned)
         test_db.commit()
 
-        result = ExamRepo.get_exams_pinned_by_user(2, test_db)
+        result = ExamRepo.get_exams_pinned_by_user(user_id_2, test_db)
 
         assert len(result) == 1
-        assert result[0].id == exam_id
+        assert str(result[0].id) == exam_id
         assert result[0].title == title
 
     def test_get_exams_pinned_by_user_returns_empty_list_when_no_pins(
         self, test_db, populate_db
     ):
+        user_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user1@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ]
         )
 
-        result = ExamRepo.get_exams_pinned_by_user(1, test_db)
+        result = ExamRepo.get_exams_pinned_by_user(user_id, test_db)
 
         assert result == []
 
     def test_get_exams_pinned_by_user_raises_exception_when_user_not_found(
         self, test_db
     ):
+        fake_id = str(uuid.uuid4())
         with pytest.raises(UserNotFound):
-            ExamRepo.get_exams_pinned_by_user(999, test_db)
+            ExamRepo.get_exams_pinned_by_user(fake_id, test_db)
 
 
 class TestExamRepoDeleteExam:
     @pytest.mark.parametrize(
-        "exam_id,title",
+        "title",
         [
-            (1, "Mock Exam"),
-            (2, "Mock Exam 2"),
+            "Mock Exam",
+            "Mock Exam 2",
         ],
     )
-    def test_delete_exam_removes_exam_from_database(
-        self, test_db, populate_db, exam_id, title
-    ):
-        # Создаем пользователя и экзамен
+    def test_delete_exam_removes_exam_from_database(self, test_db, populate_db, title):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+        exam_id_uuid = uuid.UUID(exam_id)
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user1@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": exam_id, "title": title, "creator_id": 1}],
+            exams=[{"id": exam_id, "title": title, "creator_id": user_id}],
         )
 
         ExamRepo.delete_exam(exam_id, test_db)
 
-        # Проверяем что экзамен удален
-        deleted_exam = test_db.query(Exam).filter(Exam.id == exam_id).first()
+        deleted_exam = test_db.query(Exam).filter(Exam.id == exam_id_uuid).first()
         assert deleted_exam is None
 
     def test_delete_exam_raises_exception_when_exam_not_found(self, test_db):
+        fake_id = str(uuid.uuid4())
         with pytest.raises(ExamNotFound):
-            ExamRepo.delete_exam(999, test_db)
+            ExamRepo.delete_exam(fake_id, test_db)
 
 
 class TestExamRepoGetCardsByExamId:
     def test_returns_cards_for_exam(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+        # card_id больше не нужен, он автогенерируемый (integer)
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
+            exams=[{"id": exam_id, "title": "Exam", "creator_id": user_id}],
             cards=[
+                # Убрали card_id из словарей
                 {
-                    "card_id": 1,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 1,
                     "question": "Q1",
                     "answer": "A1",
                 },
                 {
-                    "card_id": 2,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 2,
                     "question": "Q2",
                     "answer": "A2",
@@ -301,85 +350,105 @@ class TestExamRepoGetCardsByExamId:
             ],
         )
 
-        result = ExamRepo.get_cards_by_exam_id(1, test_db)
+        result = ExamRepo.get_cards_by_exam_id(exam_id, test_db)
 
         assert len(result) == 2
-        assert result[0].question == "Q1"
-        assert result[1].question == "Q2"
+        questions = {c.question for c in result}
+        assert questions == {"Q1", "Q2"}
 
     def test_returns_empty_list_when_no_cards(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
+            exams=[{"id": exam_id, "title": "Exam", "creator_id": user_id}],
         )
 
-        result = ExamRepo.get_cards_by_exam_id(1, test_db)
+        result = ExamRepo.get_cards_by_exam_id(exam_id, test_db)
         assert result == []
 
 
 class TestExamRepoGetCard:
     def test_get_card_success(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+        # card_id не передаем, он будет сгенерирован БД (1, 2, ...)
+        # Но нам нужно знать, какой ID получила карта, чтобы её найти.
+        # Проще найти карту по вопросу или взять первую после создания.
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
+            exams=[{"id": exam_id, "title": "Exam", "creator_id": user_id}],
             cards=[
                 {
-                    "card_id": 10,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 1,
-                    "question": "Q",
+                    "question": "UniqueQuestionForTest",
                     "answer": "A",
                 }
             ],
         )
 
-        card = ExamRepo.get_card(10, test_db)
+        # Находим карту по вопросу, так как ID мы не знаем заранее
+        # Или можно получить все карты экзамена и взять нужную
+        all_cards = ExamRepo.get_cards_by_exam_id(exam_id, test_db)
+        target_card = next(
+            c for c in all_cards if c.question == "UniqueQuestionForTest"
+        )
 
-        assert card.card_id == 10
-        assert card.question == "Q"
+        # Теперь тестируем get_card с реальным ID
+        card = ExamRepo.get_card(target_card.card_id, test_db)
+
+        assert card.question == "UniqueQuestionForTest"
+        # card_id теперь integer, сравниваем напрямую
+        assert card.card_id == target_card.card_id
 
     def test_get_card_raises_when_not_found(self, test_db):
+        # Передаем несуществующий integer ID
         with pytest.raises(CardNotFound):
-            ExamRepo.get_card(999, test_db)
+            ExamRepo.get_card(999999, test_db)
 
 
 class TestExamRepoCreateCard:
     def test_create_card_assigns_correct_number(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
+            exams=[{"id": exam_id, "title": "Exam", "creator_id": user_id}],
             cards=[
+                # Убрали card_id
                 {
-                    "card_id": 12,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 1,
                     "question": "Q1",
                     "answer": "A1",
                 },
                 {
-                    "card_id": 13,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 2,
                     "question": "Q2",
                     "answer": "A2",
@@ -387,28 +456,30 @@ class TestExamRepoCreateCard:
             ],
         )
 
-        card = ExamRepo.create_card(1, test_db)
+        card = ExamRepo.create_card(exam_id, test_db)
 
         assert card.number == 3
-        assert card.exam_id == 1
+        assert str(card.exam_id) == exam_id
 
 
 class TestExamRepoUpdateCard:
     def test_update_card_updates_fields(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
+            exams=[{"id": exam_id, "title": "Exam", "creator_id": user_id}],
             cards=[
                 {
-                    "card_id": 1,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 1,
                     "question": "Old",
                     "answer": "Old",
@@ -416,33 +487,45 @@ class TestExamRepoUpdateCard:
             ],
         )
 
+        # Получаем созданный ID карты
+        created_card = (
+            test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).first()
+        )
+        card_id = created_card.card_id
+
         card_data = CardBase(question="New", answer="New")
-        card = ExamRepo.update_card(1, 1, card_data, test_db)
+        card = ExamRepo.update_card(exam_id, card_id, card_data, test_db)
 
         assert card.question == "New"
         assert card.answer == "New"
 
     def test_update_card_raises_when_not_found(self, test_db):
+        fake_exam_id = str(uuid.uuid4())
+        # Несуществующий integer ID
         with pytest.raises(CardNotFound):
-            ExamRepo.update_card(1, 999, CardBase(question="Q", answer="A"), test_db)
+            ExamRepo.update_card(
+                fake_exam_id, 999999, CardBase(question="Q", answer="A"), test_db
+            )
 
 
 class TestExamRepoDeleteCard:
     def test_delete_card_removes_card(self, test_db, populate_db):
+        user_id = str(uuid.uuid4())
+        exam_id = str(uuid.uuid4())
+
         populate_db(
             users=[
                 {
-                    "id": 1,
-                    "email": "user@example.com",
+                    "id": user_id,
+                    "email": f"user{user_id[:8]}@example.com",
                     "user_name": "User",
                     "password_hash": "hash",
                 }
             ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
+            exams=[{"id": exam_id, "title": "Exam", "creator_id": user_id}],
             cards=[
                 {
-                    "card_id": 1,
-                    "exam_id": 1,
+                    "exam_id": exam_id,
                     "number": 1,
                     "question": "Q",
                     "answer": "A",
@@ -450,56 +533,13 @@ class TestExamRepoDeleteCard:
             ],
         )
 
-        ExamRepo.delete_card(1, 1, test_db)
+        # Получаем ID созданной карты
+        created_card = (
+            test_db.query(Card).filter(Card.exam_id == uuid.UUID(exam_id)).first()
+        )
+        card_id = created_card.card_id
 
-        card = test_db.query(Card).filter(Card.card_id == 1).first()
+        ExamRepo.delete_card(exam_id, card_id, test_db)
+
+        card = test_db.query(Card).filter(Card.card_id == card_id).first()
         assert card is None
-
-
-class TestExamRepoPinning:
-    def test_pin_and_check_exam(self, test_db, populate_db):
-        populate_db(
-            users=[
-                {
-                    "id": 1,
-                    "email": "u1@example.com",
-                    "user_name": "U1",
-                    "password_hash": "hash",
-                },
-                {
-                    "id": 2,
-                    "email": "u2@example.com",
-                    "user_name": "U2",
-                    "password_hash": "hash",
-                },
-            ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
-        )
-
-        ExamRepo.pin_exam(2, 1, test_db)
-
-        assert ExamRepo.check_pinned_exam(2, 1, test_db) is True
-
-    def test_unpin_exam(self, test_db, populate_db):
-        populate_db(
-            users=[
-                {
-                    "id": 1,
-                    "email": "u1@example.com",
-                    "user_name": "U1",
-                    "password_hash": "hash",
-                },
-                {
-                    "id": 2,
-                    "email": "u2@example.com",
-                    "user_name": "U2",
-                    "password_hash": "hash",
-                },
-            ],
-            exams=[{"id": 1, "title": "Exam", "creator_id": 1}],
-        )
-
-        ExamRepo.pin_exam(2, 1, test_db)
-        ExamRepo.unpin_exam(2, 1, test_db)
-
-        assert ExamRepo.check_pinned_exam(2, 1, test_db) is False

@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 
@@ -11,7 +12,7 @@ class UserCreate(UserBase):
 
 
 class UserOut(UserBase):
-    id: int
+    id: UUID
 
     class Config:
         from_attributes = True

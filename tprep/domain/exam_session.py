@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from sqlalchemy.orm import Session
 
@@ -9,9 +9,9 @@ from tprep.infrastructure.statistic.stat_repo import StatRepo
 
 
 class ExamSession:
-    def __init__(self, user_id: int, exam_id: int, questions: List[int]):
-        self.user_id: int = user_id
-        self.exam_id: int = exam_id
+    def __init__(self, user_id: UUID, exam_id: UUID, questions: List[int]):
+        self.user_id: UUID = user_id
+        self.exam_id: UUID = exam_id
         self.questions: List[int] = questions
 
         self.id = str(uuid4())

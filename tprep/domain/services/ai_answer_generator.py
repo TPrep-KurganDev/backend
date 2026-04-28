@@ -50,7 +50,7 @@ class AiAnswerGenerator:
                 raise AiGenerationFailed(
                     f"Empty response for question: {question[:50]}"
                 )
-            return text[: self.MAX_ANSWER_LENGTH]
+            return str(text[: self.MAX_ANSWER_LENGTH])
         except AiGenerationFailed:
             raise
         except Exception as e:
