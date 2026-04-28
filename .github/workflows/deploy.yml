@@ -34,8 +34,17 @@ jobs:
           VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}
           VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}
           OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+          DOMAIN=${{ secrets.DOMAIN }}
+          ACME_EMAIL=${{ secrets.ACME_EMAIL }}
           BACKEND_VERSION=${{ inputs.tag }}
           EOF'
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy and health check
         run: |
