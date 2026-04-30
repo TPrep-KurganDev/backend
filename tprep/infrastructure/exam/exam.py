@@ -76,7 +76,7 @@ class UserExams(Base):
         index=True,
     )
 
-    rights: Mapped[str] = mapped_column(String(255), nullable=False)
+    rights: Mapped[str] = mapped_column(String(255), nullable=False, default="viewer")
     is_pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user: Mapped["User"] = relationship(
